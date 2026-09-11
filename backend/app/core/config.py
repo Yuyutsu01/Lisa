@@ -5,9 +5,14 @@ Handles environment-based application settings using Pydantic Settings.
 Supports PostgreSQL for production and asynchronous SQLite for local development.
 """
 
+from pathlib import Path
 from typing import List, Union
 from pydantic import AnyHttpUrl, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Resolve paths
+BACKEND_DIR = Path(__file__).resolve().parent.parent.parent  # Lisa/backend
+ROOT_DIR = BACKEND_DIR.parent                               # Lisa
 
 
 class Settings(BaseSettings):
@@ -41,10 +46,14 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379/0"
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=(
+            BACKEND_DIR / ".env",
+            ROOT_DIR / ".env",
+            ".env",
+        ),
         env_file_encoding="utf-8",
         case_sensitive=True,
-        extra="allow"
+        extra="allow",
     )
 
 
