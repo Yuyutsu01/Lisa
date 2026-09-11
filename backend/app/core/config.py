@@ -27,8 +27,8 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days for convenience
 
-    # CORS Origins
-    BACKEND_CORS_ORIGINS: List[str] = [
+    # CORS Origins - supports list of strings or comma-separated env var
+    BACKEND_CORS_ORIGINS: Union[List[str], str] = [
         "http://localhost:3000",
         "http://localhost:5173",
         "http://localhost:8000",
@@ -36,6 +36,30 @@ class Settings(BaseSettings):
         "http://127.0.0.1:5173",
         "http://127.0.0.1:8000",
     ]
+
+    @field_validator("BACKEND_CORS_ORIGINS", mode="before")
+    @classmethod
+    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
+        # Handle string input from environment variables (comma-separated or JSON array)
+        if isinstance(v, str):
+            v = v.strip()
+            if not v:
+                return []
+            # Try parsing as JSON array if formatted like '['...']'
+            if v.startswith("[") and v.endswith("]"):
+                try:
+                    import json
+                    parsed = json.loads(v)
+                    if isinstance(parsed, list):
+                        return [str(item).strip() for item in parsed if str(item).strip()]
+                except Exception:
+                    pass
+            # Parse comma-separated list or single URL (e.g. "http://localhost:3000,https://app.vercel.app" or "*")
+            return [origin.strip() for origin in v.split(",") if origin.strip()]
+        elif isinstance(v, (list, tuple)):
+            return [str(item).strip() for item in v if str(item).strip()]
+        return []
+
 
     # Database URL
     # Defaults to SQLite async for immediate out-of-the-box local execution
