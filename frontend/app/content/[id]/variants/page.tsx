@@ -125,6 +125,44 @@ export default function VariantReviewPage({
     }
   };
 
+  const [publishing, setPublishing] = useState(false);
+  const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
+
+  const handlePublishNow = async () => {
+    if (!currentVariant || !activeWorkspaceId) return;
+    try {
+      setPublishing(true);
+      const token = localStorage.getItem("lisa_token");
+      const res = await fetch(
+        `http://localhost:8000/api/v1/workspaces/${activeWorkspaceId}/variants/${currentVariant.id}/publish`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({}),
+        }
+      );
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setPublishedUrl(data.external_url);
+        setVariants(
+          variants.map((v) =>
+            v.id === currentVariant.id ? { ...v, status: "published" } : v
+          )
+        );
+      } else {
+        alert(`Publishing failed: ${data.detail || data.error_message || "Unknown error"}`);
+      }
+    } catch (e) {
+      console.error("Publishing request failed", e);
+      alert("Failed to publish variant.");
+    } finally {
+      setPublishing(false);
+    }
+  };
+
   const handleApprove = async () => {
     if (!currentVariant) return;
     try {
@@ -197,11 +235,26 @@ export default function VariantReviewPage({
               <span>{savingVariant ? "Saving..." : "Save Copy Edits"}</span>
             </button>
 
-            {currentVariant?.status === "approved" ? (
-              <span className="py-2 px-4 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-semibold flex items-center gap-1.5">
+            {currentVariant?.status === "published" ? (
+              <span className="py-2 px-4 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-xs font-semibold flex items-center gap-1.5">
                 <Check className="w-3.5 h-3.5" />
-                Approved for Publishing
+                Published
               </span>
+            ) : currentVariant?.status === "approved" ? (
+              <div className="flex items-center gap-2">
+                <span className="py-2 px-3 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-semibold flex items-center gap-1.5">
+                  <Check className="w-3.5 h-3.5" />
+                  Approved
+                </span>
+                <button
+                  onClick={handlePublishNow}
+                  disabled={publishing}
+                  className="py-2 px-4 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-lg shadow-indigo-500/30 transition-all cursor-pointer disabled:opacity-50"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>{publishing ? "Publishing..." : "Publish Now"}</span>
+                </button>
+              </div>
             ) : (
               <div className="flex items-center gap-2">
                 <button
@@ -222,6 +275,24 @@ export default function VariantReviewPage({
             )}
           </div>
         </div>
+
+        {/* Live Published Banner */}
+        {publishedUrl && (
+          <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-emerald-300 text-xs font-medium">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <span>Post successfully dispatched to target platform adapter!</span>
+            </div>
+            <a
+              href={publishedUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs font-semibold text-emerald-400 hover:underline flex items-center gap-1"
+            >
+              View Live Post &rarr;
+            </a>
+          </div>
+        )}
 
         {/* Platform Channel Tabs */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
