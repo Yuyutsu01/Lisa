@@ -15,6 +15,7 @@ from app.models.derivative import MediaDerivative
 from app.models.publishing_job import PublishingJob, JobStatus
 from app.models.connection import ConnectedAccount, PublishedRecord, ConnectionStatus
 from app.models.analytics import PerformanceMetric, ContentOpportunity, OpportunityStatus
+from app.models.audit import AuditLog
 
 __all__ = [
     "Base",
@@ -43,4 +44,5 @@ __all__ = [
     "PerformanceMetric",
     "ContentOpportunity",
     "OpportunityStatus",
+    "AuditLog",
 ]
