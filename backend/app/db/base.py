@@ -9,6 +9,8 @@ from app.models.workspace import Workspace, WorkspaceMember, WorkspaceRole
 from app.models.brand import BrandProfile, BrandKnowledgeDoc
 from app.models.content import ContentSource, ContentSourceVersion, SourceStatus, ContentType
 from app.models.media import MediaAsset, ContentSourceAsset
+from app.models.variant import ContentVariant, VariantStatus
+from app.models.agent_run import AgentRun
 
 __all__ = [
     "Base",
@@ -25,4 +27,7 @@ __all__ = [
     "ContentType",
     "MediaAsset",
     "ContentSourceAsset",
+    "ContentVariant",
+    "VariantStatus",
+    "AgentRun",
 ]
