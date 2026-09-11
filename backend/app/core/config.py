@@ -66,6 +66,18 @@ class Settings(BaseSettings):
     # In production, set DATABASE_URL="postgresql+asyncpg://user:pass@localhost:5432/lisa_db"
     DATABASE_URL: str = "sqlite+aiosqlite:///./lisa.db"
 
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def assemble_database_url(cls, v: str) -> str:
+        # Convert standard postgres URIs (like from Supabase/Render/Heroku) to asyncpg dialect
+        if isinstance(v, str):
+            v = v.strip()
+            if v.startswith("postgres://"):
+                v = v.replace("postgres://", "postgresql+asyncpg://", 1)
+            elif v.startswith("postgresql://") and not v.startswith("postgresql+asyncpg://"):
+                v = v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return v
+
     # Redis URL for background worker tasks
     REDIS_URL: str = "redis://localhost:6379/0"
 
