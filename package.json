@@ -1,21 +1,14 @@
 {
-  "name": "lisa",
+  "name": "lisa-monorepo",
   "version": "1.0.0",
-  "description": "> **Create once. Adapt intelligently. Publish everywhere possible. Learn from performance.**",
-  "main": "index.js",
+  "private": true,
+  "workspaces": [
+    "frontend"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Yuyutsu01/Lisa.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/Yuyutsu01/Lisa/issues"
-  },
-  "homepage": "https://github.com/Yuyutsu01/Lisa#readme"
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "start": "npm --prefix frontend run start"
+  }
 }
+
