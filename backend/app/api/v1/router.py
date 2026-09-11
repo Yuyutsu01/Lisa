@@ -14,6 +14,7 @@ from app.api.v1.derivatives import router as derivatives_router
 from app.api.v1.calendar import router as calendar_router
 from app.api.v1.connections import router as connections_router
 from app.api.v1.publishing import router as publishing_router
+from app.api.v1.analytics import router as analytics_router
 
 api_router = APIRouter()
 
@@ -28,3 +29,4 @@ api_router.include_router(derivatives_router)
 api_router.include_router(calendar_router)
 api_router.include_router(connections_router)
 api_router.include_router(publishing_router)
+api_router.include_router(analytics_router)

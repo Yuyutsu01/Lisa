@@ -43,3 +43,14 @@ CRITICAL RULES:
 2. Ensure platform-native conventions (hooks for X/LinkedIn, concise hashtags, etc.).
 3. Produce valid, well-structured output adhering to the required schema.
 """
+
+
+class BaseAgent:
+    """Base class for all Lisa intelligence and analytics agents."""
+    def __init__(self, name: str, version: str = "1.0.0", description: str = ""):
+        self.name = name
+        self.version = version
+        self.description = description
+
+    async def execute(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
+        raise NotImplementedError

@@ -14,6 +14,7 @@ from app.models.agent_run import AgentRun
 from app.models.derivative import MediaDerivative
 from app.models.publishing_job import PublishingJob, JobStatus
 from app.models.connection import ConnectedAccount, PublishedRecord, ConnectionStatus
+from app.models.analytics import PerformanceMetric, ContentOpportunity, OpportunityStatus
 
 __all__ = [
     "Base",
@@ -39,4 +40,7 @@ __all__ = [
     "ConnectedAccount",
     "PublishedRecord",
     "ConnectionStatus",
+    "PerformanceMetric",
+    "ContentOpportunity",
+    "OpportunityStatus",
 ]
