@@ -7,6 +7,8 @@ from app.db.session import Base
 from app.models.user import User, UserStatus
 from app.models.workspace import Workspace, WorkspaceMember, WorkspaceRole
 from app.models.brand import BrandProfile, BrandKnowledgeDoc
+from app.models.content import ContentSource, ContentSourceVersion, SourceStatus, ContentType
+from app.models.media import MediaAsset, ContentSourceAsset
 
 __all__ = [
     "Base",
@@ -17,4 +19,10 @@ __all__ = [
     "WorkspaceRole",
     "BrandProfile",
     "BrandKnowledgeDoc",
+    "ContentSource",
+    "ContentSourceVersion",
+    "SourceStatus",
+    "ContentType",
+    "MediaAsset",
+    "ContentSourceAsset",
 ]
