@@ -10,6 +10,8 @@ from app.api.v1.media import router as media_router
 from app.api.v1.sources import router as sources_router
 from app.api.v1.generation import router as generation_router
 from app.api.v1.variants import router as variants_router
+from app.api.v1.derivatives import router as derivatives_router
+from app.api.v1.calendar import router as calendar_router
 
 api_router = APIRouter()
 
@@ -20,3 +22,5 @@ api_router.include_router(media_router)
 api_router.include_router(sources_router)
 api_router.include_router(generation_router)
 api_router.include_router(variants_router)
+api_router.include_router(derivatives_router)
+api_router.include_router(calendar_router)

@@ -11,6 +11,8 @@ from app.models.content import ContentSource, ContentSourceVersion, SourceStatus
 from app.models.media import MediaAsset, ContentSourceAsset
 from app.models.variant import ContentVariant, VariantStatus
 from app.models.agent_run import AgentRun
+from app.models.derivative import MediaDerivative
+from app.models.publishing_job import PublishingJob, JobStatus
 
 __all__ = [
     "Base",
@@ -30,4 +32,7 @@ __all__ = [
     "ContentVariant",
     "VariantStatus",
     "AgentRun",
+    "MediaDerivative",
+    "PublishingJob",
+    "JobStatus",
 ]
