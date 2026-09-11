@@ -13,6 +13,7 @@ from app.models.variant import ContentVariant, VariantStatus
 from app.models.agent_run import AgentRun
 from app.models.derivative import MediaDerivative
 from app.models.publishing_job import PublishingJob, JobStatus
+from app.models.connection import ConnectedAccount, PublishedRecord, ConnectionStatus
 
 __all__ = [
     "Base",
@@ -35,4 +36,7 @@ __all__ = [
     "MediaDerivative",
     "PublishingJob",
     "JobStatus",
+    "ConnectedAccount",
+    "PublishedRecord",
+    "ConnectionStatus",
 ]
