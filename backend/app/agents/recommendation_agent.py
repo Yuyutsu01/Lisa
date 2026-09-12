@@ -45,12 +45,12 @@ class ContentRecommendationAgent(BaseAgent):
             title = post.get("title", "High Performing Asset")
             eng_rate = post.get("engagement_rate", 0.0)
 
-            # Rule: If high performing on LinkedIn, repurpose to X thread & TikTok script
+            # Rule: If high performing on LinkedIn, repurpose to X thread & Instagram Carousel
             if plat == "linkedin":
                 recommendations.append({
-                    "title": f"Repurpose '{title}' into X Thread & Video Hook",
+                    "title": f"Repurpose '{title}' into X Thread & Carousel",
                     "content_pillar": post.get("content_pillar", "Thought Leadership"),
-                    "suggested_platforms": ["x", "tiktok", "instagram"],
+                    "suggested_platforms": ["x", "instagram", "threads"],
                     "reason": f"LinkedIn post achieved high engagement ({(eng_rate * 100):.1f}%). Deconstruct key arguments into a fast-paced X thread and visual carousel.",
                     "confidence": "high",
                     "source_evidence": {

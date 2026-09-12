@@ -40,7 +40,6 @@ PLATFORM STRATEGY
       ▼
 CONTENT ADAPTATION
       ├── Instagram version
-      ├── TikTok version
       ├── X version
       ├── LinkedIn version
       ├── Threads version
@@ -593,8 +592,8 @@ stateDiagram-v2
 
 ### 13.2 Pipeline Capabilities
 - Image resizing, smart cropping, format conversion (JPEG, PNG, WebP).
-- Video transcoding, aspect ratio conversion (9:16, 1:1, 16:9), duration validation, frame extraction (thumbnails).
-- Safe-zone validation to ensure UI overlays on TikTok/Reels do not obscure subtitles.
+- Video transcoding, aspect ratio conversion (1:1, 16:9), duration validation, frame extraction (thumbnails).
+- Safe-zone validation to ensure UI overlays on Reels do not obscure subtitles.
 
 ---
 
@@ -868,11 +867,11 @@ Lisa/
 │   │   ├── agents/          # Multi-agent architecture
 │   │   │   ├── base.py      # Async LLM runner, parse_json_safely, AgentContext
 │   │   │   ├── intake.py    # SourceAnalyst (extracts thesis, takeaways, claims, CTAs)
-│   │   │   ├── strategy.py  # PlatformStrategist (enforces LinkedIn, X, IG, YT, TikTok rules)
+│   │   │   ├── strategy.py  # PlatformStrategist (enforces LinkedIn, X, IG, Threads rules)
 │   │   │   ├── adaptation.py# PlatformWriter (semantic variant generator)
 │   │   │   ├── qa.py        # QualityEvaluator (10-point scorecard & cliché detector)
 │   │   │   └── pipeline.py  # Orchestrator & Automatic Revision Loop
-│   │   ├── publishing/      # Platform adapter implementations (LinkedIn, X, IG, YT, TikTok, Email)
+│   │   ├── publishing/      # Platform adapter implementations (LinkedIn, X, IG, Threads, Email, Discord)
 │   │   └── analytics/       # Metric ingestion, normalization & closed-loop recommendations
 │   ├── alembic/             # Database migrations
 │   └── tests/               # Pytest suite (test_quality_pipeline.py, test_agents.py, etc.)
@@ -901,7 +900,7 @@ Lisa/
 - **Phase 4:** Platform Strategy & Variant Adaptation (Strategy, Adaptation, and Platform rules). `[COMPLETED]`
 - **Phase 5:** 10-Point QA Scorecard & Auto-Revision Loop (Objective 10 metrics, cliché banning, retry loop). `[COMPLETED]`
 - **Phase 6:** Review UI & Content Calendar (Scorecard badge review, inline editing, calendar scheduling). `[COMPLETED]`
-- **Phase 7:** Publishing Engine & Integrations (OAuth state machine, LinkedIn, X, Instagram, TikTok, Threads). `[COMPLETED]`
+- **Phase 7:** Publishing Engine & Integrations (OAuth state machine, LinkedIn, X, Instagram, Threads, Discord). `[COMPLETED]`
 - **Phase 8:** Latency & Cold-Start Optimization (Proxy rewrites, DB connection pooling, request retries). `[COMPLETED]`
 - **Phase 9:** Analytics Normalization & Performance Engine (Metric sync, cross-platform graphs). `[COMPLETED]`
 - **Phase 10:** Intelligence & Content Recommendations (Analytics Agent & Opportunity engine). `[COMPLETED]`

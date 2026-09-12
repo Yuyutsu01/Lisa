@@ -47,7 +47,7 @@ class ContentVariant(Base):
         nullable=False,
         index=True,
     )
-    platform = Column(String(50), nullable=False, index=True)  # linkedin, x, instagram, discord, tiktok, threads, email, blog
+    platform = Column(String(50), nullable=False, index=True)  # linkedin, x, instagram, discord, threads, email, blog
     format = Column(String(50), default="text_post", nullable=False)  # text_post, thread, carousel, short_video, newsletter, article
     status = Column(String(50), default=VariantStatus.NEEDS_REVIEW.value, nullable=False, index=True)
 

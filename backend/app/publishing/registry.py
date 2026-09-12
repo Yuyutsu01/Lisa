@@ -9,7 +9,6 @@ from app.publishing.base import PlatformAdapter
 from app.publishing.linkedin import LinkedInAdapter
 from app.publishing.x import XAdapter
 from app.publishing.instagram import InstagramAdapter
-from app.publishing.tiktok import TikTokAdapter
 from app.publishing.other_adapters import ThreadsAdapter, EmailAdapter, BlogAdapter
 
 
@@ -19,7 +18,6 @@ class AdapterRegistry:
         "linkedin": LinkedInAdapter(),
         "x": XAdapter(),
         "instagram": InstagramAdapter(),
-        "tiktok": TikTokAdapter(),
         "threads": ThreadsAdapter(),
         "email": EmailAdapter(),
         "blog": BlogAdapter(),

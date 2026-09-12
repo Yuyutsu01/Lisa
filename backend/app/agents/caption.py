@@ -25,7 +25,7 @@ class CaptionHookAgent:
 
         hashtags = []
         if self.context.hashtag_policy != "prohibited":
-            if platform in ["instagram", "tiktok"]:
+            if platform == "instagram":
                 hashtags = [f"#{clean_topic}", "#ContentOps", "#TechTips", "#Productivity", "#Creators"]
             elif platform in ["linkedin", "x"]:
                 hashtags = [f"#{clean_topic}", "#AI", "#Automation"]

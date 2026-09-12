@@ -32,7 +32,7 @@ class MediaDerivative(Base):
     workspace_id = Column(
         String(36), ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    platform = Column(String(50), nullable=False)  # instagram, tiktok, x, linkedin, discord
+    platform = Column(String(50), nullable=False)  # instagram, x, linkedin, discord
     format = Column(String(50), nullable=False)  # feed_portrait, thumbnail, story_vertical, header
     
     storage_key = Column(String(500), unique=True, nullable=False)

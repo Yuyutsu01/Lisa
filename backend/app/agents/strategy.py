@@ -56,18 +56,6 @@ PLATFORM_DEFAULTS: Dict[str, Dict[str, Any]] = {
             "3-5 targeted hashtags.",
         ],
     },
-    "tiktok": {
-        "format": "short_video",
-        "angle": "Conversational problem interrupt + rapid proof + single takeaway",
-        "hook_style": "High energy verbal pattern interrupt",
-        "target_length_chars": 500,
-        "cta": "Let me know your thoughts in the comments",
-        "media_required": True,
-        "writing_rules": [
-            "Opening 2 seconds must challenge a common assumption.",
-            "Conversational, direct speaking script.",
-        ],
-    },
     "threads": {
         "format": "text_post",
         "angle": "Authentic founder/practitioner thought + open community question",

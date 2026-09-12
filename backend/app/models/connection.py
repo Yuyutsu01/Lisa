@@ -35,7 +35,7 @@ class ConnectedAccount(Base):
     workspace_id = Column(
         String(36), ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    platform = Column(String(50), nullable=False, index=True)  # linkedin, x, instagram, discord, tiktok, threads, email, blog
+    platform = Column(String(50), nullable=False, index=True)  # linkedin, x, instagram, discord, threads, email, blog
     external_account_id = Column(String(255), nullable=False)
     account_name = Column(String(255), nullable=False)
     

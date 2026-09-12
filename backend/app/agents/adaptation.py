@@ -99,8 +99,6 @@ Return valid JSON with these keys:
             return self._write_x(brief, source_title, strategy, custom_instruction)
         elif platform == "instagram":
             return self._write_instagram(brief, source_title, strategy, custom_instruction)
-        elif platform == "tiktok":
-            return self._write_video(brief, source_title, strategy, platform, custom_instruction)
         elif platform == "email":
             return self._write_email(brief, source_title, strategy, custom_instruction)
         elif platform == "blog":
