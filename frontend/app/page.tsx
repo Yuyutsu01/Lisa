@@ -174,7 +174,7 @@ export default function LisaHomePage() {
   const isScrolled = scrollY > 60;
 
   return (
-    <div className="min-h-screen bg-[#08080a] text-[#ede8df] selection:bg-[#ede8df]/20 selection:text-white p-2 sm:p-4 md:p-5 flex flex-col items-center">
+    <div className="min-h-screen w-full bg-[#08080a] text-[#ede8df] selection:bg-[#ede8df]/20 selection:text-white flex flex-col">
       {/* 8. Sleek Scroll Progress Indicator */}
       <div className="fixed top-0 left-0 right-0 h-[2.5px] z-50 pointer-events-none bg-white/[0.04]">
         <div
@@ -183,8 +183,8 @@ export default function LisaHomePage() {
         />
       </div>
 
-      {/* Container Frame with balanced proportions for laptop screens */}
-      <div className="w-full max-w-[1440px] rounded-[20px] sm:rounded-[30px] bg-[#09090b] border border-white/[0.06] relative overflow-hidden shadow-2xl flex flex-col">
+      {/* Full-bleed Full Screen Canvas */}
+      <div className="w-full bg-[#08080a] relative overflow-hidden flex flex-col min-h-screen flex-1">
         {/* 13. Animated Ambient Gradient Background with 9. Subtle Parallax */}
         <div
           className="absolute top-0 right-0 w-[55vw] max-w-[750px] h-[480px] ambient-glow-warm pointer-events-none z-0 ambient-orb-1 transition-transform duration-200 ease-out"
@@ -266,11 +266,11 @@ export default function LisaHomePage() {
         </div>
 
         {/* =========================================================================
-            PAGE 1: HERO VIEWPORT (Optimized for Laptop Screens)
+            PAGE 1: HERO VIEWPORT (Full Screen)
             ========================================================================= */}
         <section
           id="hero"
-          className="relative z-10 min-h-[calc(100vh-3.5rem)] max-h-[920px] flex flex-col justify-between px-6 sm:px-12 md:px-16 pt-6 pb-10 sm:pb-12"
+          className="relative z-10 min-h-screen flex flex-col justify-between px-6 sm:px-12 md:px-16 pt-8 pb-10 sm:pb-12"
         >
           {/* Monumental Brandmark with balanced font sizing for laptop screens */}
           <div
