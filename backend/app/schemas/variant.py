@@ -44,10 +44,16 @@ class ContentVariantApproval(BaseModel):
 
 class GenerateImageRequest(BaseModel):
     custom_prompt: Optional[str] = None
+    title: Optional[str] = None
+    body: Optional[str] = None
+    platform: Optional[str] = None
 
 
 class GenerateVideoRequest(BaseModel):
     custom_instruction: Optional[str] = None
+    title: Optional[str] = None
+    body: Optional[str] = None
+    platform: Optional[str] = None
 
 
 class ContentVariantResponse(ContentVariantBase):

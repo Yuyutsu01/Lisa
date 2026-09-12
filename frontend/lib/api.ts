@@ -654,16 +654,42 @@ export const variantsApi = {
       method: "POST",
       body: JSON.stringify(data),
     }),
-  generateImage: (variantId: string, customPrompt?: string) =>
-    apiRequest<ContentVariant>(`/variants/${variantId}/generate-image`, {
+  generateImage: (
+    variantId: string,
+    options?: { customPrompt?: string; title?: string; body?: string; platform?: string } | string
+  ) => {
+    const payload =
+      typeof options === "string"
+        ? { custom_prompt: options }
+        : {
+            custom_prompt: options?.customPrompt,
+            title: options?.title,
+            body: options?.body,
+            platform: options?.platform,
+          };
+    return apiRequest<ContentVariant>(`/variants/${variantId}/generate-image`, {
       method: "POST",
-      body: JSON.stringify({ custom_prompt: customPrompt }),
-    }),
-  generateVideoStoryboard: (variantId: string, customInstruction?: string) =>
-    apiRequest<ContentVariant>(`/variants/${variantId}/generate-video`, {
+      body: JSON.stringify(payload),
+    });
+  },
+  generateVideoStoryboard: (
+    variantId: string,
+    options?: { customInstruction?: string; title?: string; body?: string; platform?: string } | string
+  ) => {
+    const payload =
+      typeof options === "string"
+        ? { custom_instruction: options }
+        : {
+            custom_instruction: options?.customInstruction,
+            title: options?.title,
+            body: options?.body,
+            platform: options?.platform,
+          };
+    return apiRequest<ContentVariant>(`/variants/${variantId}/generate-video`, {
       method: "POST",
-      body: JSON.stringify({ custom_instruction: customInstruction }),
-    }),
+      body: JSON.stringify(payload),
+    });
+  },
 };
 
 // --- Calendar & Publishing Jobs API ---

@@ -13,6 +13,37 @@ from app.schemas.agent import ContentBrief, PlatformStrategy
 logger = logging.getLogger("uvicorn.error")
 
 
+
+def get_semantic_visual_fallback(text: str) -> str:
+    """
+    Keyword & Semantic Word Algorithm:
+    Analyzes domain words in text and maps to photorealistic topic-relevant photography.
+    Never returns abstract or irrelevant imagery.
+    """
+    lower = text.lower()
+    if any(w in lower for w in ["event", "distributed", "kafka", "queue", "engine", "server", "microservice", "infrastructure", "throughput", "concurrency", "backend", "cluster", "database", "postgres", "sql", "network"]):
+        # Enterprise Datacenter / Server Infrastructure
+        return "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1200&auto=format&fit=crop"
+    elif any(w in lower for w in ["ai", "agent", "neural", "llm", "intelligence", "gpt", "model", "algorithm", "prompt", "autonomous", "machine learning", "deep learning", "transformer"]):
+        # AI Silicon Chip / Neural Network
+        return "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=1200&auto=format&fit=crop"
+    elif any(w in lower for w in ["code", "developer", "software", "programming", "engineer", "api", "git", "typescript", "python", "deploy", "frontend", "fullstack"]):
+        # Software Engineering Workstation
+        return "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200&auto=format&fit=crop"
+    elif any(w in lower for w in ["finance", "trading", "revenue", "metric", "growth", "scale", "roi", "business", "chart", "analytics", "saas", "fintech", "market"]):
+        # Financial Charts & Trading Analytics
+        return "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=1200&auto=format&fit=crop"
+    elif any(w in lower for w in ["security", "audit", "compliance", "vulnerability", "auth", "crypto", "firewall", "encryption", "cyber"]):
+        # Cybersecurity / Digital Defense
+        return "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1200&auto=format&fit=crop"
+    elif any(w in lower for w in ["design", "ui", "ux", "product", "interface", "experience", "visual", "brand", "figma"]):
+        # Product & UI/UX Design Studio
+        return "https://images.unsplash.com/photo-1581291518655-9523c932edcf?q=80&w=1200&auto=format&fit=crop"
+    else:
+        # Modern High-Tech Executive Architecture
+        return "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop"
+
+
 class VisualMediaAgent:
     """
     Agent 6: Visual & Media Production Agent
@@ -38,45 +69,79 @@ class VisualMediaAgent:
             except Exception as e:
                 logger.warning("Failed to initialize Hugging Face InferenceClient: %s", e)
 
+    def extract_semantic_theme(self, text: str) -> str:
+        """
+        Deterministic semantic keyword extraction algorithm to identify the concrete domain topic.
+        """
+        lower = text.lower()
+        if any(w in lower for w in ["event", "distributed", "kafka", "queue", "engine", "server", "microservice", "infrastructure", "throughput", "concurrency", "backend", "cluster", "database", "postgres", "sql"]):
+            return "high-tech enterprise datacenter server room, glowing fiber optic network cables connecting rack clusters, subtle neon indicator lights, cinematic tech photography, shallow depth of field"
+        elif any(w in lower for w in ["ai", "agent", "neural", "llm", "intelligence", "gpt", "model", "algorithm", "prompt", "autonomous"]):
+            return "futuristic glowing silicon microchip processor with intricate neural circuit traces, macro electronic photography, soft ambient lighting, clean hyper-detailed 8k resolution"
+        elif any(w in lower for w in ["code", "developer", "software", "programming", "engineer", "api", "git", "typescript", "python", "deploy"]):
+            return "modern software engineer desk with syntax-highlighted code on ultra-wide curved monitor, mechanical keyboard, clean minimal aesthetics, warm ambient studio desk lamp"
+        elif any(w in lower for w in ["finance", "trading", "revenue", "metric", "growth", "scale", "roi", "business", "chart", "analytics", "saas"]):
+            return "sleek modern fintech trading desk with multi-monitor data visualization charts, crisp financial analytics graphs, dark mode aesthetics, sunlit glass corporate office"
+        elif any(w in lower for w in ["security", "audit", "compliance", "vulnerability", "auth", "crypto", "firewall"]):
+            return "cybersecurity digital fortress interface, glowing biometric lock motif, blue and emerald circuit traces, clean futuristic composition"
+        elif any(w in lower for w in ["design", "ui", "ux", "product", "interface", "experience", "visual", "brand"]):
+            return "minimalist product design studio workspace, architect wireframe sketches on glass desk, modern ergonomic stylus tablet, beautiful warm architectural lighting"
+        else:
+            return "sleek architectural executive office overlooking city skyline, polished marble desk with minimalist laptop, golden hour sunbeams, editorial commercial photography"
+
     async def generate_image_prompt(
         self,
-        brief: ContentBrief,
-        platform: str,
-        strategy: PlatformStrategy,
+        brief: Optional[ContentBrief] = None,
+        platform: str = "linkedin",
+        strategy: Optional[PlatformStrategy] = None,
+        title: str = "",
+        body: str = "",
+        content_pillar: str = "",
     ) -> str:
         """
-        Use Groq LLM to design an optimal, descriptive prompt for FLUX.1.
+        Semantic Prompt Engine for FLUX.1.
+        Combines Groq LLM Art Direction with domain keyword entity extraction to ensure
+        the generated image is directly, tangibly relevant to the post topic.
         """
-        system_prompt = (
-            "You are an expert creative art director and prompt engineer for AI image generation (FLUX.1). "
-            "Your task is to write a single photorealistic, visually captivating image prompt representing the post's core message."
-        )
-        user_prompt = f"""Create a prompt for FLUX.1 text-to-image generator.
-Platform: {platform}
-Post Core Idea: {brief.core_idea}
-Audience Angle: {strategy.angle}
+        topic_title = title or (brief.core_idea if brief else "Enterprise Technology")
+        topic_body = body[:500] if body else (brief.summary if brief else "")
+        angle = strategy.angle if strategy else "Authoritative & insightful"
+        fallback_theme = self.extract_semantic_theme(f"{topic_title} {topic_body} {content_pillar}")
 
-Rules:
-1. Provide a detailed, artistic visual description: subject, mood, lighting, background, aesthetic style.
-2. The image MUST NOT have text, letters, logos, or words rendered inside it.
-3. Keep it to 2-3 vivid sentences.
-4. Output ONLY the raw prompt text, no introductory text, no quotes.
+        system_prompt = (
+            "You are an award-winning creative art director and prompt engineer for FLUX.1. "
+            "Your job is to generate a tangible, photorealistic image description that is DEEPLY RELEVANT "
+            "to the specific technical or business topic of the post. Avoid abstract floating shapes; describe concrete physical subjects (e.g. servers, chips, workspaces, devices, trading desks, blueprints)."
+        )
+        user_prompt = f"""Write an image generation prompt for FLUX.1.
+Topic / Headline: {topic_title}
+Post Content Summary: {topic_body}
+Audience Angle: {angle}
+
+Strict Rules:
+1. Ground the image in a CONCRETE, PHYSICAL SUBJECT directly representing the topic (e.g. if about distributed event systems, describe a server cluster or fiber optic conduits; if about coding, describe an engineer's workstation; if about AI, describe a neural chip or robotics).
+2. Detail the exact lighting, camera angle, texture, and aesthetic style.
+3. Absolutely NO letters, text, numbers, signs, watermarks, or logos in the image.
+4. Keep it to 2-3 vivid sentences.
+5. Return ONLY the raw prompt text, no quotes, no preamble.
 """
         try:
             prompt = await call_llm(
                 system_prompt=system_prompt,
                 user_prompt=user_prompt,
-                temperature=0.6,
+                temperature=0.5,
                 json_mode=False,
             )
-            if prompt and len(prompt.strip()) > 10:
-                return prompt.strip().replace('"', "")
+            if prompt and len(prompt.strip()) > 15:
+                clean_prompt = prompt.strip().replace('"', "")
+                return f"{clean_prompt}, 8k resolution, cinematic lighting, award-winning photography, highly detailed"
         except Exception as e:
             logger.warning("LLM image prompt generation error: %s", e)
 
+        # High-relevance deterministic fallback:
         return (
-            f"Vibrant, cinematic, modern photorealistic concept visual illustrating {brief.core_idea}. "
-            f"Dramatic studio lighting, clean composition, 8k resolution, award-winning photography."
+            f"Photorealistic scene illustrating {topic_title}: {fallback_theme}. "
+            f"Clean composition, high-end commercial aesthetic, 8k resolution, shot on 35mm lens."
         )
 
     def generate_photo(

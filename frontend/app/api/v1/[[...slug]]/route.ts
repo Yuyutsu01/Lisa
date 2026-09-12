@@ -297,6 +297,139 @@ export async function GET(req: NextRequest, context: RouteContext) {
   return NextResponse.json({ detail: `Route GET /api/v1/${path} not found` }, { status: 404 });
 }
 
+interface TopicCategory {
+  keywords: string[];
+  images: string[];
+}
+
+const TOPIC_CATEGORIES: Record<string, TopicCategory> = {
+  distributed_systems: {
+    keywords: [
+      "event", "distributed", "kafka", "queue", "engine", "server", "microservice",
+      "infrastructure", "throughput", "concurrency", "backend", "cluster", "database",
+      "postgres", "sql", "network", "datacenter", "latency", "scale", "cloud", "pipeline",
+      "architecture", "pubsub", "broker", "log", "streaming"
+    ],
+    images: [
+      // Enterprise datacenter server rack corridor with glowing lights
+      "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1200&auto=format&fit=crop",
+      // High-speed fiber optic patch panel cabling
+      "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=80&w=1200&auto=format&fit=crop",
+      // Server blade clusters with cyan telemetry LEDs
+      "https://images.unsplash.com/photo-1597852074816-d933c7d2b988?q=80&w=1200&auto=format&fit=crop",
+    ],
+  },
+  ai_machine_learning: {
+    keywords: [
+      "ai", "agent", "neural", "llm", "intelligence", "gpt", "model", "algorithm",
+      "prompt", "autonomous", "machine learning", "deep learning", "transformer",
+      "tensor", "gpu", "inference", "embedding", "vector", "robotics", "cognition"
+    ],
+    images: [
+      // Glowing AI neural microchip circuit board
+      "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=1200&auto=format&fit=crop",
+      // Robotic hand interfacing with AI tech
+      "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1200&auto=format&fit=crop",
+      // Advanced silicon wafer semiconductor macro
+      "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop",
+    ],
+  },
+  software_engineering: {
+    keywords: [
+      "code", "developer", "software", "programming", "engineer", "api", "git",
+      "github", "typescript", "python", "deploy", "frontend", "fullstack", "react",
+      "bug", "syntax", "refactor", "framework", "component", "nextjs", "javascript"
+    ],
+    images: [
+      // Software engineer desk with code on screen
+      "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200&auto=format&fit=crop",
+      // Clean IDE code editor on dark curved monitor
+      "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop",
+      // Modern developer workstation with mechanical keyboard
+      "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200&auto=format&fit=crop",
+    ],
+  },
+  fintech_markets: {
+    keywords: [
+      "finance", "trading", "revenue", "metric", "growth", "roi", "business",
+      "chart", "analytics", "saas", "fintech", "market", "stock", "crypto",
+      "bitcoin", "investment", "economy", "banking", "capital", "conversion"
+    ],
+    images: [
+      // Financial candlestick charts and trading monitors
+      "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=1200&auto=format&fit=crop",
+      // Data analytics dashboard with graphs
+      "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?q=80&w=1200&auto=format&fit=crop",
+      // Wall Street trading floor atmosphere
+      "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=1200&auto=format&fit=crop",
+    ],
+  },
+  cybersecurity: {
+    keywords: [
+      "security", "audit", "compliance", "vulnerability", "auth", "crypto",
+      "firewall", "encryption", "cyber", "lock", "protect", "identity", "zero-trust", "hack"
+    ],
+    images: [
+      // Glowing cybersecurity circuit lock
+      "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1200&auto=format&fit=crop",
+      // Digital security terminal matrix
+      "https://images.unsplash.com/photo-1510511459019-5dda7724fd87?q=80&w=1200&auto=format&fit=crop",
+    ],
+  },
+  design_product: {
+    keywords: [
+      "design", "ui", "ux", "product", "interface", "experience", "visual",
+      "brand", "figma", "prototype", "wireframe", "mobile", "app", "creative"
+    ],
+    images: [
+      // Product design mobile UI prototype workspace
+      "https://images.unsplash.com/photo-1581291518655-9523c932edcf?q=80&w=1200&auto=format&fit=crop",
+      // Designer desk with sketches and tablet
+      "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=1200&auto=format&fit=crop",
+    ],
+  },
+  executive_leadership: {
+    keywords: [
+      "leadership", "management", "strategy", "vision", "startup", "founder",
+      "culture", "team", "organization", "hiring", "talent", "roadmap"
+    ],
+    images: [
+      // Executive boardroom with glass architecture
+      "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop",
+      // City skyline skyscraper corporate architecture
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop",
+    ],
+  },
+};
+
+function matchSemanticTopicImage(text: string, id: string = ""): string {
+  const lower = text.toLowerCase();
+  let bestCategory = "distributed_systems";
+  let maxScore = -1;
+
+  for (const [catName, cat] of Object.entries(TOPIC_CATEGORIES)) {
+    let score = 0;
+    for (const kw of cat.keywords) {
+      if (lower.includes(kw)) {
+        score += kw.length > 4 ? 2 : 1;
+      }
+    }
+    if (score > maxScore) {
+      maxScore = score;
+      bestCategory = catName;
+    }
+  }
+
+  const category = TOPIC_CATEGORIES[bestCategory] || TOPIC_CATEGORIES.distributed_systems;
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = (hash << 5) - hash + id.charCodeAt(i);
+    hash |= 0;
+  }
+  const idx = Math.abs(hash) % category.images.length;
+  return category.images[idx];
+}
+
 export async function POST(req: NextRequest, context: RouteContext) {
   const store = getStore();
   const { slug = [] } = await context.params;
@@ -520,34 +653,57 @@ export async function POST(req: NextRequest, context: RouteContext) {
   // Variant generate-image: /variants/:id/generate-image
   if (slug[0] === "variants" && slug[2] === "generate-image") {
     const variantId = slug[1];
-    const v = store.variants.get(variantId);
-    if (!v) return NextResponse.json({ detail: "Variant not found" }, { status: 404 });
+    let v = store.variants.get(variantId);
+    if (!v) {
+      v = {
+        id: variantId,
+        workspace_id: "ws_default",
+        content_source_id: "src_default",
+        platform: "linkedin",
+        format: "image_post",
+        title: "",
+        body: "",
+        hashtags_json: [],
+        status: "draft",
+        strategy_json: {},
+        quality_review_json: {},
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      store.variants.set(variantId, v);
+    }
+
+    const reqBody = await req.json().catch(() => ({}));
+    const payload = {
+      custom_prompt: reqBody.custom_prompt,
+      title: reqBody.title || v.title || "Technical System",
+      body: reqBody.body || v.body || "",
+      platform: reqBody.platform || v.platform || "linkedin",
+    };
 
     // Try proxying to live Python FastAPI backend if reachable
     try {
       const backendRes = await fetch(`http://localhost:8000/api/v1/variants/${variantId}/generate-image`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(await req.json().catch(() => ({}))),
+        body: JSON.stringify(payload),
       });
       if (backendRes.ok) {
         const backendVariant = await backendRes.json();
-        v.media_url = backendVariant.media_url || v.media_url;
+        let mediaUrl = backendVariant.media_url || v.media_url;
+        if (mediaUrl && mediaUrl.startsWith("/uploads")) {
+          mediaUrl = `http://localhost:8000${mediaUrl}`;
+        }
+        v.media_url = mediaUrl;
         v.updated_at = new Date().toISOString();
         return NextResponse.json(v);
       }
     } catch {
-      // Backend not running or variant in mock store
+      // Backend not running or offline
     }
 
-    // High resolution photorealistic concept images
-    const visualPool = [
-      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=1200&auto=format&fit=crop"
-    ];
-    v.media_url = visualPool[Math.floor(Math.random() * visualPool.length)];
+    // Semantic Search & Word Algorithm for deterministic, topic-relevant photorealism
+    v.media_url = matchSemanticTopicImage(`${payload.title} ${payload.body}`, variantId);
     v.updated_at = new Date().toISOString();
     return NextResponse.json(v);
   }
@@ -555,15 +711,40 @@ export async function POST(req: NextRequest, context: RouteContext) {
   // Variant generate-video: /variants/:id/generate-video
   if (slug[0] === "variants" && slug[2] === "generate-video") {
     const variantId = slug[1];
-    const v = store.variants.get(variantId);
-    if (!v) return NextResponse.json({ detail: "Variant not found" }, { status: 404 });
+    let v = store.variants.get(variantId);
+    if (!v) {
+      v = {
+        id: variantId,
+        workspace_id: "ws_default",
+        content_source_id: "src_default",
+        platform: "youtube",
+        format: "video_short",
+        title: "",
+        body: "",
+        hashtags_json: [],
+        status: "draft",
+        strategy_json: {},
+        quality_review_json: {},
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      store.variants.set(variantId, v);
+    }
+
+    const reqBody = await req.json().catch(() => ({}));
+    const payload = {
+      custom_instruction: reqBody.custom_instruction,
+      title: reqBody.title || v.title || "High Performance Architecture",
+      body: reqBody.body || v.body || "",
+      platform: reqBody.platform || v.platform || "youtube",
+    };
 
     // Try proxying to live Python FastAPI backend if reachable
     try {
       const backendRes = await fetch(`http://localhost:8000/api/v1/variants/${variantId}/generate-video`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(await req.json().catch(() => ({}))),
+        body: JSON.stringify(payload),
       });
       if (backendRes.ok) {
         const backendVariant = await backendRes.json();

@@ -177,7 +177,11 @@ export default function VariantReviewPage({
     if (!currentVariant) return;
     try {
       setGeneratingImage(true);
-      const updated = await variantsApi.generateImage(currentVariant.id);
+      const updated = await variantsApi.generateImage(currentVariant.id, {
+        title: currentVariant.title || source?.title,
+        body: currentVariant.body || source?.body,
+        platform: currentVariant.platform,
+      });
       setVariants(variants.map((v) => (v.id === updated.id ? updated : v)));
     } catch (err) {
       console.error("Visual generation failed", err);
@@ -191,7 +195,11 @@ export default function VariantReviewPage({
     if (!currentVariant) return;
     try {
       setGeneratingVideo(true);
-      const updated = await variantsApi.generateVideoStoryboard(currentVariant.id);
+      const updated = await variantsApi.generateVideoStoryboard(currentVariant.id, {
+        title: currentVariant.title || source?.title,
+        body: currentVariant.body || source?.body,
+        platform: currentVariant.platform,
+      });
       setVariants(variants.map((v) => (v.id === updated.id ? updated : v)));
     } catch (err) {
       console.error("Video storyboard generation failed", err);

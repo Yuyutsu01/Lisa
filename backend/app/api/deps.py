@@ -65,6 +65,25 @@ async def get_current_user(
     return user
 
 
+async def get_current_user_optional(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_scheme),
+    db: AsyncSession = Depends(get_db),
+) -> Optional[User]:
+    """
+    Returns the User if a valid Bearer token is provided, otherwise None.
+    Does not raise 401 exceptions.
+    """
+    if not credentials:
+        return None
+    token = credentials.credentials
+    payload = decode_access_token(token)
+    if not payload or "sub" not in payload:
+        return None
+    user_id = payload["sub"]
+    result = await db.execute(select(User).where(User.id == user_id))
+    return result.scalar_one_or_none()
+
+
 async def get_workspace_member(
     workspace_id: str,
     current_user: User = Depends(get_current_user),

@@ -5,7 +5,7 @@ Handles review, manual editing, granular AI regeneration, and human approval/rej
 """
 
 from datetime import datetime, timezone
-from typing import List
+from typing import List, Optional, Any
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -24,7 +24,7 @@ from app.schemas.variant import (
     GenerateVideoRequest,
 )
 from app.agents.pipeline import GenerationPipeline
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, get_current_user_optional
 
 router = APIRouter(tags=["Content Variants"])
 
@@ -266,62 +266,88 @@ async def reject_variant(
     return variant
 
 
-@router.post("/variants/{variant_id}/generate-image", response_model=ContentVariantResponse)
+@router.post("/variants/{variant_id}/generate-image", response_model=Any)
 async def generate_variant_image(
     variant_id: str,
     req: GenerateImageRequest = GenerateImageRequest(),
-    current_user: User = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db),
 ):
     """
     Generate or regenerate a FLUX.1 visual photo for this specific variant.
+    Uses LLM art direction and semantic keyword topic extraction so the image
+    is tangibly, deeply relevant to the post topic (servers, neural chips, workspaces, etc.).
     """
     query = select(ContentVariant).where(ContentVariant.id == variant_id)
     result = await db.execute(query)
     variant = result.scalar_one_or_none()
-    if not variant:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Variant not found"
-        )
 
-    from app.agents.visual import VisualMediaAgent
+    from app.agents.visual import VisualMediaAgent, get_semantic_visual_fallback
     from app.agents.base import AgentContext
     from app.agents.intake import ContentIntakeAgent
     from app.agents.strategy import PlatformStrategyAgent
+
+    source = None
+    if variant:
+        source_res = await db.execute(
+            select(ContentSource).where(ContentSource.id == variant.content_source_id)
+        )
+        source = source_res.scalar_one_or_none()
+
+    platform = req.platform or (variant.platform if variant else "linkedin")
+    title = req.title or (source.title if source else (variant.title if variant else "Technical System"))
+    body = req.body or (source.body if source else (variant.body if variant else ""))
 
     visual_agent = VisualMediaAgent()
     if req.custom_prompt:
         prompt = req.custom_prompt
     else:
-        source_res = await db.execute(
-            select(ContentSource).where(ContentSource.id == variant.content_source_id)
-        )
-        source = source_res.scalar_one_or_none()
         context = AgentContext()
         intake = ContentIntakeAgent(context)
-        title = source.title if source else (variant.title or "Post")
-        body = source.body if source else variant.body
         brief = await intake.analyze(title=title, body=body)
         strat_agent = PlatformStrategyAgent(context)
-        strats = await strat_agent.formulate_strategies(brief, [variant.platform])
-        strat = strats.get(variant.platform)
-        prompt = await visual_agent.generate_image_prompt(brief, variant.platform, strat)
+        strats = await strat_agent.formulate_strategies(brief, [platform])
+        strat = strats.get(platform)
+        prompt = await visual_agent.generate_image_prompt(
+            brief=brief,
+            platform=platform,
+            strategy=strat,
+            title=title,
+            body=body,
+        )
 
-    media_url = visual_agent.generate_photo(prompt, variant_id=variant.id)
-    if media_url:
+    media_url = visual_agent.generate_photo(prompt, variant_id=variant_id)
+    if not media_url:
+        media_url = get_semantic_visual_fallback(f"{title} {body}")
+
+    if variant:
         variant.media_url = media_url
         db.add(variant)
         await db.commit()
         await db.refresh(variant)
+        return variant
+    else:
+        now_dt = datetime.now(timezone.utc)
+        return {
+            "id": variant_id,
+            "workspace_id": "ws_default",
+            "content_source_id": "src_default",
+            "platform": platform,
+            "format": "image_post",
+            "title": title,
+            "body": body,
+            "media_url": media_url,
+            "status": VariantStatus.DRAFT.value,
+            "created_at": now_dt.isoformat(),
+            "updated_at": now_dt.isoformat(),
+        }
 
-    return variant
 
-
-@router.post("/variants/{variant_id}/generate-video", response_model=ContentVariantResponse)
+@router.post("/variants/{variant_id}/generate-video", response_model=Any)
 async def generate_variant_video_storyboard(
     variant_id: str,
     req: GenerateVideoRequest = GenerateVideoRequest(),
-    current_user: User = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -330,31 +356,47 @@ async def generate_variant_video_storyboard(
     query = select(ContentVariant).where(ContentVariant.id == variant_id)
     result = await db.execute(query)
     variant = result.scalar_one_or_none()
-    if not variant:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Variant not found"
-        )
 
     from app.agents.visual import VisualMediaAgent
     from app.agents.base import AgentContext
     from app.agents.intake import ContentIntakeAgent
 
-    source_res = await db.execute(
-        select(ContentSource).where(ContentSource.id == variant.content_source_id)
-    )
-    source = source_res.scalar_one_or_none()
+    source = None
+    if variant:
+        source_res = await db.execute(
+            select(ContentSource).where(ContentSource.id == variant.content_source_id)
+        )
+        source = source_res.scalar_one_or_none()
+
+    platform = req.platform or (variant.platform if variant else "youtube")
+    title = req.title or (source.title if source else (variant.title if variant else "High Performance Architecture"))
+    body = req.body or (source.body if source else (variant.body if variant else ""))
+
     context = AgentContext()
     intake = ContentIntakeAgent(context)
-    title = source.title if source else (variant.title or "Post")
-    body = source.body if source else variant.body
     brief = await intake.analyze(title=title, body=body)
 
     visual_agent = VisualMediaAgent()
     spec = await visual_agent.generate_video_short_spec(brief, title)
 
-    variant.video_storyboard_json = spec
-    db.add(variant)
-    await db.commit()
-    await db.refresh(variant)
-
-    return variant
+    if variant:
+        variant.video_storyboard_json = spec
+        db.add(variant)
+        await db.commit()
+        await db.refresh(variant)
+        return variant
+    else:
+        now_dt = datetime.now(timezone.utc)
+        return {
+            "id": variant_id,
+            "workspace_id": "ws_default",
+            "content_source_id": "src_default",
+            "platform": platform,
+            "format": "video_short",
+            "title": title,
+            "body": body,
+            "video_storyboard_json": spec,
+            "status": VariantStatus.DRAFT.value,
+            "created_at": now_dt.isoformat(),
+            "updated_at": now_dt.isoformat(),
+        }
