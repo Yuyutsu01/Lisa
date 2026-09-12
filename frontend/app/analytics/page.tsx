@@ -40,29 +40,12 @@ interface TopPostSummary {
   published_at: string;
 }
 
-interface AnalyticsOverview {
-  total_impressions: number;
-  total_reach: number;
-  total_engagements: number;
-  avg_engagement_rate: number;
-  total_posts_published: number;
-  platform_breakdown: PlatformMetricSummary[];
-  top_performing_posts: TopPostSummary[];
-  open_opportunities_count: number;
-}
-
-interface ContentOpportunity {
-  id: string;
-  workspace_id: string;
-  title: string;
-  content_pillar: string;
-  suggested_platforms_json: string[];
-  reason: string;
-  confidence: string;
-  source_evidence_json: Record<string, any>;
-  status: string;
-  created_at: string;
-}
+import {
+  analyticsApi,
+  AnalyticsOverview,
+  ContentOpportunity,
+  getActiveWorkspaceId,
+} from "@/lib/api";
 
 export default function AnalyticsPage() {
   const router = useRouter();
@@ -74,27 +57,23 @@ export default function AnalyticsPage() {
   const [actioningId, setActioningId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!activeWorkspaceId) return;
-    loadAnalyticsData(activeWorkspaceId);
-  }, [activeWorkspaceId]);
+    const wsId = getActiveWorkspaceId();
+    setActiveWorkspaceId(wsId);
+    if (wsId) {
+      loadAnalyticsData(wsId);
+    }
+  }, []);
 
   const loadAnalyticsData = async (workspaceId: string) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("lisa_token");
-      const headers = { Authorization: `Bearer ${token}` };
-
-      const [ovRes, oppRes] = await Promise.all([
-        fetch(`http://localhost:8000/api/v1/workspaces/${workspaceId}/analytics/overview`, {
-          headers,
-        }),
-        fetch(`http://localhost:8000/api/v1/workspaces/${workspaceId}/analytics/opportunities`, {
-          headers,
-        }),
+      const [ovData, oppData] = await Promise.all([
+        analyticsApi.getOverview(workspaceId).catch(() => null),
+        analyticsApi.getOpportunities(workspaceId).catch(() => []),
       ]);
 
-      if (ovRes.ok) setOverview(await ovRes.json());
-      if (oppRes.ok) setOpportunities(await oppRes.json());
+      if (ovData) setOverview(ovData);
+      if (oppData) setOpportunities(oppData);
     } catch (e) {
       console.error("Failed to load analytics", e);
     } finally {
@@ -106,17 +85,8 @@ export default function AnalyticsPage() {
     if (!activeWorkspaceId) return;
     setAnalyzing(true);
     try {
-      const token = localStorage.getItem("lisa_token");
-      const res = await fetch(
-        `http://localhost:8000/api/v1/workspaces/${activeWorkspaceId}/analytics/analyze`,
-        {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      if (res.ok) {
-        await loadAnalyticsData(activeWorkspaceId);
-      }
+      await analyticsApi.runAnalytics(activeWorkspaceId);
+      await loadAnalyticsData(activeWorkspaceId);
     } catch (e) {
       console.error("Failed to run opportunity loop", e);
     } finally {
@@ -128,17 +98,9 @@ export default function AnalyticsPage() {
     if (!activeWorkspaceId) return;
     setActioningId(opportunityId);
     try {
-      const token = localStorage.getItem("lisa_token");
-      const res = await fetch(
-        `http://localhost:8000/api/v1/workspaces/${activeWorkspaceId}/analytics/opportunities/${opportunityId}/create-source`,
-        {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      if (res.ok) {
-        const source = await res.json();
-        router.push(`/content?sourceId=${source.id}`);
+      const res = await analyticsApi.actionOpportunity(activeWorkspaceId, opportunityId);
+      if (res.success && res.content_source_id) {
+        router.push(`/content?id=${res.content_source_id}`);
       }
     } catch (e) {
       console.error("Failed to action opportunity", e);

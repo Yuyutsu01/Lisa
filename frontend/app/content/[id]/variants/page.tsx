@@ -7,6 +7,7 @@ import { AppLayout } from "@/components/AppLayout";
 import {
   sourcesApi,
   variantsApi,
+  publishingApi,
   ContentSource,
   ContentVariant,
   getActiveWorkspaceId,
@@ -49,6 +50,8 @@ export default function VariantReviewPage({
   const [regenInstruction, setRegenInstruction] = useState("");
   const [regenerating, setRegenerating] = useState(false);
 
+  const [loadError, setLoadError] = useState<string | null>(null);
+
   useEffect(() => {
     const wsId = getActiveWorkspaceId();
     setActiveWorkspaceId(wsId);
@@ -58,6 +61,7 @@ export default function VariantReviewPage({
   const loadData = async () => {
     try {
       setLoading(true);
+      setLoadError(null);
       const src = await sourcesApi.get(sourceId);
       setSource(src);
 
@@ -73,8 +77,9 @@ export default function VariantReviewPage({
       if (vList.length > 0) {
         setSelectedPlatform(vList[0].platform);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to load variants", err);
+      setLoadError(err.message || "Failed to load content source and variants.");
     } finally {
       setLoading(false);
       setGenerating(false);
@@ -132,32 +137,18 @@ export default function VariantReviewPage({
     if (!currentVariant || !activeWorkspaceId) return;
     try {
       setPublishing(true);
-      const token = localStorage.getItem("lisa_token");
-      const res = await fetch(
-        `http://localhost:8000/api/v1/workspaces/${activeWorkspaceId}/variants/${currentVariant.id}/publish`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({}),
-        }
-      );
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setPublishedUrl(data.external_url);
+      const data = await publishingApi.publishVariant(activeWorkspaceId, currentVariant.id);
+      if (data.success) {
+        if (data.external_url) setPublishedUrl(data.external_url);
         setVariants(
           variants.map((v) =>
             v.id === currentVariant.id ? { ...v, status: "published" } : v
           )
         );
-      } else {
-        alert(`Publishing failed: ${data.detail || data.error_message || "Unknown error"}`);
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error("Publishing request failed", e);
-      alert("Failed to publish variant.");
+      alert(e.message || "Failed to publish variant.");
     } finally {
       setPublishing(false);
     }
@@ -186,6 +177,29 @@ export default function VariantReviewPage({
     }
   };
 
+  if (loadError) {
+    return (
+      <AppLayout activeWorkspaceId={activeWorkspaceId} onWorkspaceChange={setActiveWorkspaceId}>
+        <div className="max-w-xl mx-auto py-16 text-center space-y-4">
+          <div className="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-400 flex items-center justify-center mx-auto">
+            <AlertTriangle className="w-6 h-6" />
+          </div>
+          <h2 className="text-lg font-bold text-slate-100">Unable to load Content Source</h2>
+          <p className="text-xs text-slate-400">{loadError}</p>
+          <div className="pt-2">
+            <Link
+              href="/library"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 text-xs font-medium hover:bg-slate-800 transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Return to Content Library
+            </Link>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
+
   if (loading || generating) {
     return (
       <AppLayout activeWorkspaceId={activeWorkspaceId} onWorkspaceChange={setActiveWorkspaceId}>
@@ -193,18 +207,26 @@ export default function VariantReviewPage({
           <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center animate-pulse">
             <Sparkles className="w-6 h-6 animate-spin" />
           </div>
-          <div className="text-center space-y-1">
+          <div className="text-center space-y-2">
             <h2 className="text-base font-semibold text-slate-100">
-              {generating ? "Multi-Agent Adaptation in Progress..." : "Loading Variants..."}
+              {generating ? "Multi-Agent Pipeline Executing..." : "Loading Platform Variants..."}
             </h2>
-            <p className="text-xs text-slate-400 max-w-sm">
-              Intake Agent, Strategy Agent, Adaptation Agent, and QA checks are processing your canonical source.
-            </p>
+            <div className="text-xs text-slate-400 max-w-md space-y-1 text-left bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+              <p className="text-slate-300 font-medium">Pipeline Stages:</p>
+              <p className="text-emerald-400">✓ Agent 1: Source Analyst (Extracting core claims & facts)</p>
+              <p className="text-emerald-400">✓ Agent 2: Platform Strategist (Formulating native rules)</p>
+              <p className="text-indigo-400">⟳ Agent 3: Platform Native Writer (Synthesizing channels)</p>
+              <p className="text-slate-400">⋯ Agent 4: Quality Reviewer (10-Point check & revision loop)</p>
+            </div>
           </div>
         </div>
       </AppLayout>
     );
   }
+
+  const qualityScore = Math.round((currentVariant?.quality_review_json?.quality_score || 0.85) * 100);
+  const checkItems = currentVariant?.quality_review_json?.check_items || [];
+  const suggestions = currentVariant?.quality_review_json?.improvement_suggestions || [];
 
   return (
     <AppLayout activeWorkspaceId={activeWorkspaceId} onWorkspaceChange={setActiveWorkspaceId}>
@@ -353,7 +375,7 @@ export default function VariantReviewPage({
 
                   {/* Body Textarea Editor */}
                   <textarea
-                    rows={8}
+                    rows={10}
                     value={currentVariant.body}
                     onChange={(e) => handleUpdateCurrentVariant({ body: e.target.value })}
                     className="w-full bg-transparent text-xs text-slate-200 outline-none leading-relaxed resize-none border-b border-slate-900 pb-2 focus:border-indigo-500/50"
@@ -364,7 +386,7 @@ export default function VariantReviewPage({
                     <div className="flex flex-wrap gap-1.5 pt-1">
                       {currentVariant.hashtags_json.map((tag, idx) => (
                         <span key={idx} className="text-[11px] text-indigo-400 font-medium">
-                          {tag}
+                          #{tag.replace(/^#/, "")}
                         </span>
                       ))}
                     </div>
@@ -385,7 +407,7 @@ export default function VariantReviewPage({
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
                     <RotateCw className="w-4 h-4 text-violet-400" />
-                    AI Regeneration & Angle Modifier
+                    Targeted AI Revision & Angle Modifier
                   </h3>
                 </div>
 
@@ -394,7 +416,7 @@ export default function VariantReviewPage({
                     type="text"
                     value={regenInstruction}
                     onChange={(e) => setRegenInstruction(e.target.value)}
-                    placeholder="e.g. Make it more contrarian, shorten opening hook, add bullet points..."
+                    placeholder="e.g. Make opening contrarian, shorten to single tweet, focus on ROI takeaway..."
                     className="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-100 outline-none focus:border-indigo-500"
                   />
                   <button
@@ -403,58 +425,106 @@ export default function VariantReviewPage({
                     className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>{regenerating ? "Regenerating..." : "Regenerate"}</span>
+                    <span>{regenerating ? "Revising..." : "Regenerate"}</span>
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Right Column: QA Scorecard & Strategy Insights */}
+            {/* Right Column: 10-Point QA Scorecard & Strategy Insights */}
             <div className="space-y-5">
               {/* QA Scorecard */}
               <div className="glass-card rounded-2xl p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    QA Quality Scorecard
+                    10-Point QA Quality Scorecard
                   </h3>
-                  <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 font-bold text-xs">
-                    {(
-                      (currentVariant.quality_review_json?.quality_score || 0.95) * 100
-                    ).toFixed(0)}
-                    %
+                  <span
+                    className={`px-2.5 py-1 rounded-full font-bold text-xs ${
+                      qualityScore >= 85
+                        ? "bg-emerald-500/10 text-emerald-400"
+                        : qualityScore >= 70
+                        ? "bg-amber-500/10 text-amber-400"
+                        : "bg-rose-500/10 text-rose-400"
+                    }`}
+                  >
+                    {qualityScore}%
                   </span>
                 </div>
 
+                {/* Scorecard Check Items */}
                 <div className="space-y-2 pt-1">
-                  {Object.entries(
-                    currentVariant.quality_review_json?.checks || {
-                      brand_voice: "pass",
-                      forbidden_words: "pass",
-                      format_validity: "pass",
-                      source_fidelity: "pass",
-                    }
-                  ).map(([check, status]) => (
-                    <div
-                      key={check}
-                      className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80 text-xs"
-                    >
-                      <span className="capitalize text-slate-300 font-medium">
-                        {check.replace("_", " ")}
-                      </span>
-                      <span
-                        className={`text-[10px] font-mono font-semibold uppercase px-2 py-0.5 rounded ${
-                          status === "pass"
-                            ? "bg-emerald-500/10 text-emerald-400"
-                            : "bg-rose-500/10 text-rose-400"
-                        }`}
+                  {checkItems.length > 0 ? (
+                    checkItems.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80 text-xs space-y-1"
                       >
-                        {status}
-                      </span>
-                    </div>
-                  ))}
+                        <div className="flex items-center justify-between">
+                          <span className="text-slate-300 font-medium">{item.name}</span>
+                          <span
+                            className={`text-[10px] font-mono font-semibold uppercase px-2 py-0.5 rounded ${
+                              item.status === "pass"
+                                ? "bg-emerald-500/10 text-emerald-400"
+                                : item.status === "warning"
+                                ? "bg-amber-500/10 text-amber-400"
+                                : "bg-rose-500/10 text-rose-400"
+                            }`}
+                          >
+                            {item.status}
+                          </span>
+                        </div>
+                        {item.reason && (
+                          <p className="text-[11px] text-slate-400 leading-tight">{item.reason}</p>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    Object.entries(
+                      currentVariant.quality_review_json?.checks || {
+                        source_fidelity: "pass",
+                        brand_voice: "pass",
+                        platform_formatting: "pass",
+                        hook_strength: "pass",
+                      }
+                    ).map(([check, status]) => (
+                      <div
+                        key={check}
+                        className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80 text-xs"
+                      >
+                        <span className="capitalize text-slate-300 font-medium">
+                          {check.replace("_", " ")}
+                        </span>
+                        <span
+                          className={`text-[10px] font-mono font-semibold uppercase px-2 py-0.5 rounded ${
+                            status === "pass"
+                              ? "bg-emerald-500/10 text-emerald-400"
+                              : "bg-rose-500/10 text-rose-400"
+                          }`}
+                        >
+                          {status}
+                        </span>
+                      </div>
+                    ))
+                  )}
                 </div>
 
+                {/* Actionable Suggestions */}
+                {suggestions.length > 0 && (
+                  <div className="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs space-y-1">
+                    <p className="font-semibold text-[11px] uppercase tracking-wider text-indigo-200">
+                      Improvement Recommendations:
+                    </p>
+                    <ul className="list-disc list-inside space-y-0.5 text-[11px] text-indigo-300">
+                      {suggestions.map((sug, i) => (
+                        <li key={i}>{sug}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Critical Issues */}
                 {currentVariant.quality_review_json?.issues?.map((issue, i) => (
                   <div
                     key={i}

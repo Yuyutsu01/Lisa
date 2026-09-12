@@ -13,6 +13,7 @@ import {
   CheckCircle2,
   AlertCircle,
   ArrowUpRight,
+  ArrowRight,
   Clock,
   Share2,
 } from "lucide-react";
@@ -23,131 +24,137 @@ export default function DashboardPage() {
   return (
     <AppLayout activeWorkspaceId={activeWorkspaceId} onWorkspaceChange={setActiveWorkspaceId}>
       <div className="max-w-7xl mx-auto space-y-8">
-        {/* Welcome Hero Banner */}
-        <div className="relative overflow-hidden rounded-3xl glass-card p-8 border border-indigo-500/20">
+        {/* Welcome Hero Banner in Hirael Aesthetic */}
+        <div className="relative overflow-hidden rounded-[28px] hirael-card p-8 sm:p-10 border border-white/[0.08]">
+          <div className="absolute -top-10 -right-10 w-96 h-96 ambient-glow-warm pointer-events-none" />
+
           <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-xs font-medium text-indigo-400 mb-3">
+            <div className="space-y-3 max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.06] border border-white/[0.1] text-xs font-mono text-[#d4a373]">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Multi-Agent Orchestration Ready</span>
+                <span>Multi-Agent Engine Active</span>
               </div>
-              <h1 className="text-3xl font-extrabold tracking-tight text-slate-100">
-                Turn 1 Content Idea into 10 Platform Natives
+              <h1 className="text-3xl sm:text-4xl font-normal tracking-tight text-[#ede8df]">
+                Turn 1 canonical vision into{" "}
+                <span className="font-editorial text-[#f7f4ed]">10 platform artifacts.</span>
               </h1>
-              <p className="text-sm text-slate-400 mt-2 max-w-xl leading-relaxed">
-                Create your canonical source, let specialized AI agents adapt tone, format, and media per channel, review with deterministic quality checks, and publish on schedule.
+              <p className="text-xs sm:text-sm text-[#8a8a93] leading-relaxed">
+                Ground your canonical message, let specialized agents synthesize platform-native pacing, voice, and media, enforce deterministic quality thresholds, and distribute seamlessly.
               </p>
             </div>
 
-            <div className="flex items-center gap-3 shrink-0">
+            <div className="flex items-center gap-3 shrink-0 self-start md:self-center">
               <Link
                 href="/content"
-                className="py-3 px-5 rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white font-semibold text-sm flex items-center gap-2 shadow-lg shadow-indigo-500/25 transition-all cursor-pointer"
+                className="hirael-pill-btn group"
               >
-                <Sparkles className="w-4 h-4" />
-                <span>New Content Source</span>
+                <span className="text-xs sm:text-sm font-semibold text-[#08080a]">New Content Source</span>
+                <div className="w-6 h-6 rounded-full bg-[#08080a] text-white flex items-center justify-center transition-transform group-hover:translate-x-0.5">
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </div>
               </Link>
               <Link
                 href="/brand"
-                className="py-3 px-5 rounded-2xl bg-slate-900 border border-slate-800 hover:bg-slate-800/80 text-slate-200 font-medium text-sm transition-all"
+                className="hirael-pill-btn-dark text-xs sm:text-sm"
               >
-                Brand Settings
+                <span>Brand Identity</span>
               </Link>
             </div>
           </div>
         </div>
 
         {/* Metrics Overview Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          <div className="glass-card rounded-2xl p-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          <div className="hirael-card p-5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <span className="text-[10px] font-mono font-medium text-[#787672] uppercase tracking-widest">
                 Active Sources
               </span>
-              <div className="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-white/[0.04] border border-white/[0.08] text-[#ede8df] flex items-center justify-center">
                 <Layers className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-2xl font-bold text-slate-100 mt-3">12</div>
-            <div className="text-xs text-slate-400 mt-1 flex items-center gap-1.5">
-              <span className="text-emerald-400 flex items-center font-medium">
+            <div className="text-3xl font-light text-[#ede8df] mt-4 tracking-tight">12</div>
+            <div className="text-[11px] text-[#787672] mt-2 flex items-center gap-1.5">
+              <span className="text-emerald-400 flex items-center font-medium font-mono">
                 <ArrowUpRight className="w-3.5 h-3.5" /> +3 this week
               </span>
             </div>
           </div>
 
-          <div className="glass-card rounded-2xl p-5">
+          <div className="hirael-card p-5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <span className="text-[10px] font-mono font-medium text-[#787672] uppercase tracking-widest">
                 Generated Variants
               </span>
-              <div className="w-8 h-8 rounded-xl bg-violet-500/10 text-violet-400 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-white/[0.04] border border-white/[0.08] text-[#d4a373] flex items-center justify-center">
                 <Sparkles className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-2xl font-bold text-slate-100 mt-3">54</div>
-            <div className="text-xs text-slate-400 mt-1">Across 6 connected channels</div>
+            <div className="text-3xl font-light text-[#ede8df] mt-4 tracking-tight">54</div>
+            <div className="text-[11px] text-[#787672] mt-2">Across 6 connected channels</div>
           </div>
 
-          <div className="glass-card rounded-2xl p-5">
+          <div className="hirael-card p-5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <span className="text-[10px] font-mono font-medium text-[#787672] uppercase tracking-widest">
                 Scheduled Queue
               </span>
-              <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-white/[0.04] border border-white/[0.08] text-[#ede8df] flex items-center justify-center">
                 <Clock className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-2xl font-bold text-slate-100 mt-3">8</div>
-            <div className="text-xs text-slate-400 mt-1">Next post in 2 hours</div>
+            <div className="text-3xl font-light text-[#ede8df] mt-4 tracking-tight">8</div>
+            <div className="text-[11px] text-[#787672] mt-2">Next dispatch in 2 hours</div>
           </div>
 
-          <div className="glass-card rounded-2xl p-5">
+          <div className="hirael-card p-5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <span className="text-[10px] font-mono font-medium text-[#787672] uppercase tracking-widest">
                 Avg Engagement Rate
               </span>
-              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-white/[0.04] border border-white/[0.08] text-emerald-400 flex items-center justify-center">
                 <TrendingUp className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-2xl font-bold text-slate-100 mt-3">6.8%</div>
-            <div className="text-xs text-emerald-400 mt-1 font-medium">+1.4% vs last period</div>
+            <div className="text-3xl font-light text-[#ede8df] mt-4 tracking-tight">6.8%</div>
+            <div className="text-[11px] text-emerald-400 mt-2 font-medium font-mono">+1.4% vs last period</div>
           </div>
         </div>
 
         {/* Multi-Platform Health & Queue Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Platform Status Matrix */}
-          <div className="glass-card rounded-2xl p-6 lg:col-span-1 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-slate-200 text-sm flex items-center gap-2">
-                <Share2 className="w-4 h-4 text-indigo-400" />
+          <div className="hirael-card p-6 lg:col-span-1 space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-white/[0.06]">
+              <h2 className="font-medium text-[#ede8df] text-sm flex items-center gap-2">
+                <Share2 className="w-4 h-4 text-[#d4a373]" />
                 Platform Adapters
               </h2>
-              <Link href="/integrations" className="text-xs text-indigo-400 hover:text-indigo-300">
-                Manage
+              <Link href="/integrations" className="text-xs text-[#a6a39b] hover:text-[#ede8df] flex items-center gap-0.5">
+                <span>Manage</span>
+                <ArrowUpRight className="w-3 h-3" />
               </Link>
             </div>
 
-            <div className="space-y-3 pt-2">
+            <div className="space-y-2.5 pt-1">
               {[
-                { name: "LinkedIn", mode: "Direct API", status: "Connected", healthy: true },
-                { name: "X (Twitter)", mode: "Direct API", status: "Connected", healthy: true },
-                { name: "Instagram", mode: "Direct API", status: "Connected", healthy: true },
-                { name: "YouTube Shorts", mode: "Direct API", status: "Connected", healthy: true },
-                { name: "TikTok", mode: "Draft Mode", status: "Draft Upload", healthy: true },
-                { name: "Newsletter / Email", mode: "ESP API", status: "Connected", healthy: true },
+                { name: "LinkedIn", mode: "OAuth 2.0 (Client ID)", status: "Active Config", healthy: true },
+                { name: "Instagram", mode: "Manual Studio Export", status: "Ready", healthy: true },
+                { name: "X (Twitter)", mode: "Thread Adapter", status: "Connected", healthy: true },
+                { name: "YouTube Shorts", mode: "Cinematic Script", status: "Connected", healthy: true },
+                { name: "TikTok", mode: "Fast Hook Model", status: "Draft Upload", healthy: true },
+                { name: "Newsletter / Substack", mode: "Editorial Essay", status: "Connected", healthy: true },
               ].map((plat) => (
                 <div
                   key={plat.name}
-                  className="flex items-center justify-between p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 text-xs"
+                  className="flex items-center justify-between p-3 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.1] transition-colors text-xs"
                 >
                   <div>
-                    <p className="font-medium text-slate-200">{plat.name}</p>
-                    <p className="text-[10px] text-slate-500">{plat.mode}</p>
+                    <p className="font-medium text-[#ede8df]">{plat.name}</p>
+                    <p className="text-[10px] text-[#71717a]">{plat.mode}</p>
                   </div>
-                  <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-medium">
+                  <div className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-mono">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                     {plat.status}
                   </div>
@@ -157,48 +164,49 @@ export default function DashboardPage() {
           </div>
 
           {/* Active Repurposing Pipeline */}
-          <div className="glass-card rounded-2xl p-6 lg:col-span-2 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-slate-200 text-sm flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-violet-400" />
-                Live Content Pipeline
+          <div className="hirael-card p-6 lg:col-span-2 space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-white/[0.06]">
+              <h2 className="font-medium text-[#ede8df] text-sm flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#ede8df]" />
+                Live Repurposing Pipeline
               </h2>
-              <Link href="/library" className="text-xs text-indigo-400 hover:text-indigo-300">
-                View All
+              <Link href="/library" className="text-xs text-[#a6a39b] hover:text-[#ede8df] flex items-center gap-0.5">
+                <span>View Library</span>
+                <ArrowUpRight className="w-3 h-3" />
               </Link>
             </div>
 
-            <div className="space-y-3 pt-2">
+            <div className="space-y-3 pt-1">
               {[
                 {
                   title: "How We Scaled Our AI Architecture to 10M Events",
-                  type: "Long-form Article",
+                  type: "Long-form Canonical Essay",
                   variants: 6,
                   status: "Ready for Approval",
-                  badgeColor: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
+                  badgeClass: "bg-white/10 text-[#ede8df] border-white/20",
                 },
                 {
                   title: "Why Most AI Caption Generators Fail at Scale",
                   type: "Thought Leadership",
                   variants: 5,
                   status: "Scheduled (4 channels)",
-                  badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+                  badgeClass: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
                 },
                 {
                   title: "Product Launch: Lisa 1.0 Autonomous Operations",
-                  type: "Announcement",
+                  type: "Announcement Manifesto",
                   variants: 8,
                   status: "Intake Running",
-                  badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+                  badgeClass: "bg-amber-500/10 text-amber-300 border-amber-500/20",
                 },
               ].map((item, i) => (
                 <div
                   key={i}
-                  className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 hover:border-slate-700 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs"
+                  className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.12] transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs"
                 >
                   <div className="space-y-1">
-                    <p className="font-semibold text-slate-200 text-sm">{item.title}</p>
-                    <div className="flex items-center gap-3 text-slate-400 text-[11px]">
+                    <p className="font-medium text-[#ede8df] text-sm">{item.title}</p>
+                    <div className="flex items-center gap-3 text-[#787672] text-[11px]">
                       <span>{item.type}</span>
                       <span>•</span>
                       <span>{item.variants} Platform Variants</span>
@@ -207,13 +215,13 @@ export default function DashboardPage() {
 
                   <div className="flex items-center gap-3 self-end sm:self-center">
                     <span
-                      className={`px-2.5 py-1 rounded-full border text-[10px] font-medium ${item.badgeColor}`}
+                      className={`px-3 py-1 rounded-full border text-[10px] font-mono ${item.badgeClass}`}
                     >
                       {item.status}
                     </span>
                     <Link
                       href="/content"
-                      className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-colors"
+                      className="px-3.5 py-1.5 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-[#ede8df] text-xs font-medium transition-colors"
                     >
                       Review
                     </Link>

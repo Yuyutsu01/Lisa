@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, useRef, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AppLayout } from "@/components/AppLayout";
 import {
   sourcesApi,
@@ -26,15 +26,19 @@ import {
   Share2,
   Tag,
   ArrowRight,
+  Loader2,
 } from "lucide-react";
 
-export default function ContentStudioPage() {
+function ContentStudioContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const urlSourceId = searchParams.get("id") || searchParams.get("sourceId");
+
   const [activeWorkspaceId, setActiveWorkspaceId] = useState<string | null>(null);
   const [brandProfile, setBrandProfile] = useState<BrandProfile | null>(null);
   
   // Editor state
-  const [sourceId, setSourceId] = useState<string | null>(null);
+  const [sourceId, setSourceId] = useState<string | null>(urlSourceId);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [contentType, setContentType] = useState("article");
@@ -51,6 +55,7 @@ export default function ContentStudioPage() {
   const [versions, setVersions] = useState<ContentSourceVersion[]>([]);
   const [showVersions, setShowVersions] = useState(false);
   const [uploadingMedia, setUploadingMedia] = useState(false);
+  const [isAdapting, setIsAdapting] = useState(false);
 
   // Status & Auto-save
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "unsaved">("saved");
@@ -74,6 +79,28 @@ export default function ContentStudioPage() {
       brandApi.getProfile(wsId).then(setBrandProfile).catch(console.error);
     }
   }, []);
+
+  // Load existing source if query param is passed
+  useEffect(() => {
+    if (urlSourceId) {
+      sourcesApi
+        .get(urlSourceId)
+        .then((src) => {
+          setSourceId(src.id);
+          setTitle(src.title);
+          setBody(src.body);
+          setContentType(src.content_type || "article");
+          setContentPillar(src.content_pillar || "");
+          if (src.target_platforms_json && src.target_platforms_json.length > 0) {
+            setSelectedPlatforms(src.target_platforms_json);
+          }
+          if (src.attached_assets) {
+            setAttachedAssets(src.attached_assets);
+          }
+        })
+        .catch(console.error);
+    }
+  }, [urlSourceId]);
 
   // Debounced auto-save effect
   useEffect(() => {
@@ -121,6 +148,53 @@ export default function ContentStudioPage() {
       if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
     };
   }, [title, body, contentType, contentPillar, selectedPlatforms, activeWorkspaceId, sourceId]);
+
+  const handleAdaptAndDistribute = async () => {
+    if (!activeWorkspaceId) {
+      alert("Please select or create an active workspace first.");
+      return;
+    }
+
+    if (!title.trim() && !body.trim()) {
+      alert("Please enter a title or body content before adapting.");
+      return;
+    }
+
+    try {
+      setIsAdapting(true);
+      let targetId = sourceId;
+
+      if (!targetId) {
+        const created = await sourcesApi.create(activeWorkspaceId, {
+          title: title || "Untitled Idea",
+          body,
+          content_type: contentType,
+          content_pillar: contentPillar,
+          target_platforms_json: selectedPlatforms,
+          status: "ready_for_adaptation",
+        });
+        targetId = created.id;
+        setSourceId(created.id);
+      } else {
+        await sourcesApi.update(targetId, {
+          title: title || "Untitled Idea",
+          body,
+          content_type: contentType,
+          content_pillar: contentPillar,
+          target_platforms_json: selectedPlatforms,
+          status: "ready_for_adaptation",
+          create_version_snapshot: true,
+        });
+      }
+
+      setSaveStatus("saved");
+      router.push(`/content/${targetId}/variants`);
+    } catch (err: any) {
+      console.error("Failed to adapt and distribute", err);
+      alert(err.message || "Failed to save and adapt content");
+      setIsAdapting(false);
+    }
+  };
 
   const handleManualSaveSnapshot = async () => {
     if (!sourceId && !activeWorkspaceId) return;
@@ -239,7 +313,7 @@ export default function ContentStudioPage() {
                 className="hover:text-indigo-400 flex items-center gap-1 cursor-pointer disabled:opacity-40"
               >
                 <History className="w-3.5 h-3.5" />
-                Version History
+                <span>Version Snapshots ({versions.length})</span>
               </button>
             </div>
           </div>
@@ -253,11 +327,21 @@ export default function ContentStudioPage() {
               <span>Snapshot Version</span>
             </button>
             <button
-              onClick={() => router.push("/library")}
-              className="py-2.5 px-5 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 text-white text-xs font-semibold flex items-center gap-2 shadow-lg shadow-indigo-500/25 transition-all cursor-pointer"
+              onClick={handleAdaptAndDistribute}
+              disabled={isAdapting}
+              className="py-2.5 px-5 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 text-white text-xs font-semibold flex items-center gap-2 shadow-lg shadow-indigo-500/25 transition-all cursor-pointer disabled:opacity-60"
             >
-              <span>Adapt & Distribute</span>
-              <ArrowRight className="w-4 h-4" />
+              {isAdapting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Processing AI Adaptations...</span>
+                </>
+              ) : (
+                <>
+                  <span>Adapt &amp; Distribute</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -471,5 +555,13 @@ Our specialized AI agents will read this canonical source, preserve your facts, 
         )}
       </div>
     </AppLayout>
+  );
+}
+
+export default function ContentStudioPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-xs text-slate-500">Loading Studio...</div>}>
+      <ContentStudioContent />
+    </Suspense>
   );
 }

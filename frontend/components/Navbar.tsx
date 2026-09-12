@@ -69,24 +69,24 @@ export function Navbar({ onWorkspaceChange }: NavbarProps) {
   };
 
   return (
-    <header className="h-16 border-b border-slate-800/80 bg-slate-950/60 backdrop-blur-md px-6 flex items-center justify-between z-20">
+    <header className="h-16 border-b border-white/[0.07] bg-[#0a0a0c]/80 backdrop-blur-md px-6 flex items-center justify-between z-20">
       {/* Workspace Selector */}
       <div className="relative">
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
-          className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-sm font-medium text-slate-200 transition-all shadow-sm"
+          className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/[0.05] border border-white/[0.08] hover:border-white/20 text-xs font-medium text-[#ede8df] transition-all shadow-sm"
         >
-          <Building2 className="w-4 h-4 text-indigo-400" />
+          <Building2 className="w-3.5 h-3.5 text-[#d4a373]" />
           <span>{currentWorkspace?.name || "Select Workspace"}</span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono">
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-[#ede8df] font-mono">
             {currentWorkspace?.current_user_role?.toUpperCase() || "OWNER"}
           </span>
-          <ChevronDown className="w-3.5 h-3.5 text-slate-400 ml-1" />
+          <ChevronDown className="w-3 h-3 text-[#a6a39b] ml-0.5" />
         </button>
 
         {dropdownOpen && (
-          <div className="absolute top-full left-0 mt-2 w-64 rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-2 z-50">
-            <div className="text-[11px] font-semibold text-slate-400 px-3 py-1.5 uppercase tracking-wider">
+          <div className="absolute top-full left-0 mt-2 w-64 rounded-2xl bg-[#0e0e11] border border-white/10 shadow-2xl p-2 z-50">
+            <div className="text-[10px] font-semibold text-[#787672] px-3 py-1.5 uppercase tracking-wider font-mono">
               Workspaces
             </div>
             <div className="space-y-1">
@@ -96,26 +96,26 @@ export function Navbar({ onWorkspaceChange }: NavbarProps) {
                   onClick={() => handleSelectWorkspace(ws)}
                   className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-left transition-colors ${
                     currentWorkspace?.id === ws.id
-                      ? "bg-indigo-600/20 text-indigo-300 font-medium"
-                      : "text-slate-300 hover:bg-slate-800"
+                      ? "bg-white/10 text-[#ede8df] font-medium"
+                      : "text-[#a6a39b] hover:bg-white/[0.05] hover:text-[#ede8df]"
                   }`}
                 >
                   <span className="truncate">{ws.name}</span>
-                  <span className="text-[10px] text-slate-500 font-mono">
+                  <span className="text-[10px] text-[#71717a] font-mono">
                     {ws.current_user_role}
                   </span>
                 </button>
               ))}
             </div>
-            <div className="border-t border-slate-800 mt-2 pt-2">
+            <div className="border-t border-white/[0.08] mt-2 pt-2">
               <button
                 onClick={() => {
                   setDropdownOpen(false);
                   router.push("/workspaces");
                 }}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-indigo-400 hover:bg-indigo-950/40 transition-colors font-medium"
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-[#ede8df] hover:bg-white/[0.08] transition-colors font-medium"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus className="w-3.5 h-3.5 text-[#d4a373]" />
                 Manage or Create Workspace
               </button>
             </div>
@@ -124,36 +124,36 @@ export function Navbar({ onWorkspaceChange }: NavbarProps) {
       </div>
 
       {/* Right Controls: Notifications & Profile */}
-      <div className="flex items-center gap-4">
-        <button className="p-2 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition-colors relative">
+      <div className="flex items-center gap-3">
+        <button className="p-2 rounded-full text-[#a6a39b] hover:text-[#ede8df] hover:bg-white/[0.06] transition-colors relative">
           <Bell className="w-4 h-4" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-indigo-500" />
+          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#d4a373]" />
         </button>
 
         <div className="relative">
           <button
             onClick={() => setUserMenuOpen(!userMenuOpen)}
-            className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-slate-900 transition-colors"
+            className="flex items-center gap-2.5 p-1 rounded-full hover:bg-white/[0.05] transition-colors"
           >
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 text-white font-semibold flex items-center justify-center text-xs shadow-md">
+            <div className="w-7 h-7 rounded-full bg-[#ede8df] text-[#08080a] font-bold flex items-center justify-center text-xs shadow-sm">
               {user?.name ? user.name[0].toUpperCase() : "U"}
             </div>
-            <div className="text-left hidden md:block">
-              <div className="text-xs font-medium text-slate-200">{user?.name}</div>
-              <div className="text-[10px] text-slate-400">{user?.email}</div>
+            <div className="text-left hidden md:block pr-1">
+              <div className="text-xs font-medium text-[#ede8df]">{user?.name}</div>
+              <div className="text-[10px] text-[#787672]">{user?.email}</div>
             </div>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+            <ChevronDown className="w-3 h-3 text-[#787672]" />
           </button>
 
           {userMenuOpen && (
-            <div className="absolute right-0 top-full mt-2 w-52 rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-2 z-50">
-              <div className="px-3 py-2 border-b border-slate-800 text-xs">
-                <p className="font-semibold text-slate-200">{user?.name}</p>
-                <p className="text-slate-400 text-[11px] truncate">{user?.email}</p>
+            <div className="absolute right-0 top-full mt-2 w-52 rounded-2xl bg-[#0e0e11] border border-white/10 shadow-2xl p-2 z-50">
+              <div className="px-3 py-2 border-b border-white/[0.08] text-xs">
+                <p className="font-semibold text-[#ede8df]">{user?.name}</p>
+                <p className="text-[#787672] text-[11px] truncate">{user?.email}</p>
               </div>
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-2 px-3 py-2 mt-1 rounded-xl text-xs text-rose-400 hover:bg-rose-950/30 transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 mt-1 rounded-xl text-xs text-rose-400 hover:bg-rose-950/20 transition-colors"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 Sign Out

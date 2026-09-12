@@ -110,39 +110,42 @@ export default function WorkspacesPage() {
     <AppLayout activeWorkspaceId={activeWorkspaceId} onWorkspaceChange={setActiveWorkspaceId}>
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-100 flex items-center gap-2.5">
-            <Users className="w-6 h-6 text-indigo-400" />
+        <div className="border-b border-white/[0.07] pb-5">
+          <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-[#85827b] mb-1">
+            <Users className="w-3.5 h-3.5 text-[#d4a373]" />
+            <span>Workspace Roster & Multi-Tenancy</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-normal tracking-tight text-[#ede8df]">
             Workspaces & Team Roles
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-[#8a8a93] mt-1 max-w-2xl leading-relaxed">
             Manage multi-tenant workspace environments, invite team members, and configure RBAC roles.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Workspaces List & Create */}
-          <div className="glass-card rounded-2xl p-6 space-y-5">
-            <h2 className="text-sm font-semibold text-slate-200 uppercase tracking-wider flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-indigo-400" />
-              Your Workspaces
+          <div className="hirael-card p-6 space-y-5">
+            <h2 className="text-xs font-mono uppercase tracking-wider text-[#85827b] flex items-center gap-2">
+              <Building2 className="w-3.5 h-3.5 text-[#d4a373]" />
+              <span>Your Workspaces</span>
             </h2>
 
             <div className="space-y-2">
               {workspaces.map((ws) => (
                 <div
                   key={ws.id}
-                  className={`p-3.5 rounded-xl border text-xs flex items-center justify-between transition-all ${
+                  className={`p-3.5 rounded-2xl border text-xs flex items-center justify-between transition-all ${
                     activeWorkspaceId === ws.id
-                      ? "bg-indigo-600/15 border-indigo-500/40 text-slate-100 shadow-sm"
-                      : "bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800/60"
+                      ? "bg-white/[0.06] border-white/20 text-[#ede8df] shadow-sm"
+                      : "bg-white/[0.02] border-white/[0.05] text-[#8a8a93] hover:bg-white/[0.04]"
                   }`}
                 >
                   <div className="space-y-0.5">
-                    <p className="font-semibold">{ws.name}</p>
-                    <p className="text-[10px] text-slate-500 font-mono">{ws.slug}</p>
+                    <p className="font-medium text-[#ede8df]">{ws.name}</p>
+                    <p className="text-[10px] text-[#71717a] font-mono">{ws.slug}</p>
                   </div>
-                  <span className="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono">
+                  <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-white/[0.04] text-[#d4a373] border border-white/[0.08] font-mono">
                     {ws.current_user_role?.toUpperCase()}
                   </span>
                 </div>
@@ -150,8 +153,8 @@ export default function WorkspacesPage() {
             </div>
 
             {/* Create Workspace */}
-            <form onSubmit={handleCreateWorkspace} className="border-t border-slate-800 pt-4 space-y-2">
-              <label className="block text-xs text-slate-400 font-medium">Create New Workspace</label>
+            <form onSubmit={handleCreateWorkspace} className="border-t border-white/[0.06] pt-4 space-y-2.5">
+              <label className="block text-[11px] font-mono text-[#71717a]">Create New Workspace</label>
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -159,11 +162,11 @@ export default function WorkspacesPage() {
                   value={newWsName}
                   onChange={(e) => setNewWsName(e.target.value)}
                   placeholder="e.g. Growth Agency HQ"
-                  className="flex-1 px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-100 outline-none focus:border-indigo-500"
+                  className="flex-1 px-3.5 py-2 rounded-full bg-white/[0.03] border border-white/10 text-xs text-[#ede8df] outline-none focus:border-white/30"
                 />
                 <button
                   type="submit"
-                  className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium cursor-pointer"
+                  className="w-8 h-8 rounded-full bg-[#ede8df] hover:bg-white text-[#08080a] flex items-center justify-center cursor-pointer shrink-0 transition-transform active:scale-95"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -172,34 +175,34 @@ export default function WorkspacesPage() {
           </div>
 
           {/* Members Management & RBAC */}
-          <div className="lg:col-span-2 glass-card rounded-2xl p-6 space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-slate-200 uppercase tracking-wider flex items-center gap-2">
-                <Shield className="w-4 h-4 text-emerald-400" />
-                Team Members & Access Control (RBAC)
+          <div className="lg:col-span-2 hirael-card p-6 sm:p-8 space-y-6">
+            <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
+              <h2 className="text-xs font-mono uppercase tracking-wider text-[#85827b] flex items-center gap-2">
+                <Shield className="w-3.5 h-3.5 text-[#d4a373]" />
+                <span>Team Members & Access Control (RBAC)</span>
               </h2>
-              <span className="text-xs text-slate-400 font-mono">{members.length} Members</span>
+              <span className="text-xs text-[#71717a] font-mono">{members.length} Members</span>
             </div>
 
             {/* Invite Form */}
-            <form onSubmit={handleInviteMember} className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-3">
-              <p className="text-xs font-semibold text-slate-300">Invite New Team Member</p>
+            <form onSubmit={handleInviteMember} className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] space-y-3">
+              <p className="text-xs font-medium text-[#ede8df]">Invite New Team Member</p>
               {inviteError && (
-                <p className="text-[11px] text-rose-400">{inviteError}</p>
+                <p className="text-[11px] text-rose-400 font-mono">{inviteError}</p>
               )}
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-2.5">
                 <input
                   type="email"
                   required
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
                   placeholder="colleague@company.com"
-                  className="flex-1 px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-100 outline-none focus:border-indigo-500"
+                  className="flex-1 px-3.5 py-2 rounded-full bg-black/60 border border-white/10 text-xs text-[#ede8df] outline-none focus:border-white/30"
                 />
                 <select
                   value={inviteRole}
                   onChange={(e) => setInviteRole(e.target.value)}
-                  className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 outline-none"
+                  className="px-3.5 py-2 rounded-full bg-[#0e0e12] border border-white/10 text-xs text-[#ede8df] outline-none"
                 >
                   <option value="admin">Admin (Manage settings & integrations)</option>
                   <option value="editor">Editor (Create, adapt, schedule)</option>
@@ -208,36 +211,36 @@ export default function WorkspacesPage() {
                 </select>
                 <button
                   type="submit"
-                  className="py-2 px-4 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 text-white text-xs font-medium flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
+                  className="hirael-pill-btn text-xs py-2 px-4 cursor-pointer shrink-0"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
-                  Invite
+                  <span>Invite</span>
                 </button>
               </div>
             </form>
 
             {/* Members List */}
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {members.map((m) => (
                 <div
                   key={m.id}
-                  className="p-3.5 rounded-xl bg-slate-900/50 border border-slate-800 flex items-center justify-between text-xs"
+                  className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.05] flex items-center justify-between text-xs"
                 >
                   <div className="space-y-0.5">
-                    <p className="font-semibold text-slate-200">{m.user_name || "User"}</p>
-                    <p className="text-[11px] text-slate-500">{m.user_email}</p>
+                    <p className="font-medium text-[#ede8df]">{m.user_name || "User"}</p>
+                    <p className="text-[11px] text-[#71717a] font-mono">{m.user_email}</p>
                   </div>
 
                   <div className="flex items-center gap-3">
                     {m.role === "owner" ? (
-                      <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-300 font-mono text-[11px] font-semibold">
+                      <span className="px-2.5 py-1 rounded-full bg-white/[0.06] text-[#d4a373] border border-white/[0.08] font-mono text-[10px] font-semibold">
                         OWNER
                       </span>
                     ) : (
                       <select
                         value={m.role}
                         onChange={(e) => handleUpdateRole(m.user_id, e.target.value)}
-                        className="px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-slate-300 text-xs outline-none"
+                        className="px-3 py-1 rounded-full bg-black/60 border border-white/10 text-[#ede8df] text-xs outline-none"
                       >
                         <option value="admin">Admin</option>
                         <option value="editor">Editor</option>
@@ -249,7 +252,7 @@ export default function WorkspacesPage() {
                     {m.role !== "owner" && (
                       <button
                         onClick={() => handleRemoveMember(m.user_id)}
-                        className="text-slate-500 hover:text-rose-400 p-1"
+                        className="text-[#71717a] hover:text-rose-400 p-1 transition-colors"
                         title="Remove member"
                       >
                         <Trash2 className="w-3.5 h-3.5" />

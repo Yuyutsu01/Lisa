@@ -1,20 +1,28 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, Newsreader, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const sansFont = Plus_Jakarta_Sans({
+  variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const serifFont = Newsreader({
+  variable: "--font-serif",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  weight: ["300", "400", "500", "600"],
+});
+
+const monoFont = Geist_Mono({
+  variable: "--font-mono",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "Lisa - AI Content Distribution & Repurposing Platform",
-  description: "Transform one original content piece into platform-native, publishable variants across all channels.",
+  title: "Lisa — AI Content Distribution & Repurposing Platform",
+  description: "Create once. Adapt intelligently. Publish everywhere possible. Learn from performance.",
 };
 
 export default function RootLayout({
@@ -25,9 +33,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
+      className={`${sansFont.variable} ${serifFont.variable} ${monoFont.variable} h-full antialiased dark`}
     >
-      <body className="min-h-full flex flex-col bg-slate-950 text-slate-100">{children}</body>
+      <body className="min-h-full flex flex-col bg-[#09090b] text-[#ede8df] font-sans selection:bg-[#ede8df]/20 selection:text-white">
+        {children}
+      </body>
     </html>
   );
 }
