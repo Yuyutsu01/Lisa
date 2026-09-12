@@ -366,25 +366,40 @@ Database / Queue / External API
 #### Agent 6: Media Processing Service / Worker (Deterministic)
 - **Purpose:** Execute resizing, cropping, transcoding, thumbnail extraction, and preview generation using FFmpeg / Sharp / Pillow.
 
-#### Agent 7: Quality Assurance Agent
-- **Purpose:** Automated compliance, voice, fidelity, and factuality review.
-- **Output Schema:**
+#### Agent 7: Quality Assurance Agent (QualityEvaluator)
+- **Purpose:** Automated compliance, brand voice, source fidelity, grammar, originality, platform formatting, hook strength, and safety review using an objective 10-point scorecard.
+- **10-Point Scorecard Criteria:**
+  1. `source_fidelity`: Verifies claims, facts, and takeaways match the source without hallucinations.
+  2. `brand_voice`: Enforces tone, vocabulary, style guide, and persona consistency.
+  3. `grammar_syntax`: Checks syntax, punctuation, flow, and sentence completeness.
+  4. `platform_formatting`: Enforces platform character bounds, line breaks, emojis, and hashtags.
+  5. `hook_strength`: Assesses first 2-3 lines for stopping power, curiosity, or value proposition.
+  6. `specificity`: Penalizes vague generalizations, rewarding concrete facts and metrics.
+  7. `usefulness`: Ensures actionable, educational, or entertaining reader takeaway.
+  8. `originality`: Detects and bans generic clichés (e.g., *"In today's fast-paced world"*).
+  9. `cta_quality`: Evaluates natural alignment and clarity of the call-to-action.
+  10. `policy_compliance`: Validates safety, spam filter avoidance, and platform policy adherence.
+- **Output Schema (`QualityCheckResult`):**
 ```json
 {
-  "quality_score": 0.91,
-  "checks": {
-    "brand_voice": "pass",
-    "source_fidelity": "pass",
-    "platform_fit": "pass",
-    "unsupported_claims": "warning",
-    "format_validity": "pass"
-  },
-  "issues": [
-    {
-      "severity": "warning",
-      "message": "Numerical claim should be verified against source."
-    }
-  ]
+  "quality_score": 0.92,
+  "passed": true,
+  "requires_human_review": false,
+  "checks": [
+    { "name": "source_fidelity", "status": "pass", "score": 0.95, "reason": "Accurately reflects core thesis and statistics." },
+    { "name": "brand_voice", "status": "pass", "score": 0.90, "reason": "Matches confident, authoritative brand tone." },
+    { "name": "grammar_syntax", "status": "pass", "score": 0.98, "reason": "Flawless sentence structure." },
+    { "name": "platform_formatting", "status": "pass", "score": 0.92, "reason": "Optimal line breaks and whitespace." },
+    { "name": "hook_strength", "status": "pass", "score": 0.94, "reason": "Strong curiosity-driven opening." },
+    { "name": "specificity", "status": "pass", "score": 0.88, "reason": "Includes concrete action items." },
+    { "name": "usefulness", "status": "pass", "score": 0.92, "reason": "Clear tactical takeaways provided." },
+    { "name": "originality", "status": "pass", "score": 0.90, "reason": "Zero generic clichés detected." },
+    { "name": "cta_quality", "status": "pass", "score": 0.88, "reason": "Engaging conversational closing." },
+    { "name": "policy_compliance", "status": "pass", "score": 1.00, "reason": "Fully compliant with platform safety guidelines." }
+  ],
+  "issues": [],
+  "suggestions": ["Consider adding a quick question at the end to boost reply comments."],
+  "revision_count": 0
 }
 ```
 
@@ -437,32 +452,32 @@ Database / Queue / External API
 ```mermaid
 flowchart TD
     A[User Submits Source] --> B[Create Generation Job]
-    B --> C[Extract Content Brief (Intake Agent)]
-    C --> D[Load Brand Context (RAG)]
-    D --> E[Generate Platform Strategies (Strategy Agent)]
-    E --> F[Generate Variants (Adaptation Agent)]
-    F --> G[Generate Media Plans (Media Agent)]
-    G --> H[Process Media Derivatives (Worker)]
-    H --> I[Run Quality Checks (QA Agent)]
-    I --> J{Issues Found?}
-    J -->|High Severity| K[Flag for Needs Review]
-    J -->|Clean / Low Severity| L[Mark Ready for Approval]
-    K --> M[User Edits or Regenerates]
-    M --> I
-    L --> N[User Approves Variant]
-    N --> O[Create Publishing Job]
-    O --> P[Dispatch to Platform Adapter]
+    B --> C[Extract Content Brief (SourceAnalyst / Intake Agent)]
+    C --> D[Load Brand Context & Archetypes]
+    D --> E[Generate Platform Strategy (PlatformStrategist / Strategy Agent)]
+    E --> F[Generate Platform Variants (PlatformWriter / Adaptation Agent)]
+    F --> G[Run 10-Point QA Scorecard (QualityEvaluator / QA Agent)]
+    G --> H{Score >= 0.85 & No Critical Errors?}
+    H -->|No: Score < 0.85 & Retries < 2| I[Auto-Revision Loop: Synthesize Critique & Feedback]
+    I --> F
+    H -->|No: Retries Exhausted| J[Flag as Needs Review / Low Quality]
+    H -->|Yes: Passed| K[Save Variant & Ready for Review]
+    J --> L[User Review / In-Place Regeneration]
+    K --> L
+    L --> M[User Approves Variant]
+    M --> N[Create Publishing Job / Schedule]
+    N --> O[Dispatch to Platform Adapter]
 ```
 
 ### 10.2 Workflow State Lifecycle
 ```text
 CREATED
-  → INTAKE_RUNNING
-  → STRATEGY_RUNNING
-  → GENERATION_RUNNING
-  → MEDIA_PROCESSING
-  → QUALITY_CHECK
-  → NEEDS_REVIEW / READY_FOR_APPROVAL
+  → INTAKE_RUNNING (SourceAnalyst brief extraction)
+  → STRATEGY_RUNNING (PlatformStrategist rule compilation)
+  → GENERATION_RUNNING (PlatformWriter draft synthesis)
+  → QUALITY_CHECK (QualityEvaluator 10-point evaluation)
+  → AUTO_REVISION (Conditional retry loop if score < 0.85, max 2 retries)
+  → DRAFT / NEEDS_REVIEW / READY_FOR_APPROVAL
   → APPROVED
   → SCHEDULED
   → PUBLISHING
@@ -815,11 +830,13 @@ insight.generated | recommendation.generated
 
 - **Security (NFR-SEC):** Encrypted OAuth tokens at rest (AES-256-GCM), server-side RBAC isolation per tenant, secure signed URLs for assets, prompt injection isolation for untrusted documents.
 - **Reliability (NFR-REL):** Background job state durability in Redis/PostgreSQL surviving container restarts; dead-letter queues (DLQ) for repeated failures.
-- **Performance (NFR-PERF):** API p95 read latency < 500ms; generation job acceptance < 1s; end-to-end multi-variant generation < 2min.
-- **Cost & Routing (NFR-COST):** Model routing abstraction:
-  - *Fast / Economical LLM:* Classification, tagging, brief extraction, simple rewrites.
-  - *Strong LLM:* Complex multi-channel strategy, long-form adaptation, QA validation.
-  - *Embedding Model:* Semantic search across brand knowledge docs.
+- **Database & Pooling (NFR-DB):** Async SQLAlchemy connection pool (`pool_size=10`, `max_overflow=20`, `pool_recycle=1800`, `pool_pre_ping=True`) ensuring connection health during concurrent agent generation jobs without connection starvation.
+- **Network Resilience & Cold Starts (NFR-NET):** Exponential backoff retry for hosting cold starts (502/503/504), client-side abort controllers (30s API / 75s generation timeout), and Next.js proxy rewrites for production deployments.
+- **Performance (NFR-PERF):** API p95 read latency < 250ms; generation job acceptance < 1s; end-to-end multi-variant generation < 30s with Groq LLM inference.
+- **Model Routing & Fallback (NFR-LLM):** Model tiering with deterministic offline fallback:
+  - *High-Speed Inference (Groq LLaMA 3.3 70B / Qwen):* Fast multi-variant generation and real-time QA evaluation.
+  - *Advanced Model (OpenAI GPT-4o / Claude 3.5 Sonnet):* Complex domain synthesis and deep brand voice analysis.
+  - *Deterministic Rule Engine:* Zero-downtime offline fallback for brief extraction, platform rules, and 10-point scorecard evaluation.
 
 ---
 
@@ -831,63 +848,52 @@ insight.generated | recommendation.generated
 Lisa/
 ├── backend/
 │   ├── app/
-│   │   ├── api/             # FastAPI route controllers
-│   │   ├── core/            # Config, security, database session
-│   │   ├── auth/            # Authentication & RBAC
-│   │   ├── workspaces/      # Multi-tenant workspace logic
-│   │   ├── brands/          # Brand profile & knowledge base
-│   │   ├── content/         # Sources, variants, calendar
-│   │   ├── media/           # Asset storage & derivative pipeline
-│   │   ├── agents/          # LangGraph / LangChain agent definitions
-│   │   │   ├── intake/
-│   │   │   ├── strategy/
-│   │   │   ├── adaptation/
-│   │   │   ├── caption/
-│   │   │   ├── quality/
-│   │   │   └── recommendations/
-│   │   ├── publishing/      # Platform adapter implementations
-│   │   │   ├── base.py
-│   │   │   ├── instagram.py
-│   │   │   ├── tiktok.py
-│   │   │   ├── youtube.py
-│   │   │   ├── x.py
-│   │   │   ├── linkedin.py
-│   │   │   └── email.py
-│   │   ├── analytics/       # Metric ingestion & normalization
-│   │   └── notifications/   # Alerts & webhooks
-│   ├── workers/             # Celery / Temporal queue workers
-│   ├── migrations/          # Alembic database migrations
-│   └── tests/
+│   │   ├── api/             # FastAPI route controllers (sources, variants, workspaces, auth, publishing)
+│   │   ├── core/            # Config, security, async database session & pooling
+│   │   ├── auth/            # Authentication, JWT, and workspace RBAC
+│   │   ├── db/              # SQLAlchemy models and base classes
+│   │   ├── schemas/         # Pydantic validation models (QualityCheckResult, ContentBrief, etc.)
+│   │   ├── agents/          # Multi-agent architecture
+│   │   │   ├── base.py      # Async LLM runner, parse_json_safely, AgentContext
+│   │   │   ├── intake.py    # SourceAnalyst (extracts thesis, takeaways, claims, CTAs)
+│   │   │   ├── strategy.py  # PlatformStrategist (enforces LinkedIn, X, IG, YT, TikTok rules)
+│   │   │   ├── adaptation.py# PlatformWriter (semantic variant generator)
+│   │   │   ├── qa.py        # QualityEvaluator (10-point scorecard & cliché detector)
+│   │   │   └── pipeline.py  # Orchestrator & Automatic Revision Loop
+│   │   ├── publishing/      # Platform adapter implementations (LinkedIn, X, IG, YT, TikTok, Email)
+│   │   └── analytics/       # Metric ingestion, normalization & closed-loop recommendations
+│   ├── alembic/             # Database migrations
+│   └── tests/               # Pytest suite (test_quality_pipeline.py, test_agents.py, etc.)
 │
 └── frontend/
-    ├── app/                 # Next.js / Vite SPA routes
-    │   ├── dashboard/
-    │   ├── content/
-    │   ├── calendar/
-    │   ├── analytics/
-    │   ├── brand/
-    │   └── settings/
-    ├── components/          # Reusable UI component library
-    ├── features/            # Feature-specific modules (editor, review, calendar)
-    └── lib/                 # API client, state management, utilities
+    ├── app/                 # Next.js App Router
+    │   ├── content/         # Content Studio & Platform Variant Review (10-point scorecard)
+    │   ├── library/         # Content Library with debounced search & pulse skeletons
+    │   ├── dashboard/       # Overview metrics & quick actions
+    │   ├── analytics/       # Cross-platform performance insights
+    │   ├── integrations/    # Social account connections & OAuth status
+    │   ├── settings/        # Workspace and brand profile settings
+    │   └── login / register # Authentication flows
+    ├── components/          # Reusable UI component library (AppLayout, Navbar, Sidebar)
+    └── lib/                 # API client with cold-start retry, state store, utilities
 ```
 
 ---
 
-## 22. Release Roadmap
+## 22. Release Roadmap & Implementation Status
 
-- **Phase 0:** Technical Foundation (Docker, Postgres, Redis, FastAPI, Next.js, CI/CD).
-- **Phase 1:** Auth, Multi-Tenancy & Brand Intelligence (Workspaces, RBAC, Brand profiles).
-- **Phase 2:** Content Source Editor & Asset Library (Uploads, S3 storage, rich editor).
-- **Phase 3:** Agent Foundation & Content Brief (Intake Agent, LLM routing, structured schemas).
-- **Phase 4:** Platform Strategy & Variant Adaptation (Strategy, Adaptation, and Caption Agents).
-- **Phase 5:** Media Processing Pipeline (Sharp / FFmpeg resizing, cropping, transcoding).
-- **Phase 6:** Review UI & Content Calendar (Approval states, inline editing, calendar rescheduling).
-- **Phase 7:** Publishing Engine & First Integrations (OAuth, state machine, LinkedIn, X, Instagram).
-- **Phase 8:** Additional Platforms (YouTube, TikTok, Threads, Email, CMS).
-- **Phase 9:** Analytics Normalization & Performance Engine (Metric sync, cross-platform graphs).
-- **Phase 10:** Intelligence & Content Recommendations (Analytics Agent & Opportunity engine).
-- **Phase 11:** Production Hardening, Load Testing & Launch.
+- **Phase 0:** Technical Foundation (Docker, Postgres, Redis, FastAPI, Next.js, CI/CD). `[COMPLETED]`
+- **Phase 1:** Auth, Multi-Tenancy & Brand Intelligence (Workspaces, RBAC, Brand profiles). `[COMPLETED]`
+- **Phase 2:** Content Source Editor & Asset Library (Uploads, S3 storage, rich editor). `[COMPLETED]`
+- **Phase 3:** Agent Foundation & Content Brief (Intake Agent, LLM routing, structured schemas). `[COMPLETED]`
+- **Phase 4:** Platform Strategy & Variant Adaptation (Strategy, Adaptation, and Platform rules). `[COMPLETED]`
+- **Phase 5:** 10-Point QA Scorecard & Auto-Revision Loop (Objective 10 metrics, cliché banning, retry loop). `[COMPLETED]`
+- **Phase 6:** Review UI & Content Calendar (Scorecard badge review, inline editing, calendar scheduling). `[COMPLETED]`
+- **Phase 7:** Publishing Engine & Integrations (OAuth state machine, LinkedIn, X, Instagram, YouTube, TikTok). `[COMPLETED]`
+- **Phase 8:** Latency & Cold-Start Optimization (Proxy rewrites, DB connection pooling, request retries). `[COMPLETED]`
+- **Phase 9:** Analytics Normalization & Performance Engine (Metric sync, cross-platform graphs). `[COMPLETED]`
+- **Phase 10:** Intelligence & Content Recommendations (Analytics Agent & Opportunity engine). `[COMPLETED]`
+- **Phase 11:** Production Hardening, Load Testing & Launch. `[IN PROGRESS]`
 
 ---
 
