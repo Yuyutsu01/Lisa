@@ -172,6 +172,33 @@
     0 0 32px rgba(212, 163, 115, 0.24);
 }
 
+/* Editorial Manifesto Glow & Shimmer */
+.manifesto-glow-text {
+  text-shadow: 
+    0 0 20px rgba(212, 163, 115, 0.35),
+    0 0 45px rgba(212, 163, 115, 0.18);
+  transition: all 0.5s ease;
+}
+
+.manifesto-glow-text:hover {
+  text-shadow: 
+    0 0 30px rgba(212, 163, 115, 0.55),
+    0 0 70px rgba(212, 163, 115, 0.3);
+}
+
+@keyframes manifestoShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.manifesto-shimmer {
+  background: linear-gradient(90deg, #ede8df 0%, #f7f4ed 25%, #d4a373 50%, #f7f4ed 75%, #ede8df 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: manifestoShimmer 9s ease-in-out infinite;
+}
+
 .lisa-hero-title {
   position: relative;
   display: inline-block;
@@ -209,3 +236,218 @@
   text-shadow: 0 0 12px rgba(212, 163, 115, 0.35);
   transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+/* ==========================================================================
+   BUTTON & INTERACTIVE EFFECTS SYSTEM
+   ========================================================================== */
+
+/* 1. Hover Glow */
+.btn-hover-glow {
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-hover-glow:hover {
+  box-shadow: 0 0 24px rgba(212, 163, 115, 0.35), 0 0 45px rgba(212, 163, 115, 0.15);
+}
+
+.btn-hover-glow-white:hover {
+  box-shadow: 0 0 20px rgba(237, 232, 223, 0.3), 0 0 40px rgba(237, 232, 223, 0.12);
+}
+
+/* 2. Press / Click Feedback (Default for all buttons) */
+.btn-press, button, a[role="button"] {
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-press:active, button:active, a[role="button"]:active {
+  transform: scale(0.97);
+}
+
+/* 3. Gradient Shimmer Effect */
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.22) 50%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  pointer-events: none;
+  transition: none;
+}
+
+.btn-shimmer:hover::after {
+  animation: btn-shimmer-pass 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes btn-shimmer-pass {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 200%;
+  }
+}
+
+/* 4. Ripple Click Feedback */
+.btn-ripple-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-ripple-wave {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(0);
+  animation: ripple-spread 0.55s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes ripple-spread {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   SCROLL & AMBIENT ANIMATION SYSTEM
+   ========================================================================== */
+
+/* Animated Ambient Gradient Orbs */
+@keyframes ambient-orb-float-1 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-25px, 18px) scale(1.06);
+  }
+}
+
+@keyframes ambient-orb-float-2 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(22px, -20px) scale(1.08);
+  }
+}
+
+.ambient-orb-1 {
+  animation: ambient-orb-float-1 18s ease-in-out infinite;
+}
+
+.ambient-orb-2 {
+  animation: ambient-orb-float-2 22s ease-in-out infinite;
+}
+
+/* Scroll Reveal Utility - Safe default visibility */
+.scroll-reveal {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scroll-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Page Mount Route Transition */
+.page-fade-in {
+  animation: pageEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* AI Generation Animated Streamer & Cursor */
+.ai-typing-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  background-color: #d4a373;
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: cursorBlink 0.9s infinite;
+}
+
+@keyframes cursorBlink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Card Hover Lift Enhancement */
+.card-hover-lift {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+}
+
+.card-hover-lift:hover {
+  transform: translateY(-4px);
+  border-color: rgba(237, 232, 223, 0.22);
+  box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.7), 0 0 25px rgba(212, 163, 115, 0.08);
+}
+
+/* Horizontal Scroll Container Utility */
+.horizontal-scroll-snap {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.horizontal-scroll-snap > * {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
+/* Laptop and Desktop Viewport Optimizations */
+@media (min-width: 1024px) and (max-height: 850px) {
+  /* Slightly more compact density on laptops with 768px-850px viewport height */
+  .hirael-card {
+    border-radius: 1.25rem;
+  }
+}
+
+/* Reduced Motion Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .scroll-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+

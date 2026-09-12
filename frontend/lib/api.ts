@@ -9,7 +9,7 @@ const resolveApiBaseUrl = (): string => {
     // In browser, relative /api/v1 goes through Next.js proxy rewrites
     const envUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
     if (envUrl && envUrl.trim() !== "") {
-      let raw = envUrl.trim().replace(/\/+$/, "");
+      const raw = envUrl.trim().replace(/\/+$/, "");
       return raw.endsWith("/api/v1") ? raw : `${raw}/api/v1`;
     }
     return "/api/v1";

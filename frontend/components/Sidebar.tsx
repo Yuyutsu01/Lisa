@@ -19,7 +19,7 @@ interface SidebarProps {
   activeWorkspaceId?: string | null;
 }
 
-export function Sidebar({ activeWorkspaceId }: SidebarProps) {
+export function Sidebar({}: SidebarProps) {
   const pathname = usePathname();
 
   const navItems = [
@@ -35,21 +35,21 @@ export function Sidebar({ activeWorkspaceId }: SidebarProps) {
   ];
 
   return (
-    <aside className="w-64 border-r border-white/[0.07] bg-[#0c0c0e] flex flex-col justify-between p-4 shrink-0 select-none">
+    <aside className="w-60 xl:w-64 border-r border-white/[0.07] bg-[#0c0c0e] flex flex-col justify-between p-3.5 sm:p-4 shrink-0 select-none">
       <div>
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 px-3 py-4 mb-5 group">
-          <div className="w-9 h-9 rounded-2xl bg-[#ede8df] text-[#08080a] flex items-center justify-center font-bold text-sm shadow-md transition-transform duration-300 group-hover:scale-105 font-mono">
+        <Link href="/" className="flex items-center gap-2.5 px-2.5 py-3 mb-4 group cursor-pointer">
+          <div className="w-8 h-8 rounded-xl bg-[#ede8df] text-[#08080a] flex items-center justify-center font-bold text-xs shadow-md transition-transform duration-300 group-hover:scale-105 font-mono">
             L*
           </div>
           <div>
             <div className="flex items-center gap-1">
-              <span className="font-semibold text-base tracking-tight text-[#ede8df] lisa-warm-glow">
+              <span className="font-semibold text-sm sm:text-base tracking-tight text-[#ede8df] lisa-warm-glow">
                 Lisa<span className="text-[#d4a373] lisa-asterisk">*</span>
               </span>
-              <span className="text-[11px] font-mono text-[#787672]">OS</span>
+              <span className="text-[10px] font-mono text-[#787672]">OS</span>
             </div>
-            <span className="text-[10px] block text-[#a6a39b] font-mono tracking-wider uppercase">
+            <span className="text-[9px] block text-[#a6a39b] font-mono tracking-wider uppercase">
               AI Content Engine
             </span>
           </div>
@@ -64,13 +64,13 @@ export function Sidebar({ activeWorkspaceId }: SidebarProps) {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-medium transition-all ${
+                className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all duration-150 active:scale-[0.98] ${
                   isActive
                     ? "bg-white/[0.09] text-[#ede8df] border border-white/[0.12] shadow-sm font-semibold"
                     : "text-[#8a8a93] hover:text-[#ede8df] hover:bg-white/[0.04]"
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? "text-[#ede8df]" : "text-[#71717a]"}`} />
+                <Icon className={`w-3.5 h-3.5 ${isActive ? "text-[#ede8df]" : "text-[#71717a]"}`} />
                 <span>{item.name}</span>
               </Link>
             );

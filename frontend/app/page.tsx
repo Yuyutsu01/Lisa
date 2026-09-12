@@ -8,31 +8,32 @@ import {
   ArrowUpRight,
   Film,
   MessageSquareQuote,
-  Radio,
   Check,
   Sparkles,
   Volume2,
   VolumeX,
-  Layers,
-  Share2,
   Cpu,
   ShieldAlert,
   Calendar,
   BarChart3,
   Sliders,
   CheckCircle2,
+  ChevronRight,
+  ChevronLeft,
 } from "lucide-react";
+import { InteractiveButton } from "@/components/InteractiveButton";
 
 export default function LisaHomePage() {
   const router = useRouter();
-  const [inquirySent, setInquirySent] = useState(false);
+  const [inquiryStatus, setInquiryStatus] = useState<"idle" | "loading" | "success">("idle");
   const [inquiryEmail, setInquiryEmail] = useState("");
   const [inquiryMessage, setInquiryMessage] = useState("");
 
-  // Scroll tracking for parallax, active nav, and scroll progress
+  // Scroll tracking for parallax, active nav, sticky navbar transformation, and progress
   const [scrollY, setScrollY] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [activeSection, setActiveSection] = useState<string>("hero");
+  const horizontalScrollRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -134,6 +135,16 @@ export default function LisaHomePage() {
     }
   };
 
+  const scrollHorizontal = (direction: "left" | "right") => {
+    if (horizontalScrollRef.current) {
+      const scrollAmount = 360;
+      horizontalScrollRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
+
   const handleEnterOS = () => {
     const token =
       typeof window !== "undefined"
@@ -149,46 +160,67 @@ export default function LisaHomePage() {
 
   const handleInquirySubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setInquirySent(true);
+    setInquiryStatus("loading");
     setTimeout(() => {
-      setInquirySent(false);
-      setInquiryEmail("");
-      setInquiryMessage("");
-    }, 3000);
+      setInquiryStatus("success");
+      setTimeout(() => {
+        setInquiryStatus("idle");
+        setInquiryEmail("");
+        setInquiryMessage("");
+      }, 3500);
+    }, 1200);
   };
 
+  const isScrolled = scrollY > 60;
+
   return (
-    <div className="min-h-screen bg-[#08080a] text-[#ede8df] selection:bg-[#ede8df]/20 selection:text-white p-2 sm:p-4 md:p-6 flex flex-col items-center">
-      {/* Sleek Luminous Scroll Progress Indicator */}
-      <div className="fixed top-0 left-0 right-0 h-[2px] z-50 pointer-events-none bg-white/[0.03]">
+    <div className="min-h-screen bg-[#08080a] text-[#ede8df] selection:bg-[#ede8df]/20 selection:text-white p-2 sm:p-4 md:p-5 flex flex-col items-center">
+      {/* 8. Sleek Scroll Progress Indicator */}
+      <div className="fixed top-0 left-0 right-0 h-[2.5px] z-50 pointer-events-none bg-white/[0.04]">
         <div
-          className="h-full bg-gradient-to-r from-[#d4a373] via-[#ede8df] to-[#d4a373] transition-all duration-75 ease-out shadow-[0_0_8px_rgba(212,163,115,0.4)]"
+          className="h-full bg-gradient-to-r from-[#d4a373] via-[#ede8df] to-[#d4a373] transition-all duration-75 ease-out shadow-[0_0_12px_rgba(212,163,115,0.6)]"
           style={{ width: `${scrollProgress}%` }}
         />
       </div>
 
-      {/* Container Frame with rounded edges matching design */}
-      <div className="w-full max-w-[1520px] rounded-[24px] sm:rounded-[36px] bg-[#09090b] border border-white/[0.06] relative overflow-hidden shadow-2xl flex flex-col">
-        {/* Subtle Ambient Luminescence Glow with gentle scroll parallax */}
+      {/* Container Frame with balanced proportions for laptop screens */}
+      <div className="w-full max-w-[1440px] rounded-[20px] sm:rounded-[30px] bg-[#09090b] border border-white/[0.06] relative overflow-hidden shadow-2xl flex flex-col">
+        {/* 13. Animated Ambient Gradient Background with 9. Subtle Parallax */}
         <div
-          className="absolute top-0 right-0 w-[55vw] max-w-[800px] h-[500px] ambient-glow-warm pointer-events-none z-0 transition-transform duration-150 ease-out"
-          style={{ transform: `translateY(${scrollY * 0.08}px)` }}
+          className="absolute top-0 right-0 w-[55vw] max-w-[750px] h-[480px] ambient-glow-warm pointer-events-none z-0 ambient-orb-1 transition-transform duration-200 ease-out"
+          style={{ transform: `translateY(${scrollY * 0.07}px)` }}
         />
         <div
-          className="absolute top-[35%] left-[-10%] w-[45vw] h-[450px] ambient-glow-center pointer-events-none z-0 transition-transform duration-150 ease-out"
+          className="absolute top-[35%] left-[-8%] w-[45vw] h-[420px] ambient-glow-center pointer-events-none z-0 ambient-orb-2 transition-transform duration-200 ease-out"
           style={{ transform: `translateY(${scrollY * 0.04}px)` }}
         />
         <div
-          className="absolute bottom-[20%] right-[-10%] w-[45vw] h-[450px] ambient-glow-warm pointer-events-none z-0 transition-transform duration-150 ease-out"
+          className="absolute bottom-[20%] right-[-8%] w-[45vw] h-[420px] ambient-glow-warm pointer-events-none z-0 transition-transform duration-200 ease-out"
           style={{ transform: `translateY(${-scrollY * 0.03}px)` }}
         />
 
-        {/* Top Floating Pill Navigation - Sticky across all folds with active state */}
-        <div className="sticky top-4 w-full px-4 sm:px-8 flex items-center justify-center z-40 pointer-events-none">
-          <nav className="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 rounded-full hirael-glass-nav text-xs sm:text-sm text-[#a6a39b] shadow-2xl pointer-events-auto border border-white/10 backdrop-blur-xl transition-all duration-300">
+        {/* 11. Sticky Navbar Transformation (Transitions from transparent/ambient to compact, darker, blurred) */}
+        <div className="sticky top-3 sm:top-4 w-full px-4 sm:px-8 flex items-center justify-center z-40 pointer-events-none transition-all duration-300">
+          <nav
+            className={`inline-flex items-center gap-1 sm:gap-1.5 px-3 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-[13px] text-[#a6a39b] shadow-2xl pointer-events-auto transition-all duration-300 ${
+              isScrolled
+                ? "bg-[#0c0c0e]/95 backdrop-blur-2xl border border-white/15 shadow-black/80 py-1.5 scale-95"
+                : "hirael-glass-nav border border-white/10"
+            }`}
+          >
+            <button
+              onClick={() => scrollToSection("hero")}
+              className={`px-3 sm:px-3.5 py-1.5 rounded-full transition-all duration-150 active:scale-95 cursor-pointer font-medium ${
+                activeSection === "hero"
+                  ? "bg-white/[0.14] text-[#ede8df] shadow-sm"
+                  : "hover:text-[#ede8df] hover:bg-white/[0.06]"
+              }`}
+            >
+              Home
+            </button>
             <button
               onClick={() => scrollToSection("our-story")}
-              className={`px-3 sm:px-4 py-1.5 rounded-full transition-all cursor-pointer font-medium ${
+              className={`px-3 sm:px-3.5 py-1.5 rounded-full transition-all duration-150 active:scale-95 cursor-pointer font-medium ${
                 activeSection === "our-story"
                   ? "bg-white/[0.14] text-[#ede8df] shadow-sm"
                   : "hover:text-[#ede8df] hover:bg-white/[0.06]"
@@ -198,7 +230,7 @@ export default function LisaHomePage() {
             </button>
             <button
               onClick={() => scrollToSection("programs")}
-              className={`px-3 sm:px-4 py-1.5 rounded-full transition-all cursor-pointer font-medium ${
+              className={`px-3 sm:px-3.5 py-1.5 rounded-full transition-all duration-150 active:scale-95 cursor-pointer font-medium ${
                 activeSection === "programs"
                   ? "bg-white/[0.14] text-[#ede8df] shadow-sm"
                   : "hover:text-[#ede8df] hover:bg-white/[0.06]"
@@ -208,7 +240,7 @@ export default function LisaHomePage() {
             </button>
             <button
               onClick={() => scrollToSection("enquiries")}
-              className={`px-3 sm:px-4 py-1.5 rounded-full transition-all cursor-pointer font-medium ${
+              className={`px-3 sm:px-3.5 py-1.5 rounded-full transition-all duration-150 active:scale-95 cursor-pointer font-medium ${
                 activeSection === "enquiries"
                   ? "bg-white/[0.14] text-[#ede8df] shadow-sm"
                   : "hover:text-[#ede8df] hover:bg-white/[0.06]"
@@ -217,48 +249,52 @@ export default function LisaHomePage() {
               Enquiries
             </button>
 
-            {/* Direct Gateway to Content Studio OS */}
+            {/* Direct Gateway to Content Studio OS with Magnetic Glow */}
             <div className="h-4 w-[1px] bg-white/10 mx-1" />
-            <button
+            <InteractiveButton
               onClick={handleEnterOS}
-              className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-full bg-white/10 hover:bg-white/15 text-[#ede8df] text-xs font-semibold transition-all cursor-pointer"
+              variant="secondary"
+              size="sm"
+              magnetic
+              glow
+              leftIcon={<Sparkles className="w-3 h-3 text-[#d4a373]" />}
+              className="font-semibold text-xs py-1 px-3.5"
             >
-              <Sparkles className="w-3 h-3 text-[#d4a373]" />
-              <span>Enter OS</span>
-            </button>
+              Enter OS
+            </InteractiveButton>
           </nav>
         </div>
 
         {/* =========================================================================
-            PAGE 1: HERO VIEWPORT (100x / FULL VIEWPORT HEIGHT)
+            PAGE 1: HERO VIEWPORT (Optimized for Laptop Screens)
             ========================================================================= */}
         <section
           id="hero"
-          className="relative z-10 min-h-[calc(100vh-2rem)] flex flex-col justify-between px-6 sm:px-12 md:px-20 pt-8 pb-12 sm:pb-16"
+          className="relative z-10 min-h-[calc(100vh-3.5rem)] max-h-[920px] flex flex-col justify-between px-6 sm:px-12 md:px-16 pt-6 pb-10 sm:pb-12"
         >
-          {/* Monumental Brandmark - Centered in viewport with subtle scroll parallax & warm glow */}
+          {/* Monumental Brandmark with balanced font sizing for laptop screens */}
           <div
-            className="my-auto py-6 sm:py-10 transition-transform duration-75 ease-out will-change-transform"
+            className="my-auto py-4 sm:py-8 transition-transform duration-75 ease-out will-change-transform"
             style={{
-              transform: `translateY(${Math.min(scrollY * 0.16, 110)}px)`,
-              opacity: Math.max(0.25, 1 - scrollY / 750),
+              transform: `translateY(${Math.min(scrollY * 0.14, 85)}px)`,
+              opacity: Math.max(0.3, 1 - scrollY / 650),
             }}
           >
-            <h1 className="lisa-hero-title text-[23vw] sm:text-[20vw] lg:text-[16rem] font-normal leading-[0.8] tracking-[-0.06em] select-none text-left cursor-pointer">
-              Lisa<span className="lisa-asterisk text-[#d4a373] inline-block -translate-y-2 sm:-translate-y-8 text-[0.55em]">*</span>
+            <h1 className="lisa-hero-title text-[19vw] sm:text-[16vw] lg:text-[11.5rem] xl:text-[13rem] font-normal leading-[0.82] tracking-[-0.05em] select-none text-left cursor-pointer">
+              Lisa<span className="lisa-asterisk text-[#d4a373] inline-block -translate-y-1 sm:-translate-y-5 text-[0.52em]">*</span>
             </h1>
           </div>
 
-          {/* Bottom Row: Subtitle, Overview Excerpt, Scroll Cue, and "Get in" Button */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end pt-4">
+          {/* Bottom Row: Subtitle, Overview Excerpt, Scroll Cue, and Magnetic CTAs */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-end pt-2">
             {/* Tagline & Principle */}
-            <div className="lg:col-span-7 space-y-3">
-              <p className="text-base sm:text-xl font-normal text-[#ede8df] tracking-tight">
+            <div className="lg:col-span-7 space-y-2.5">
+              <p className="text-sm sm:text-lg font-normal text-[#ede8df] tracking-tight">
                 Create once. Adapt intelligently. Publish everywhere possible. Learn from performance.
               </p>
-              <p className="text-xs sm:text-sm text-[#8a8a93] max-w-xl leading-relaxed">
+              <p className="text-xs sm:text-[13px] text-[#8a8a93] max-w-xl leading-relaxed">
                 Enterprise-grade, multi-tenant AI content operations operating system (OS). Rather than a simple chat wrapper,{" "}
-                <span className="lisa-warm-glow font-medium">Lisa</span> orchestrates specialized agents and deterministic software safeguards.
+                <span className="lisa-warm-glow font-medium">Lisa</span> orchestrates specialized agents with deterministic software safeguards.
               </p>
 
               {/* Interactive Scroll Down Cue */}
@@ -267,160 +303,150 @@ export default function LisaHomePage() {
                   onClick={() => scrollToSection("our-story")}
                   className="inline-flex items-center gap-2.5 text-[11px] font-mono tracking-wider text-[#787672] hover:text-[#d4a373] transition-colors cursor-pointer group"
                 >
-                  <div className="w-4 h-7 rounded-full border border-white/20 flex items-start justify-center p-0.5 group-hover:border-[#d4a373]/60 transition-colors">
+                  <div className="w-4 h-6 rounded-full border border-white/20 flex items-start justify-center p-0.5 group-hover:border-[#d4a373]/60 transition-colors">
                     <div className="w-1 h-2 rounded-full bg-[#d4a373] animate-bounce" />
                   </div>
-                  <span>SCROLL TO EXPLORE</span>
+                  <span>SCROLL DOWN</span>
                 </button>
               </div>
             </div>
 
-            {/* "Get in" CTA Button leading to User Registration */}
+            {/* 1. Hover Glow + 2. Magnetic Button + 3. Gradient Shimmer CTA Button */}
             <div className="lg:col-span-5 flex flex-col items-start lg:items-end justify-end">
-              <Link
-                href="/register"
-                className="hirael-pill-btn group cursor-pointer"
-              >
-                <span className="text-sm font-semibold tracking-tight text-[#08080a]">Get in</span>
-                <div className="w-7 h-7 rounded-full bg-[#08080a] text-white flex items-center justify-center transition-transform duration-300 group-hover:translate-x-1">
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </div>
+              <Link href="/register">
+                <InteractiveButton
+                  variant="primary"
+                  size="lg"
+                  glow
+                  shimmer
+                  magnetic
+                  rightIcon={
+                    <div className="w-6 h-6 rounded-full bg-[#08080a] text-white flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5">
+                      <ArrowRight className="w-3 h-3 text-[#ede8df]" />
+                    </div>
+                  }
+                  className="px-5 py-2.5 text-xs sm:text-sm font-semibold"
+                >
+                  Get in
+                </InteractiveButton>
               </Link>
             </div>
           </div>
         </section>
 
         {/* =========================================================================
-            PAGE 2: OUR STORY (PRODUCT OVERVIEW & PROBLEM STATEMENT)
+            PAGE 2: OUR STORY (ORCHESTRATION PIPELINE & CORE PRINCIPLES)
             ========================================================================= */}
         <section
           id="our-story"
-          className="relative z-10 min-h-screen flex flex-col justify-center px-6 sm:px-12 md:px-20 py-24 md:py-32 border-t border-white/[0.05]"
+          className="relative z-10 flex flex-col justify-center px-6 sm:px-12 md:px-16 py-12 sm:py-16 border-t border-white/[0.05] scroll-mt-12"
         >
-          <div className="max-w-5xl mx-auto space-y-16">
-            {/* Header / Manifesto */}
-            <div className="text-center space-y-6">
-              <div className="text-[11px] font-mono tracking-[0.25em] text-[#85827b] uppercase">
-                1. PRODUCT OVERVIEW & CORE PRINCIPLE
+          <div className="max-w-5xl mx-auto space-y-12">
+            {/* Architectural Columns & Pipeline Overview */}
+            <div className="text-center space-y-3">
+              <div className="text-[10px] sm:text-[11px] font-mono tracking-[0.25em] text-[#85827b] uppercase">
+                1. ORCHESTRATION PIPELINE & CORE PRINCIPLES
               </div>
 
-              <h2 className="text-3xl sm:text-5xl md:text-6xl font-normal leading-[1.18] tracking-[-0.03em] text-[#ede8df]">
-                <span className="lisa-warm-glow font-medium">Lisa</span> is an orchestrated pipeline where{" "}
-                <span className="font-editorial italic text-[#f7f4ed]">specialized AI agents collaborate</span>{" "}
-                with deterministic software safeguards.
-              </h2>
+              <h3 className="text-xl sm:text-3xl md:text-4xl font-normal leading-[1.25] tracking-[-0.03em] text-[#ede8df]">
+                Specialized AI agents collaborate with{" "}
+                <span className="font-editorial italic text-[#f7f4ed]">deterministic software safeguards.</span>
+              </h3>
 
-              <p className="text-sm sm:text-base leading-relaxed text-[#8a8a93] max-w-3xl mx-auto font-normal">
+              <p className="text-xs sm:text-sm leading-relaxed text-[#8a8a93] max-w-3xl mx-auto font-normal">
                 Rather than acting as a simple generic chat wrapper that writes captions,{" "}
                 <span className="lisa-warm-glow font-medium">Lisa</span> ingests canonical content sources, adapts them into platform-native variants (LinkedIn, X/Twitter, Instagram, YouTube Shorts, TikTok, Threads, Email Newsletters, and Blog CMS), validates them against brand guidelines, schedules them via an idempotent state machine, and analyzes cross-platform performance in a closed-loop feedback loop.
               </p>
             </div>
 
-            {/* Core Product Principle - 4 Architectural Columns */}
+            {/* Core Product Principle - 4 Architectural Columns with 14. Card Hover Lift */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="hirael-card p-5 space-y-3">
-                <div className="flex items-center justify-between text-xs font-mono text-[#d4a373]">
-                  <span>STAGE 01</span>
-                  <Sparkles className="w-3.5 h-3.5" />
-                </div>
-                <h3 className="text-sm font-semibold text-[#ede8df]">
-                  AI Proposes Structured Variants
-                </h3>
-                <p className="text-xs text-[#8a8a93] leading-relaxed">
-                  Specialized agents ingest canonical ideas and draft native hooks, threads, carousels, and scripts matching platform psychology.
-                </p>
-              </div>
-
-              <div className="hirael-card p-5 space-y-3">
-                <div className="flex items-center justify-between text-xs font-mono text-[#d4a373]">
-                  <span>STAGE 02</span>
-                  <ShieldAlert className="w-3.5 h-3.5" />
-                </div>
-                <h3 className="text-sm font-semibold text-[#ede8df]">
-                  Deterministic Validation
-                </h3>
-                <p className="text-xs text-[#8a8a93] leading-relaxed">
-                  Software validates strict boundaries: character limits, forbidden phrases, hashtag density, and visual aspect ratios automatically.
-                </p>
-              </div>
-
-              <div className="hirael-card p-5 space-y-3">
-                <div className="flex items-center justify-between text-xs font-mono text-[#d4a373]">
-                  <span>STAGE 03</span>
-                  <Sliders className="w-3.5 h-3.5" />
-                </div>
-                <h3 className="text-sm font-semibold text-[#ede8df]">
-                  Human-in-the-Loop Approval
-                </h3>
-                <p className="text-xs text-[#8a8a93] leading-relaxed">
-                  Creators review live simulated feed previews, tweak specific elements, and sign off before idempotent publishing dispatch.
-                </p>
-              </div>
-
-              <div className="hirael-card p-5 space-y-3">
-                <div className="flex items-center justify-between text-xs font-mono text-[#d4a373]">
-                  <span>STAGE 04</span>
-                  <BarChart3 className="w-3.5 h-3.5" />
-                </div>
-                <h3 className="text-sm font-semibold text-[#ede8df]">
-                  Closed-Loop Growth Loop
-                </h3>
-                <p className="text-xs text-[#8a8a93] leading-relaxed">
-                  Cross-network analytics feed actionable repurposing opportunities and performance signals back to the top of the funnel.
-                </p>
-              </div>
+              {[
+                {
+                  stage: "01",
+                  icon: Sparkles,
+                  title: "AI Proposes Structured Variants",
+                  desc: "Specialized agents ingest canonical ideas and draft native hooks, threads, carousels, and scripts matching platform psychology.",
+                  delay: 0,
+                },
+                {
+                  stage: "02",
+                  icon: ShieldAlert,
+                  title: "Deterministic Validation",
+                  desc: "Software validates strict boundaries: character limits, forbidden phrases, hashtag density, and visual aspect ratios automatically.",
+                  delay: 80,
+                },
+                {
+                  stage: "03",
+                  icon: Sliders,
+                  title: "Human-in-the-Loop Approval",
+                  desc: "Creators review live simulated feed previews, tweak specific elements, and sign off before idempotent publishing dispatch.",
+                  delay: 160,
+                },
+                {
+                  stage: "04",
+                  icon: BarChart3,
+                  title: "Closed-Loop Growth Loop",
+                  desc: "Cross-network analytics feed actionable repurposing opportunities and performance signals back to the top of the funnel.",
+                  delay: 240,
+                },
+              ].map((item, idx) => {
+                const Icon = item.icon;
+                return (
+                  <div key={idx} className="hirael-card card-hover-lift p-5 space-y-2.5 h-full">
+                    <div className="flex items-center justify-between text-xs font-mono text-[#d4a373]">
+                      <span>STAGE {item.stage}</span>
+                      <Icon className="w-3.5 h-3.5" />
+                    </div>
+                    <h3 className="text-xs sm:text-sm font-semibold text-[#ede8df]">
+                      {item.title}
+                    </h3>
+                    <p className="text-[11px] sm:text-xs text-[#8a8a93] leading-relaxed">
+                      {item.desc}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
 
-            {/* Problem Statement Section from README */}
-            <div className="pt-8 border-t border-white/[0.06]">
+            {/* Problem Statement Section */}
+            <div className="pt-6 border-t border-white/[0.06]">
               <div className="text-[10px] font-mono tracking-widest text-[#85827b] uppercase mb-4 text-center">
                 2. PROBLEM STATEMENT · SOLVING CONTENT OPERATIONS FRICTION
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05] space-y-1.5">
-                  <h4 className="font-semibold text-[#ede8df] flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
-                    Manual Repurposing Overhead
-                  </h4>
-                  <p className="text-[#8a8a93] leading-relaxed">
-                    Writing 1 high-value long-form article requires manually rewriting 8 different posts with distinct platform hooks, formatting rules, and character constraints.{" "}
-                    <span className="lisa-warm-glow font-medium">Lisa</span> eliminates this overhead.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05] space-y-1.5">
-                  <h4 className="font-semibold text-[#ede8df] flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
-                    Brand Voice Drift
-                  </h4>
-                  <p className="text-[#8a8a93] leading-relaxed">
-                    Multi-member teams struggle to maintain consistent brand tone, terminology, forbidden phrase compliance, and audience positioning.{" "}
-                    <span className="lisa-warm-glow font-medium">Lisa</span> enforces brand intelligence centrally.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05] space-y-1.5">
-                  <h4 className="font-semibold text-[#ede8df] flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
-                    Media Format Mismatches
-                  </h4>
-                  <p className="text-[#8a8a93] leading-relaxed">
-                    Manually cropping and aspect-ratio converting visual assets (Portrait 4:5, Square 1:1, Reels 9:16, Thumbnails 16:9) causes friction and visual bugs.{" "}
-                    <span className="lisa-warm-glow font-medium">Lisa</span> automates derivative generation.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05] space-y-1.5">
-                  <h4 className="font-semibold text-[#ede8df] flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
-                    Scattered Distribution & Disconnected Analytics
-                  </h4>
-                  <p className="text-[#8a8a93] leading-relaxed">
-                    Scheduling across disconnected third-party tools prevents normalized cross-platform performance tracking and intelligent closed-loop repurposing.{" "}
-                    <span className="lisa-warm-glow font-medium">Lisa</span> centralizes publishing and insights.
-                  </p>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs">
+                {[
+                  {
+                    title: "Manual Repurposing Overhead",
+                    desc: "Writing 1 high-value long-form article requires manually rewriting 8 different posts with distinct platform hooks, formatting rules, and character constraints. Lisa eliminates this overhead.",
+                  },
+                  {
+                    title: "Brand Voice Drift",
+                    desc: "Multi-member teams struggle to maintain consistent brand tone, terminology, forbidden phrase compliance, and audience positioning. Lisa enforces brand intelligence centrally.",
+                  },
+                  {
+                    title: "Media Format Mismatches",
+                    desc: "Manually cropping and aspect-ratio converting visual assets (Portrait 4:5, Square 1:1, Reels 9:16, Thumbnails 16:9) causes friction and visual bugs. Lisa automates derivative generation.",
+                  },
+                  {
+                    title: "Scattered Distribution & Disconnected Analytics",
+                    desc: "Scheduling across disconnected third-party tools prevents normalized cross-platform performance tracking and intelligent closed-loop repurposing. Lisa centralizes publishing and insights.",
+                  },
+                ].map((item, i) => (
+                  <div
+                    key={i}
+                    className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05] card-hover-lift space-y-1.5"
+                  >
+                    <h4 className="font-semibold text-[#ede8df] flex items-center gap-2 text-xs">
+                      <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+                      {item.title}
+                    </h4>
+                    <p className="text-[#8a8a93] text-[11px] sm:text-xs leading-relaxed">
+                      {item.desc}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -431,208 +457,236 @@ export default function LisaHomePage() {
             ========================================================================= */}
         <section
           id="programs"
-          className="relative z-10 min-h-screen flex flex-col justify-center px-6 sm:px-10 md:px-16 py-24 md:py-32 border-t border-white/[0.05]"
+          className="relative z-10 flex flex-col justify-center px-6 sm:px-10 md:px-16 py-16 sm:py-24 border-t border-white/[0.05]"
         >
-          <div className="text-center space-y-3 mb-16 sm:mb-20">
-            <div className="text-[11px] font-mono tracking-[0.25em] text-[#85827b] uppercase">
+          <div className="text-center space-y-2.5 mb-10 sm:mb-14">
+            <div className="text-[10px] sm:text-[11px] font-mono tracking-[0.25em] text-[#85827b] uppercase">
               3. KEY FEATURES & ENGINE CAPABILITIES
             </div>
-            <h2 className="text-2xl sm:text-4xl md:text-5xl font-normal tracking-tight text-[#ede8df]">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-normal tracking-tight text-[#ede8df]">
               Studio-grade architecture for visionary creators.
             </h2>
-            <p className="text-sm sm:text-base text-[#8a8a93] max-w-2xl mx-auto">
+            <p className="text-xs sm:text-sm text-[#8a8a93] max-w-2xl mx-auto">
               Engineered with multi-tenant RBAC, deterministic state machines, and high-velocity Groq inference.
             </p>
           </div>
 
-          {/* 4 Architectural Bento Cards Grid matching Image 3 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {/* Card 1: 00 Canonical Content Studio & Orchestrator */}
-            <div className="hirael-card p-6 sm:p-8 min-h-[420px] flex flex-col justify-between bg-gradient-to-b from-[#121216] to-[#0a0a0c]">
-              <div>
-                <div className="flex items-center justify-between text-xs text-[#75736d] mb-6">
-                  <div className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-[#d4a373]">
-                    <Cpu className="w-4 h-4" />
-                  </div>
-                  <span className="font-mono text-xs text-[#52504b]">00</span>
-                </div>
-
-                <h3 className="text-base font-semibold text-[#ede8df] mb-3">
-                  Multi-Agent Orchestrator
-                </h3>
-
-                <ul className="space-y-2.5 text-xs text-[#918e87]">
-                  <li className="flex items-start gap-2.5">
-                    <Check className="w-3.5 h-3.5 text-[#d4a373] mt-0.5 shrink-0" />
-                    <span>5 specialized agents for native formats</span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <Check className="w-3.5 h-3.5 text-[#d4a373] mt-0.5 shrink-0" />
-                    <span>Rich-text studio with debounced auto-saving</span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <Check className="w-3.5 h-3.5 text-[#d4a373] mt-0.5 shrink-0" />
-                    <span>One-click version rollback & history</span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <Check className="w-3.5 h-3.5 text-[#d4a373] mt-0.5 shrink-0" />
-                    <span>Structured JSON validation schemas</span>
-                  </li>
-                </ul>
+          {/* 10. Horizontal Scroll Section with Navigation Arrows */}
+          <div className="relative mb-8">
+            <div className="flex items-center justify-between pb-3 px-1">
+              <span className="text-[11px] font-mono uppercase tracking-wider text-[#85827b] flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#d4a373]" />
+                Interactive Module Carousel
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => scrollHorizontal("left")}
+                  aria-label="Scroll left"
+                  className="w-8 h-8 rounded-full bg-white/[0.05] border border-white/10 hover:bg-white/10 flex items-center justify-center text-[#ede8df] transition-all active:scale-95 cursor-pointer"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => scrollHorizontal("right")}
+                  aria-label="Scroll right"
+                  className="w-8 h-8 rounded-full bg-white/[0.05] border border-white/10 hover:bg-white/10 flex items-center justify-center text-[#ede8df] transition-all active:scale-95 cursor-pointer"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
               </div>
-
-              <Link
-                href="/register"
-                className="mt-6 pt-4 border-t border-white/[0.06] text-xs font-medium text-[#a6a39b] hover:text-[#ede8df] flex items-center justify-between group transition-colors"
-              >
-                <span>Get started</span>
-                <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </Link>
             </div>
 
-            {/* Card 2: 01 Variant Review & QA Studio */}
-            <div className="hirael-card p-6 sm:p-8 min-h-[420px] flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <div className="w-9 h-9 rounded-2xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-[#ede8df]">
-                    <MessageSquareQuote className="w-4 h-4" />
+            <div
+              ref={horizontalScrollRef}
+              className="horizontal-scroll-snap flex gap-4 overflow-x-auto pb-4 pt-1 scrollbar-none"
+            >
+              {/* Card 1 */}
+              <div className="hirael-card card-hover-lift p-6 w-[290px] sm:w-[330px] min-h-[380px] flex flex-col justify-between bg-gradient-to-b from-[#121216] to-[#0a0a0c]">
+                <div>
+                  <div className="flex items-center justify-between text-xs text-[#75736d] mb-4">
+                    <div className="w-8 h-8 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-[#d4a373]">
+                      <Cpu className="w-4 h-4" />
+                    </div>
+                    <span className="font-mono text-xs text-[#52504b]">00</span>
                   </div>
-                  <span className="font-mono text-xs text-[#52504b]">01</span>
+
+                  <h3 className="text-sm font-semibold text-[#ede8df] mb-2.5">
+                    Multi-Agent Orchestrator
+                  </h3>
+
+                  <ul className="space-y-2 text-[11px] text-[#918e87]">
+                    <li className="flex items-start gap-2">
+                      <Check className="w-3 h-3 text-[#d4a373] mt-0.5 shrink-0" />
+                      <span>5 specialized agents for native formats</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-3 h-3 text-[#d4a373] mt-0.5 shrink-0" />
+                      <span>Rich-text studio with debounced saving</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-3 h-3 text-[#d4a373] mt-0.5 shrink-0" />
+                      <span>One-click version rollback & history</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-3 h-3 text-[#d4a373] mt-0.5 shrink-0" />
+                      <span>Structured JSON validation schemas</span>
+                    </li>
+                  </ul>
                 </div>
 
-                <h3 className="text-base font-semibold text-[#ede8df] mb-3">
-                  Variant Review & QA Studio
-                </h3>
-
-                <ul className="space-y-2.5 text-xs text-[#918e87]">
-                  <li className="flex items-start gap-2.5">
-                    <Check className="w-3.5 h-3.5 text-[#ede8df] mt-0.5 shrink-0" />
-                    <span>Simulated LinkedIn, X, IG & Shorts feeds</span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <Check className="w-3.5 h-3.5 text-[#ede8df] mt-0.5 shrink-0" />
-                    <span>Real-time QA scorecard compliance checks</span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <Check className="w-3.5 h-3.5 text-[#ede8df] mt-0.5 shrink-0" />
-                    <span>Single-element AI regeneration modifiers</span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <Check className="w-3.5 h-3.5 text-[#ede8df] mt-0.5 shrink-0" />
-                    <span>Character limit & forbidden phrase filters</span>
-                  </li>
-                </ul>
+                <Link
+                  href="/register"
+                  className="mt-4 pt-3 border-t border-white/[0.06] text-xs font-medium text-[#a6a39b] hover:text-[#ede8df] flex items-center justify-between group transition-colors"
+                >
+                  <span>Get started</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </Link>
               </div>
 
-              <Link
-                href="/register"
-                className="mt-6 pt-4 border-t border-white/[0.06] text-xs font-medium text-[#a6a39b] hover:text-[#ede8df] flex items-center justify-between group transition-colors"
-              >
-                <span>Explore QA studio</span>
-                <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </Link>
-            </div>
-
-            {/* Card 3: 02 SHA-256 Media & Derivative Processor */}
-            <div className="hirael-card p-6 sm:p-8 min-h-[420px] flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <div className="w-9 h-9 rounded-2xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-[#ede8df]">
-                    <Film className="w-4 h-4" />
+              {/* Card 2 */}
+              <div className="hirael-card card-hover-lift p-6 w-[290px] sm:w-[330px] min-h-[380px] flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-8 h-8 rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-[#ede8df]">
+                      <MessageSquareQuote className="w-4 h-4" />
+                    </div>
+                    <span className="font-mono text-xs text-[#52504b]">01</span>
                   </div>
-                  <span className="font-mono text-xs text-[#52504b]">02</span>
+
+                  <h3 className="text-sm font-semibold text-[#ede8df] mb-2.5">
+                    Variant Review & QA Studio
+                  </h3>
+
+                  <ul className="space-y-2 text-[11px] text-[#918e87]">
+                    <li className="flex items-start gap-2">
+                      <Check className="w-3 h-3 text-[#ede8df] mt-0.5 shrink-0" />
+                      <span>Simulated LinkedIn, X, IG & Shorts feeds</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-3 h-3 text-[#ede8df] mt-0.5 shrink-0" />
+                      <span>Real-time QA scorecard compliance checks</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-3 h-3 text-[#ede8df] mt-0.5 shrink-0" />
+                      <span>Single-element AI regeneration modifiers</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-3 h-3 text-[#ede8df] mt-0.5 shrink-0" />
+                      <span>Character limit & forbidden phrase filters</span>
+                    </li>
+                  </ul>
                 </div>
 
-                <h3 className="text-base font-semibold text-[#ede8df] mb-3">
-                  Media Derivative Processor
-                </h3>
-
-                <ul className="space-y-2.5 text-xs text-[#918e87]">
-                  <li className="flex items-start gap-2.5">
-                    <Check className="w-3.5 h-3.5 text-[#ede8df] mt-0.5 shrink-0" />
-                    <span>SHA-256 media deduplication engine</span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <Check className="w-3.5 h-3.5 text-[#ede8df] mt-0.5 shrink-0" />
-                    <span>Automated Pillow dimension extraction</span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <Check className="w-3.5 h-3.5 text-[#ede8df] mt-0.5 shrink-0" />
-                    <span>Presets: 4:5, 1:1, 9:16, 16:9, 1.91:1</span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <Check className="w-3.5 h-3.5 text-[#ede8df] mt-0.5 shrink-0" />
-                    <span>Central media asset reusability catalog</span>
-                  </li>
-                </ul>
+                <Link
+                  href="/register"
+                  className="mt-4 pt-3 border-t border-white/[0.06] text-xs font-medium text-[#a6a39b] hover:text-[#ede8df] flex items-center justify-between group transition-colors"
+                >
+                  <span>Explore QA studio</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </Link>
               </div>
 
-              <Link
-                href="/register"
-                className="mt-6 pt-4 border-t border-white/[0.06] text-xs font-medium text-[#a6a39b] hover:text-[#ede8df] flex items-center justify-between group transition-colors"
-              >
-                <span>View pipeline</span>
-                <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </Link>
-            </div>
-
-            {/* Card 4: 03 Idempotent Calendar & Omnichannel */}
-            <div className="hirael-card p-6 sm:p-8 min-h-[420px] flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <div className="w-9 h-9 rounded-2xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-[#ede8df]">
-                    <Calendar className="w-4 h-4" />
+              {/* Card 3 */}
+              <div className="hirael-card card-hover-lift p-6 w-[290px] sm:w-[330px] min-h-[380px] flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-8 h-8 rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-[#ede8df]">
+                      <Film className="w-4 h-4" />
+                    </div>
+                    <span className="font-mono text-xs text-[#52504b]">02</span>
                   </div>
-                  <span className="font-mono text-xs text-[#52504b]">03</span>
+
+                  <h3 className="text-sm font-semibold text-[#ede8df] mb-2.5">
+                    Media Derivative Processor
+                  </h3>
+
+                  <ul className="space-y-2 text-[11px] text-[#918e87]">
+                    <li className="flex items-start gap-2">
+                      <Check className="w-3 h-3 text-[#ede8df] mt-0.5 shrink-0" />
+                      <span>SHA-256 media deduplication engine</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-3 h-3 text-[#ede8df] mt-0.5 shrink-0" />
+                      <span>Automated aspect dimension extraction</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-3 h-3 text-[#ede8df] mt-0.5 shrink-0" />
+                      <span>Presets: 4:5, 1:1, 9:16, 16:9, 1.91:1</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-3 h-3 text-[#ede8df] mt-0.5 shrink-0" />
+                      <span>Central media asset reusability catalog</span>
+                    </li>
+                  </ul>
                 </div>
 
-                <h3 className="text-base font-semibold text-[#ede8df] mb-3">
-                  Idempotent Calendar & Adapters
-                </h3>
-
-                <ul className="space-y-2.5 text-xs text-[#918e87]">
-                  <li className="flex items-start gap-2.5">
-                    <Check className="w-3.5 h-3.5 text-[#ede8df] mt-0.5 shrink-0" />
-                    <span>SHA-256 idempotent state machine</span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <Check className="w-3.5 h-3.5 text-[#ede8df] mt-0.5 shrink-0" />
-                    <span>LinkedIn (OAuth), IG (Creator Studio Mode)</span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <Check className="w-3.5 h-3.5 text-[#ede8df] mt-0.5 shrink-0" />
-                    <span>X/Twitter, YouTube Shorts, Threads, CMS</span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <Check className="w-3.5 h-3.5 text-[#ede8df] mt-0.5 shrink-0" />
-                    <span className="flex items-center gap-1.5">
-                      <span>Soundscape focus toggle</span>
-                      <button
-                        onClick={toggleSoundscape}
-                        className="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/20 text-[#ede8df] text-[10px] flex items-center gap-1 cursor-pointer"
-                      >
-                        {isPlayingAudio ? (
-                          <>
-                            <VolumeX className="w-3 h-3 text-amber-400" /> Stop
-                          </>
-                        ) : (
-                          <>
-                            <Volume2 className="w-3 h-3 text-emerald-400" /> Play
-                          </>
-                        )}
-                      </button>
-                    </span>
-                  </li>
-                </ul>
+                <Link
+                  href="/register"
+                  className="mt-4 pt-3 border-t border-white/[0.06] text-xs font-medium text-[#a6a39b] hover:text-[#ede8df] flex items-center justify-between group transition-colors"
+                >
+                  <span>View pipeline</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </Link>
               </div>
 
-              <Link
-                href="/register"
-                className="mt-6 pt-4 border-t border-white/[0.06] text-xs font-medium text-[#a6a39b] hover:text-[#ede8df] flex items-center justify-between group transition-colors"
-              >
-                <span>Schedule dispatches</span>
-                <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </Link>
+              {/* Card 4 */}
+              <div className="hirael-card card-hover-lift p-6 w-[290px] sm:w-[330px] min-h-[380px] flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-8 h-8 rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-[#ede8df]">
+                      <Calendar className="w-4 h-4" />
+                    </div>
+                    <span className="font-mono text-xs text-[#52504b]">03</span>
+                  </div>
+
+                  <h3 className="text-sm font-semibold text-[#ede8df] mb-2.5">
+                    Idempotent Calendar & Adapters
+                  </h3>
+
+                  <ul className="space-y-2 text-[11px] text-[#918e87]">
+                    <li className="flex items-start gap-2">
+                      <Check className="w-3 h-3 text-[#ede8df] mt-0.5 shrink-0" />
+                      <span>SHA-256 idempotent state machine</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-3 h-3 text-[#ede8df] mt-0.5 shrink-0" />
+                      <span>LinkedIn (OAuth), IG (Creator Studio Mode)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-3 h-3 text-[#ede8df] mt-0.5 shrink-0" />
+                      <span>X/Twitter, YouTube Shorts, Threads, CMS</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-3 h-3 text-[#ede8df] mt-0.5 shrink-0" />
+                      <span className="flex items-center gap-1.5">
+                        <span>Soundscape focus toggle</span>
+                        <button
+                          onClick={toggleSoundscape}
+                          className="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/20 text-[#ede8df] text-[10px] flex items-center gap-1 cursor-pointer"
+                        >
+                          {isPlayingAudio ? (
+                            <>
+                              <VolumeX className="w-3 h-3 text-amber-400" /> Stop
+                            </>
+                          ) : (
+                            <>
+                              <Volume2 className="w-3 h-3 text-emerald-400" /> Play
+                            </>
+                          )}
+                        </button>
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+
+                <Link
+                  href="/register"
+                  className="mt-4 pt-3 border-t border-white/[0.06] text-xs font-medium text-[#a6a39b] hover:text-[#ede8df] flex items-center justify-between group transition-colors"
+                >
+                  <span>Schedule dispatches</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </Link>
+              </div>
             </div>
           </div>
         </section>
@@ -642,58 +696,66 @@ export default function LisaHomePage() {
             ========================================================================= */}
         <section
           id="enquiries"
-          className="relative z-10 min-h-screen flex flex-col justify-between px-6 sm:px-12 md:px-20 pt-24 pb-8 border-t border-white/[0.05]"
+          className="relative z-10 flex flex-col justify-between px-6 sm:px-12 md:px-16 pt-16 sm:pt-20 pb-6 border-t border-white/[0.05]"
         >
-          <div className="space-y-12">
+          <div className="space-y-10">
             {/* Call to Action Bar */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 pb-12 border-b border-white/[0.06]">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-white/[0.06]">
               <div>
-                <div className="text-[11px] font-mono tracking-widest text-[#85827b] uppercase mb-2">
+                <div className="text-[10px] sm:text-[11px] font-mono tracking-widest text-[#85827b] uppercase mb-1.5">
                   ENQUIRIES & DEPLOYMENT
                 </div>
-                <h2 className="text-3xl sm:text-5xl md:text-6xl font-normal tracking-[-0.04em] text-[#ede8df]">
+                <h2 className="text-2xl sm:text-4xl md:text-5xl font-normal tracking-[-0.04em] text-[#ede8df]">
                   Let us transform your{" "}
                   <span className="font-editorial italic text-[#f7f4ed]">content operations.</span>
                 </h2>
-                <p className="text-xs sm:text-sm text-[#8a8a93] mt-2 max-w-xl">
+                <p className="text-xs sm:text-[13px] text-[#8a8a93] mt-1.5 max-w-xl">
                   Register your workspace to unlock multi-agent repurposing, brand intelligence, and idempotent cross-network publishing.
                 </p>
               </div>
 
-              <Link
-                href="/register"
-                className="hirael-pill-btn group self-start md:self-auto shrink-0 cursor-pointer"
-              >
-                <span className="text-sm font-semibold tracking-tight text-[#08080a]">Get in</span>
-                <div className="w-7 h-7 rounded-full bg-[#08080a] text-white flex items-center justify-center transition-transform duration-300 group-hover:translate-x-1">
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </div>
+              <Link href="/register">
+                <InteractiveButton
+                  variant="primary"
+                  size="lg"
+                  glow
+                  shimmer
+                  magnetic
+                  rightIcon={
+                    <div className="w-6 h-6 rounded-full bg-[#08080a] text-white flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5">
+                      <ArrowRight className="w-3 h-3 text-[#ede8df]" />
+                    </div>
+                  }
+                  className="px-5 py-2.5 text-xs sm:text-sm font-semibold self-start md:self-auto shrink-0"
+                >
+                  Get in
+                </InteractiveButton>
               </Link>
             </div>
 
             {/* Direct Enquiry Form & Architecture Details */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              {/* Interactive Enquiry Form */}
-              <div className="lg:col-span-6 hirael-card p-6 sm:p-8 space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Interactive Enquiry Form with 5. Loading -> Success Animation */}
+              <div className="lg:col-span-6 hirael-card p-5 sm:p-7 space-y-3.5">
                 <span className="text-[10px] font-mono tracking-widest text-[#85827b] uppercase block">
                   SEND AN ENQUIRY OR WORKSPACE INVITATION
                 </span>
-                <h3 className="text-xl font-normal text-[#ede8df]">
+                <h3 className="text-lg sm:text-xl font-normal text-[#ede8df]">
                   Enterprise & Agency Inquiries
                 </h3>
                 <p className="text-xs text-[#8a8a93] leading-relaxed">
                   Have custom brand tone guidelines, dedicated model endpoints, or high-volume publishing requirements? Let our operations team coordinate your setup.
                 </p>
 
-                {inquirySent ? (
-                  <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
+                {inquiryStatus === "success" ? (
+                  <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2 animate-fadeIn">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                     <span>Thank you. Your inquiry has been logged. We will reach out shortly.</span>
                   </div>
                 ) : (
-                  <form onSubmit={handleInquirySubmit} className="space-y-3 pt-2">
+                  <form onSubmit={handleInquirySubmit} className="space-y-3 pt-1">
                     <div>
-                      <label className="block text-[11px] font-mono text-[#85827b] mb-1">
+                      <label className="block text-[10px] sm:text-[11px] font-mono text-[#85827b] mb-1">
                         Work Email
                       </label>
                       <input
@@ -702,11 +764,11 @@ export default function LisaHomePage() {
                         value={inquiryEmail}
                         onChange={(e) => setInquiryEmail(e.target.value)}
                         placeholder="operations@company.com"
-                        className="w-full px-4 py-2.5 rounded-full bg-black/50 border border-white/10 text-xs text-[#ede8df] focus:outline-none focus:border-white/30"
+                        className="w-full px-4 py-2 rounded-full bg-black/50 border border-white/10 text-xs text-[#ede8df] focus:outline-none focus:border-white/30"
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-mono text-[#85827b] mb-1">
+                      <label className="block text-[10px] sm:text-[11px] font-mono text-[#85827b] mb-1">
                         Deployment Requirements / Message
                       </label>
                       <textarea
@@ -715,29 +777,35 @@ export default function LisaHomePage() {
                         value={inquiryMessage}
                         onChange={(e) => setInquiryMessage(e.target.value)}
                         placeholder="Describe your content pipeline, team scale, and target channels..."
-                        className="w-full px-4 py-2.5 rounded-2xl bg-black/50 border border-white/10 text-xs text-[#ede8df] focus:outline-none focus:border-white/30"
+                        className="w-full px-4 py-2 rounded-2xl bg-black/50 border border-white/10 text-xs text-[#ede8df] focus:outline-none focus:border-white/30"
                       />
                     </div>
                     <div className="flex justify-end pt-1">
-                      <button
+                      <InteractiveButton
                         type="submit"
-                        className="hirael-pill-btn text-xs cursor-pointer"
+                        variant="primary"
+                        size="md"
+                        loading={inquiryStatus === "loading"}
+                        loadingText="Transmitting..."
+                        glow
+                        shimmer
+                        rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+                        className="text-xs"
                       >
-                        <span>Submit Enquiry</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
+                        Submit Enquiry
+                      </InteractiveButton>
                     </div>
                   </form>
                 )}
               </div>
 
               {/* 3 Column Metadata Directory */}
-              <div className="lg:col-span-6 grid grid-cols-1 sm:grid-cols-3 gap-6 text-xs text-[#75736d] p-2">
+              <div className="lg:col-span-6 grid grid-cols-1 sm:grid-cols-3 gap-5 text-xs text-[#75736d] p-2">
                 <div>
-                  <span className="font-mono text-[10px] tracking-[0.2em] text-[#85827b] uppercase block mb-3">
+                  <span className="font-mono text-[10px] tracking-[0.2em] text-[#85827b] uppercase block mb-2.5">
                     NAVIGATION
                   </span>
-                  <ul className="space-y-2.5">
+                  <ul className="space-y-2">
                     <li>
                       <button
                         onClick={() => scrollToSection("our-story")}
@@ -774,38 +842,28 @@ export default function LisaHomePage() {
                 </div>
 
                 <div>
-                  <span className="font-mono text-[10px] tracking-[0.2em] text-[#85827b] uppercase block mb-3">
+                  <span className="font-mono text-[10px] tracking-[0.2em] text-[#85827b] uppercase block mb-2.5">
                     CHANNELS
                   </span>
-                  <ul className="space-y-2.5">
-                    <li className="text-[#a6a39b]">
-                      LinkedIn (Client ID Active)
-                    </li>
-                    <li className="text-[#a6a39b]">
-                      Instagram (Creator Mode)
-                    </li>
-                    <li className="text-[#a6a39b]">
-                      X / Twitter Threads
-                    </li>
-                    <li className="text-[#a6a39b]">
-                      YouTube Shorts & Reels
-                    </li>
-                    <li className="text-[#a6a39b]">
-                      Substack & Email CMS
-                    </li>
+                  <ul className="space-y-2">
+                    <li className="text-[#a6a39b]">LinkedIn (Client ID Active)</li>
+                    <li className="text-[#a6a39b]">Instagram (Creator Mode)</li>
+                    <li className="text-[#a6a39b]">X / Twitter Threads</li>
+                    <li className="text-[#a6a39b]">YouTube Shorts & Reels</li>
+                    <li className="text-[#a6a39b]">Substack & Email CMS</li>
                   </ul>
                 </div>
 
                 <div>
-                  <span className="font-mono text-[10px] tracking-[0.2em] text-[#85827b] uppercase block mb-3">
+                  <span className="font-mono text-[10px] tracking-[0.2em] text-[#85827b] uppercase block mb-2.5">
                     COMPLIANCE
                   </span>
-                  <div className="space-y-2 text-[#8a8a93]">
+                  <div className="space-y-1.5 text-[#8a8a93]">
                     <p>MIT License</p>
                     <p>FastAPI Backend</p>
                     <p>PostgreSQL / SQLite</p>
                     <p>Next.js 16 App Router</p>
-                    <div className="pt-2">
+                    <div className="pt-1.5">
                       <Link
                         href="/register"
                         className="text-xs text-[#d4a373] hover:underline"
@@ -820,7 +878,7 @@ export default function LisaHomePage() {
           </div>
 
           {/* Monumental Watermark Typography - LISA with gentle warm glow */}
-          <div className="w-full overflow-hidden flex justify-center -mb-8 sm:-mb-14 select-none pointer-events-none pt-12">
+          <div className="w-full overflow-hidden flex justify-center -mb-6 sm:-mb-10 select-none pointer-events-none pt-8">
             <span className="watermark-brand tracking-tighter block font-bold text-center lisa-warm-glow">
               Lisa
             </span>

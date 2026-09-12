@@ -23,6 +23,10 @@ const monoFont = Geist_Mono({
 export const metadata: Metadata = {
   title: "Lisa — AI Content Distribution & Repurposing Platform",
   description: "Create once. Adapt intelligently. Publish everywhere possible. Learn from performance.",
+  openGraph: {
+    title: "Lisa — AI Content Distribution & Repurposing Platform",
+    description: "Create once. Adapt intelligently. Publish everywhere possible. Learn from performance.",
+  },
 };
 
 export default function RootLayout({

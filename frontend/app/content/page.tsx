@@ -7,9 +7,7 @@ import {
   sourcesApi,
   mediaApi,
   brandApi,
-  ContentSource,
   ContentSourceVersion,
-  MediaAsset,
   BrandProfile,
   getActiveWorkspaceId,
 } from "@/lib/api";
@@ -19,15 +17,14 @@ import {
   CheckCircle2,
   Clock,
   UploadCloud,
-  Layers,
   History,
-  Trash2,
   Image as ImageIcon,
   Share2,
   Tag,
   ArrowRight,
-  Loader2,
 } from "lucide-react";
+import { InteractiveButton } from "@/components/InteractiveButton";
+import { ScrollReveal } from "@/components/ScrollReveal";
 
 function ContentStudioContent() {
   const router = useRouter();
@@ -282,13 +279,16 @@ function ContentStudioContent() {
     <AppLayout activeWorkspaceId={activeWorkspaceId} onWorkspaceChange={setActiveWorkspaceId}>
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header with Auto-save indicator & Actions */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-100 flex items-center gap-2.5">
-              <Sparkles className="w-6 h-6 text-indigo-400" />
-              Content Studio (Canonical Source)
+            <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-[#85827b] mb-1">
+              <Sparkles className="w-3.5 h-3.5 text-[#d4a373]" />
+              <span>Canonical Core Editor</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-normal tracking-tight text-[#ede8df]">
+              Content Studio
             </h1>
-            <div className="flex items-center gap-3 text-xs text-slate-400 mt-1">
+            <div className="flex items-center gap-3 text-xs text-[#8a8a93] mt-1">
               <span className="flex items-center gap-1.5 font-medium">
                 {saveStatus === "saved" && (
                   <>
@@ -298,19 +298,19 @@ function ContentStudioContent() {
                 )}
                 {saveStatus === "saving" && (
                   <>
-                    <Clock className="w-3.5 h-3.5 text-amber-400 animate-spin" />
-                    <span className="text-amber-400">Saving draft...</span>
+                    <Clock className="w-3.5 h-3.5 text-[#d4a373] animate-spin" />
+                    <span className="text-[#d4a373]">Saving draft...</span>
                   </>
                 )}
                 {saveStatus === "unsaved" && (
-                  <span className="text-slate-500">Unsaved edits...</span>
+                  <span className="text-[#71717a]">Unsaved edits...</span>
                 )}
               </span>
-              <span>•</span>
+              <span>&bull;</span>
               <button
                 onClick={handleLoadVersions}
                 disabled={!sourceId}
-                className="hover:text-indigo-400 flex items-center gap-1 cursor-pointer disabled:opacity-40"
+                className="hover:text-[#d4a373] text-[#8a8a93] flex items-center gap-1 cursor-pointer disabled:opacity-40 transition-colors font-mono text-[11px]"
               >
                 <History className="w-3.5 h-3.5" />
                 <span>Version Snapshots ({versions.length})</span>
@@ -318,31 +318,30 @@ function ContentStudioContent() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button
+          <div className="flex items-center gap-2.5">
+            <InteractiveButton
               onClick={handleManualSaveSnapshot}
-              className="py-2.5 px-4 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-200 text-xs font-medium flex items-center gap-2 transition-all cursor-pointer"
+              variant="secondary"
+              size="md"
+              leftIcon={<Save className="w-3.5 h-3.5" />}
+              className="text-xs"
             >
-              <Save className="w-3.5 h-3.5" />
-              <span>Snapshot Version</span>
-            </button>
-            <button
+              Snapshot Version
+            </InteractiveButton>
+            <InteractiveButton
               onClick={handleAdaptAndDistribute}
-              disabled={isAdapting}
-              className="py-2.5 px-5 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 text-white text-xs font-semibold flex items-center gap-2 shadow-lg shadow-indigo-500/25 transition-all cursor-pointer disabled:opacity-60"
+              loading={isAdapting}
+              loadingText="Processing AI Adaptations..."
+              variant="primary"
+              size="md"
+              glow
+              shimmer
+              magnetic
+              rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+              className="text-xs"
             >
-              {isAdapting ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Processing AI Adaptations...</span>
-                </>
-              ) : (
-                <>
-                  <span>Adapt &amp; Distribute</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
+              Adapt &amp; Distribute
+            </InteractiveButton>
           </div>
         </div>
 
@@ -350,203 +349,214 @@ function ContentStudioContent() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Canonical Editor (Left 2 Cols) */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="glass-card rounded-2xl p-6 space-y-4">
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Give your content idea a clear, canonical title..."
-                className="w-full text-xl font-bold bg-transparent text-slate-100 placeholder-slate-500 outline-none tracking-tight"
-              />
-
-              <div className="border-t border-slate-800/80 pt-4">
-                <textarea
-                  rows={14}
-                  value={body}
-                  onChange={(e) => setBody(e.target.value)}
-                  placeholder="Draft your core thought, article, announcement, or transcript here.
-Our specialized AI agents will read this canonical source, preserve your facts, and adapt hooks, formatting, character limits, and media specifically for each channel..."
-                  className="w-full bg-transparent text-sm text-slate-200 placeholder-slate-500 outline-none leading-relaxed resize-none"
+            <ScrollReveal delay={0}>
+              <div className="hirael-card p-5 sm:p-6 space-y-4">
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Give your content idea a clear, canonical title..."
+                  className="w-full text-lg sm:text-xl font-medium bg-transparent text-[#ede8df] placeholder-[#55534e] outline-none tracking-tight"
                 />
-              </div>
 
-              {/* Word and Character Count */}
-              <div className="border-t border-slate-800/80 pt-3 flex items-center justify-between text-[11px] text-slate-500">
-                <span>
-                  {body.trim() ? body.trim().split(/\s+/).length : 0} words • {body.length} characters
-                </span>
-                <span className="font-mono text-indigo-400">Canonical Source Draft</span>
+                <div className="border-t border-white/[0.08] pt-4">
+                  <textarea
+                    rows={13}
+                    value={body}
+                    onChange={(e) => setBody(e.target.value)}
+                    placeholder="Draft your core thought, article, announcement, or transcript here.
+Our specialized AI agents will read this canonical source, preserve your facts, and adapt hooks, formatting, character limits, and media specifically for each channel..."
+                    className="w-full bg-transparent text-xs sm:text-sm text-[#ede8df] placeholder-[#55534e] outline-none leading-relaxed resize-none"
+                  />
+                </div>
+
+                {/* Word and Character Count */}
+                <div className="border-t border-white/[0.08] pt-3 flex items-center justify-between text-[11px] text-[#71717a]">
+                  <span>
+                    {body.trim() ? body.trim().split(/\s+/).length : 0} words &bull; {body.length} characters
+                  </span>
+                  <span className="font-mono text-[#d4a373]">Canonical Source Draft</span>
+                </div>
               </div>
-            </div>
+            </ScrollReveal>
 
             {/* Attached Media Assets */}
-            <div className="glass-card rounded-2xl p-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4 text-indigo-400" />
-                  Attached Media Assets ({attachedAssets.length})
-                </h3>
-                <label className="cursor-pointer py-1.5 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 font-medium flex items-center gap-1.5 transition-colors">
-                  <UploadCloud className="w-3.5 h-3.5" />
-                  <span>{uploadingMedia ? "Uploading..." : "Attach Media"}</span>
-                  <input
-                    type="file"
-                    accept="image/*,video/*"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                </label>
-              </div>
+            <ScrollReveal delay={50}>
+              <div className="hirael-card p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-mono uppercase tracking-wider text-[#ede8df] flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4 text-[#d4a373]" />
+                    <span>Attached Media Assets ({attachedAssets.length})</span>
+                  </h3>
+                  <label className="cursor-pointer py-1.5 px-3 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.08] text-xs text-[#ede8df] font-medium flex items-center gap-1.5 transition-colors">
+                    <UploadCloud className="w-3.5 h-3.5 text-[#d4a373]" />
+                    <span>{uploadingMedia ? "Uploading..." : "Attach Media"}</span>
+                    <input
+                      type="file"
+                      accept="image/*,video/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
 
-              {attachedAssets.length === 0 ? (
-                <div className="p-6 rounded-xl border border-dashed border-slate-800 text-center text-xs text-slate-500">
-                  No media attached. Upload images or video clips to be resized and adapted per platform.
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {attachedAssets.map((asset, i) => (
-                    <div
-                      key={asset.id || i}
-                      className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs space-y-1.5 relative group"
-                    >
-                      <div className="h-20 rounded-lg bg-slate-950 flex items-center justify-center overflow-hidden">
-                        {asset.mime_type?.startsWith("image/") ? (
-                          <img
-                            src={asset.url}
-                            alt={asset.filename}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <span className="font-mono text-[10px] text-indigo-400 uppercase">
-                            {asset.mime_type}
-                          </span>
-                        )}
+                {attachedAssets.length === 0 ? (
+                  <div className="p-6 rounded-2xl border border-dashed border-white/[0.08] text-center text-xs text-[#71717a]">
+                    No media attached. Upload images or video clips to be resized and adapted per platform.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {attachedAssets.map((asset, i) => (
+                      <div
+                        key={asset.id || i}
+                        className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs space-y-1.5 relative group"
+                      >
+                        <div className="h-20 rounded-lg bg-black/40 flex items-center justify-center overflow-hidden">
+                          {asset.mime_type?.startsWith("image/") ? (
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img
+                              src={asset.url}
+                              alt={asset.filename}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span className="font-mono text-[10px] text-[#d4a373] uppercase">
+                              {asset.mime_type}
+                            </span>
+                          )}
+                        </div>
+                        <p className="font-medium text-[#ede8df] truncate text-[11px]">
+                          {asset.filename}
+                        </p>
+                        <p className="text-[10px] text-[#71717a] font-mono">
+                          {asset.width && asset.height ? `${asset.width}x${asset.height}` : ""}
+                        </p>
                       </div>
-                      <p className="font-medium text-slate-200 truncate text-[11px]">
-                        {asset.filename}
-                      </p>
-                      <p className="text-[10px] text-slate-500">
-                        {asset.width && asset.height ? `${asset.width}x${asset.height}` : ""}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </ScrollReveal>
           </div>
 
           {/* Right Sidebar: Platform Targeting & Metadata */}
           <div className="space-y-5">
             {/* Target Platforms */}
-            <div className="glass-card rounded-2xl p-5 space-y-4">
-              <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                <Share2 className="w-4 h-4 text-indigo-400" />
-                Target Distribution Channels
-              </h3>
+            <ScrollReveal delay={30}>
+              <div className="hirael-card p-5 space-y-4">
+                <h3 className="text-xs font-mono uppercase tracking-wider text-[#ede8df] flex items-center gap-2">
+                  <Share2 className="w-4 h-4 text-[#d4a373]" />
+                  <span>Target Distribution Channels</span>
+                </h3>
 
-              <div className="grid grid-cols-2 gap-2">
-                {PLATFORMS.map((plat) => {
-                  const isSelected = selectedPlatforms.includes(plat.id);
-                  return (
-                    <button
-                      key={plat.id}
-                      type="button"
-                      onClick={() => togglePlatform(plat.id)}
-                      className={`p-2.5 rounded-xl text-xs text-left font-medium border transition-all ${
-                        isSelected
-                          ? "bg-indigo-600/20 border-indigo-500/50 text-indigo-300"
-                          : "bg-slate-900/60 border-slate-800 text-slate-400 hover:bg-slate-800/60"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span>{plat.label}</span>
-                        {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />}
-                      </div>
-                    </button>
-                  );
-                })}
+                <div className="grid grid-cols-2 gap-2">
+                  {PLATFORMS.map((plat) => {
+                    const isSelected = selectedPlatforms.includes(plat.id);
+                    return (
+                      <button
+                        key={plat.id}
+                        type="button"
+                        onClick={() => togglePlatform(plat.id)}
+                        className={`p-2.5 rounded-xl text-xs text-left font-medium border transition-all ${
+                          isSelected
+                            ? "bg-[#d4a373]/15 border-[#d4a373]/40 text-[#d4a373]"
+                            : "bg-white/[0.02] border-white/[0.06] text-[#8a8a93] hover:bg-white/[0.05]"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span>{plat.label}</span>
+                          {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-[#d4a373]" />}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            </ScrollReveal>
 
             {/* Categorization & Pillar */}
-            <div className="glass-card rounded-2xl p-5 space-y-4">
-              <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                <Tag className="w-4 h-4 text-emerald-400" />
-                Content Classification
-              </h3>
+            <ScrollReveal delay={70}>
+              <div className="hirael-card p-5 space-y-4">
+                <h3 className="text-xs font-mono uppercase tracking-wider text-[#ede8df] flex items-center gap-2">
+                  <Tag className="w-4 h-4 text-[#d4a373]" />
+                  <span>Content Classification</span>
+                </h3>
 
-              <div>
-                <label className="block text-xs text-slate-400 mb-1.5">Content Pillar</label>
-                <select
-                  value={contentPillar}
-                  onChange={(e) => setContentPillar(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-200 outline-none"
-                >
-                  <option value="">Select Brand Pillar...</option>
-                  {brandProfile?.content_pillars_json?.map((p) => (
-                    <option key={p.name} value={p.name}>
-                      {p.name} ({p.target_percentage}%)
-                    </option>
-                  ))}
-                  <option value="General Insights">General Insights</option>
-                  <option value="Product Launch">Product Launch</option>
-                  <option value="Tutorial / How-To">Tutorial / How-To</option>
-                </select>
-              </div>
+                <div>
+                  <label className="block text-[11px] font-mono text-[#85827b] mb-1.5">Content Pillar</label>
+                  <select
+                    value={contentPillar}
+                    onChange={(e) => setContentPillar(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/[0.08] text-xs text-[#ede8df] outline-none focus:border-[#d4a373]/60"
+                  >
+                    <option value="">Select Brand Pillar...</option>
+                    {brandProfile?.content_pillars_json?.map((p) => (
+                      <option key={p.name} value={p.name}>
+                        {p.name} ({p.target_percentage}%)
+                      </option>
+                    ))}
+                    <option value="General Insights">General Insights</option>
+                    <option value="Product Launch">Product Launch</option>
+                    <option value="Tutorial / How-To">Tutorial / How-To</option>
+                  </select>
+                </div>
 
-              <div>
-                <label className="block text-xs text-slate-400 mb-1.5">Source Format Type</label>
-                <select
-                  value={contentType}
-                  onChange={(e) => setContentType(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-200 outline-none"
-                >
-                  <option value="article">Long-Form Article</option>
-                  <option value="announcement">Product Announcement</option>
-                  <option value="case_study">Case Study / Customer Story</option>
-                  <option value="note">Raw Notes / Brain Dump</option>
-                </select>
+                <div>
+                  <label className="block text-[11px] font-mono text-[#85827b] mb-1.5">Source Format Type</label>
+                  <select
+                    value={contentType}
+                    onChange={(e) => setContentType(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/[0.08] text-xs text-[#ede8df] outline-none focus:border-[#d4a373]/60"
+                  >
+                    <option value="article">Long-Form Article</option>
+                    <option value="announcement">Product Announcement</option>
+                    <option value="case_study">Case Study / Customer Story</option>
+                    <option value="note">Raw Notes / Brain Dump</option>
+                  </select>
+                </div>
               </div>
-            </div>
+            </ScrollReveal>
           </div>
         </div>
 
         {/* Version History Modal */}
         {showVersions && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="glass-panel w-full max-w-lg rounded-3xl p-6 shadow-2xl space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 className="font-semibold text-slate-100 text-sm flex items-center gap-2">
-                  <History className="w-4 h-4 text-indigo-400" />
-                  Version Snapshots
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+            <div className="hirael-card w-full max-w-lg p-6 shadow-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+                <h3 className="font-medium text-[#ede8df] text-sm flex items-center gap-2">
+                  <History className="w-4 h-4 text-[#d4a373]" />
+                  <span>Version Snapshots</span>
                 </h3>
                 <button
                   onClick={() => setShowVersions(false)}
-                  className="text-slate-400 hover:text-slate-200 text-sm"
+                  className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-[#ede8df] flex items-center justify-center text-xs"
                 >
                   ✕
                 </button>
               </div>
 
-              <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+              <div className="space-y-2 max-h-80 overflow-y-auto pr-1 scrollbar-none">
                 {versions.map((v) => (
                   <div
                     key={v.id}
-                    className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between text-xs"
+                    className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-between text-xs"
                   >
                     <div>
-                      <p className="font-semibold text-slate-200">Version {v.version_number}</p>
-                      <p className="text-[11px] text-slate-400 truncate max-w-xs">{v.title}</p>
-                      <p className="text-[10px] text-slate-500">
+                      <p className="font-semibold text-[#ede8df]">Version {v.version_number}</p>
+                      <p className="text-[11px] text-[#8a8a93] truncate max-w-xs">{v.title}</p>
+                      <p className="text-[10px] text-[#71717a] font-mono">
                         {new Date(v.created_at).toLocaleString()}
                       </p>
                     </div>
-                    <button
+                    <InteractiveButton
                       onClick={() => handleRestoreVersion(v.id)}
-                      className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium cursor-pointer"
+                      variant="secondary"
+                      size="sm"
+                      className="text-xs"
                     >
                       Restore
-                    </button>
+                    </InteractiveButton>
                   </div>
                 ))}
               </div>
@@ -560,7 +570,7 @@ Our specialized AI agents will read this canonical source, preserve your facts, 
 
 export default function ContentStudioPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-xs text-slate-500">Loading Studio...</div>}>
+    <Suspense fallback={<div className="p-8 text-center text-xs text-[#8a8a93]">Loading Studio...</div>}>
       <ContentStudioContent />
     </Suspense>
   );

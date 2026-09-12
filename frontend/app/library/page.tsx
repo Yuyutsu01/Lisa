@@ -18,12 +18,10 @@ import {
   Search,
   Image as ImageIcon,
   Trash2,
-  Calendar,
-  Share2,
-  Filter,
   FileText,
-  UploadCloud,
 } from "lucide-react";
+import { InteractiveButton } from "@/components/InteractiveButton";
+import { ScrollReveal } from "@/components/ScrollReveal";
 
 export default function ContentLibraryPage() {
   const router = useRouter();
@@ -65,9 +63,10 @@ export default function ContentLibraryPage() {
       ]);
       setSources(sourcesList);
       setMediaAssets(assetsList);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to load library", err);
-      setErrorMsg(err.message || "Failed to load library items.");
+      const msg = err instanceof Error ? err.message : "Failed to load library items.";
+      setErrorMsg(msg);
     } finally {
       setLoading(false);
     }
@@ -96,7 +95,7 @@ export default function ContentLibraryPage() {
 
   const filteredSources = sources.filter((s) =>
     s.title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-    s.content_pillar?.toLowerCase().includes(debouncedSearch.toLowerCase())
+    (s.content_pillar && s.content_pillar.toLowerCase().includes(debouncedSearch.toLowerCase()))
   );
 
   return (
@@ -109,7 +108,7 @@ export default function ContentLibraryPage() {
               <Layers className="w-3.5 h-3.5 text-[#d4a373]" />
               <span>Asset Catalog & Sources</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-normal tracking-tight text-[#ede8df]">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-normal tracking-tight text-[#ede8df]">
               Content & Asset Library
             </h1>
             <p className="text-xs sm:text-sm text-[#8a8a93] mt-1 max-w-2xl leading-relaxed">
@@ -117,22 +116,28 @@ export default function ContentLibraryPage() {
             </p>
           </div>
 
-          <Link
-            href="/content"
-            className="hirael-pill-btn text-xs font-semibold"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Create New Source</span>
+          <Link href="/content">
+            <InteractiveButton
+              variant="primary"
+              size="md"
+              glow
+              shimmer
+              magnetic
+              leftIcon={<Plus className="w-3.5 h-3.5" />}
+              className="text-xs"
+            >
+              Create New Source
+            </InteractiveButton>
           </Link>
         </div>
 
         {/* Tab & Search Controls */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
           {/* Tabs */}
-          <div className="flex items-center gap-1.5 p-1.5 rounded-full bg-[#0a0a0d] border border-white/[0.08] w-fit">
+          <div className="flex items-center gap-1.5 p-1 rounded-full bg-[#0a0a0d] border border-white/[0.08] w-fit">
             <button
               onClick={() => setActiveTab("sources")}
-              className={`px-4 py-2 rounded-full text-xs font-medium transition-all ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
                 activeTab === "sources"
                   ? "bg-[#ede8df] text-[#08080a] shadow-sm font-semibold"
                   : "text-[#787672] hover:text-[#ede8df]"
@@ -142,7 +147,7 @@ export default function ContentLibraryPage() {
             </button>
             <button
               onClick={() => setActiveTab("media")}
-              className={`px-4 py-2 rounded-full text-xs font-medium transition-all ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
                 activeTab === "media"
                   ? "bg-[#ede8df] text-[#08080a] shadow-sm font-semibold"
                   : "text-[#787672] hover:text-[#ede8df]"
@@ -154,22 +159,22 @@ export default function ContentLibraryPage() {
 
           {/* Search & Filter */}
           {activeTab === "sources" && (
-            <div className="flex items-center gap-3">
-              <div className="relative flex-1 sm:w-64">
+            <div className="flex items-center gap-2.5">
+              <div className="relative flex-1 sm:w-60">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#71717a]" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search sources or pillars..."
-                  className="w-full pl-9 pr-3 py-2 rounded-full bg-white/[0.03] border border-white/10 text-xs text-[#ede8df] placeholder:text-[#71717a] outline-none focus:border-white/30"
+                  className="w-full pl-9 pr-3 py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-xs text-[#ede8df] placeholder:text-[#71717a] outline-none focus:border-white/30"
                 />
               </div>
 
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-3.5 py-2 rounded-full bg-[#0e0e12] border border-white/10 text-xs text-[#ede8df] outline-none focus:border-white/30"
+                className="px-3 py-1.5 rounded-full bg-[#0e0e12] border border-white/10 text-xs text-[#ede8df] outline-none focus:border-white/30 cursor-pointer"
               >
                 <option value="all">All Statuses</option>
                 <option value="draft">Drafts</option>
@@ -191,11 +196,11 @@ export default function ContentLibraryPage() {
         {activeTab === "sources" && (
           <div>
             {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
                   <div
                     key={i}
-                    className="glass-card rounded-2xl p-5 space-y-4 animate-pulse border border-white/[0.05]"
+                    className="hirael-card p-5 space-y-3 animate-pulse border border-white/[0.05]"
                   >
                     <div className="flex items-center justify-between">
                       <div className="w-20 h-5 rounded-full bg-white/10" />
@@ -220,80 +225,85 @@ export default function ContentLibraryPage() {
                 <p className="text-xs text-[#71717a] max-w-sm mx-auto">
                   Create your first canonical content idea in the Studio to start the multi-channel adaptation pipeline.
                 </p>
-                <Link
-                  href="/content"
-                  className="inline-flex items-center gap-2 py-2 px-4 rounded-full bg-white/[0.08] hover:bg-white/[0.15] text-[#ede8df] text-xs font-medium border border-white/10 mt-2"
-                >
-                  <Plus className="w-3.5 h-3.5 text-[#d4a373]" />
-                  New Content Source
+                <Link href="/content">
+                  <InteractiveButton
+                    variant="secondary"
+                    size="sm"
+                    glow
+                    leftIcon={<Plus className="w-3.5 h-3.5 text-[#d4a373]" />}
+                    className="mt-2"
+                  >
+                    New Content Source
+                  </InteractiveButton>
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {filteredSources.map((source) => (
-                  <div
-                    key={source.id}
-                    onClick={() => router.push(`/content/${source.id}/variants`)}
-                    className="glass-card rounded-2xl p-5 space-y-4 hover:border-indigo-500/40 cursor-pointer flex flex-col justify-between group transition-all"
-                  >
-                    <div className="space-y-2.5">
-                      <div className="flex items-center justify-between">
-                        <span
-                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${
-                            source.status === "ready_for_adaptation"
-                              ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-400"
-                              : "bg-slate-800 border-slate-700 text-slate-400"
-                          }`}
-                        >
-                          {source.status === "ready_for_adaptation" ? "Ready for AI" : "Draft"}
-                        </span>
-                        <span className="text-[10px] text-slate-500 font-mono">
-                          v{source.version_count || 1}
-                        </span>
-                      </div>
-
-                      <h3 className="font-bold text-slate-100 text-sm leading-snug line-clamp-2 group-hover:text-indigo-300 transition-colors">
-                        {source.title}
-                      </h3>
-
-                      <p className="text-xs text-slate-400 line-clamp-3 leading-relaxed">
-                        {source.body || "No body content drafted yet..."}
-                      </p>
-                    </div>
-
-                    <div className="border-t border-slate-800/80 pt-3.5 space-y-2">
-                      <div className="flex items-center justify-between text-[11px] text-slate-400">
-                        <span>{source.content_pillar || "General"}</span>
-                        <span>{new Date(source.updated_at).toLocaleDateString()}</span>
-                      </div>
-
-                      <div className="flex items-center justify-between pt-1">
-                        <div className="flex items-center gap-1.5 text-[11px] text-indigo-400 font-medium">
-                          <Sparkles className="w-3.5 h-3.5" />
-                          <span>Review Variants ({source.target_platforms_json?.length || 0})</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <button
-                            title="Edit Canonical Source"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              router.push(`/content?id=${source.id}`);
-                            }}
-                            className="text-slate-400 hover:text-slate-200 p-1 hover:bg-slate-800 rounded transition-colors"
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredSources.map((source, idx) => (
+                  <ScrollReveal key={source.id} delay={idx * 50}>
+                    <div
+                      onClick={() => router.push(`/content/${source.id}/variants`)}
+                      className="hirael-card card-hover-lift p-5 space-y-3.5 cursor-pointer flex flex-col justify-between group h-full"
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${
+                              source.status === "ready_for_adaptation"
+                                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                                : "bg-white/[0.05] border-white/10 text-[#a6a39b]"
+                            }`}
                           >
-                            <FileText className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            title="Delete Source"
-                            onClick={(e) => handleDeleteSource(source.id, e)}
-                            className="text-slate-500 hover:text-rose-400 p-1 hover:bg-slate-800 rounded transition-colors"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                            {source.status === "ready_for_adaptation" ? "Ready for AI" : "Draft"}
+                          </span>
+                          <span className="text-[10px] text-[#71717a] font-mono">
+                            v{source.version_count || 1}
+                          </span>
+                        </div>
+
+                        <h3 className="font-semibold text-[#ede8df] text-sm leading-snug line-clamp-2 group-hover:text-[#d4a373] transition-colors">
+                          {source.title}
+                        </h3>
+
+                        <p className="text-xs text-[#8a8a93] line-clamp-3 leading-relaxed">
+                          {source.body || "No body content drafted yet..."}
+                        </p>
+                      </div>
+
+                      <div className="border-t border-white/[0.06] pt-3 space-y-2">
+                        <div className="flex items-center justify-between text-[11px] text-[#71717a]">
+                          <span className="truncate max-w-[140px]">{source.content_pillar || "General Pillar"}</span>
+                          <span>{new Date(source.updated_at).toLocaleDateString()}</span>
+                        </div>
+
+                        <div className="flex items-center justify-between pt-1">
+                          <div className="flex items-center gap-1.5 text-[11px] text-[#d4a373] font-medium group-hover:underline">
+                            <Sparkles className="w-3.5 h-3.5" />
+                            <span>Review Variants ({source.target_platforms_json?.length || 0})</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <button
+                              title="Edit Canonical Source"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/content?id=${source.id}`);
+                              }}
+                              className="text-[#8a8a93] hover:text-[#ede8df] p-1.5 hover:bg-white/[0.08] rounded-lg transition-colors cursor-pointer"
+                            >
+                              <FileText className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              title="Delete Source"
+                              onClick={(e) => handleDeleteSource(source.id, e)}
+                              className="text-[#71717a] hover:text-rose-400 p-1.5 hover:bg-white/[0.08] rounded-lg transition-colors cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </ScrollReveal>
                 ))}
               </div>
             )}
@@ -312,41 +322,40 @@ export default function ContentLibraryPage() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {mediaAssets.map((asset) => (
-                  <div
-                    key={asset.id}
-                    className="hirael-card p-3 space-y-2 text-xs relative group"
-                  >
-                    <div className="h-28 rounded-2xl bg-black/60 border border-white/[0.06] flex items-center justify-center overflow-hidden">
-                      {asset.mime_type.startsWith("image/") ? (
-                        <img
-                          src={asset.url}
-                          alt={asset.filename}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <span className="font-mono text-[10px] text-[#d4a373] uppercase">
-                          {asset.mime_type}
-                        </span>
-                      )}
-                    </div>
-                    <div className="space-y-0.5">
-                      <p className="font-medium text-[#ede8df] truncate text-xs">{asset.filename}</p>
-                      <div className="flex items-center justify-between text-[10px] text-[#71717a] font-mono">
-                        <span>{(asset.size_bytes / 1024).toFixed(0)} KB</span>
-                        {asset.width && asset.height && (
-                          <span>{asset.width}x{asset.height}</span>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5">
+                {mediaAssets.map((asset, idx) => (
+                  <ScrollReveal key={asset.id} delay={idx * 30}>
+                    <div className="hirael-card card-hover-lift p-3 space-y-2 text-xs relative group h-full">
+                      <div className="h-28 rounded-xl bg-black/60 border border-white/[0.06] flex items-center justify-center overflow-hidden">
+                        {asset.mime_type.startsWith("image/") ? (
+                          <img
+                            src={asset.url}
+                            alt={asset.filename}
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          />
+                        ) : (
+                          <span className="font-mono text-[10px] text-[#d4a373] uppercase">
+                            {asset.mime_type}
+                          </span>
                         )}
                       </div>
+                      <div className="space-y-0.5">
+                        <p className="font-medium text-[#ede8df] truncate text-xs">{asset.filename}</p>
+                        <div className="flex items-center justify-between text-[10px] text-[#71717a] font-mono">
+                          <span>{(asset.size_bytes / 1024).toFixed(0)} KB</span>
+                          {asset.width && asset.height && (
+                            <span>{asset.width}x{asset.height}</span>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleDeleteMedia(asset.id)}
+                        className="absolute top-4 right-4 p-1.5 rounded-full bg-black/80 text-[#71717a] hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-md"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
-                    <button
-                      onClick={() => handleDeleteMedia(asset.id)}
-                      className="absolute top-4 right-4 p-1.5 rounded-full bg-black/80 text-[#71717a] hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                  </ScrollReveal>
                 ))}
               </div>
             )}

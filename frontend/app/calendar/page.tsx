@@ -13,19 +13,17 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
-  Share2,
-  CheckCircle2,
-  AlertCircle,
   Plus,
   Trash2,
-  Sparkles,
 } from "lucide-react";
+import { InteractiveButton } from "@/components/InteractiveButton";
+import { ScrollReveal } from "@/components/ScrollReveal";
 
 export default function CalendarPage() {
   const [activeWorkspaceId, setActiveWorkspaceId] = useState<string | null>(null);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<"month" | "week" | "list">("month");
+  const [viewMode, setViewMode] = useState<"month" | "list">("month");
   const [currentDate, setCurrentDate] = useState(new Date());
 
   // Platform Filter
@@ -64,17 +62,19 @@ export default function CalendarPage() {
   const getPlatformColor = (platform: string) => {
     switch (platform.toLowerCase()) {
       case "linkedin":
-        return "bg-blue-500/20 text-blue-300 border-blue-500/40";
+        return "bg-white/[0.06] text-[#ede8df] border-white/15";
       case "x":
-        return "bg-slate-700/40 text-slate-200 border-slate-600";
+        return "bg-white/[0.04] text-[#a6a39b] border-white/[0.08]";
       case "instagram":
-        return "bg-pink-500/20 text-pink-300 border-pink-500/40";
+        return "bg-pink-500/15 text-pink-300 border-pink-500/25";
       case "youtube":
-        return "bg-red-500/20 text-red-300 border-red-500/40";
+        return "bg-red-500/15 text-red-300 border-red-500/25";
       case "tiktok":
-        return "bg-cyan-500/20 text-cyan-300 border-cyan-500/40";
+        return "bg-emerald-500/15 text-emerald-300 border-emerald-500/25";
+      case "threads":
+        return "bg-white/[0.06] text-[#ede8df] border-white/10";
       default:
-        return "bg-indigo-500/20 text-indigo-300 border-indigo-500/40";
+        return "bg-[#d4a373]/15 text-[#d4a373] border-[#d4a373]/30";
     }
   };
 
@@ -95,28 +95,50 @@ export default function CalendarPage() {
     "July", "August", "September", "October", "November", "December"
   ];
 
+  if (loading) {
+    return (
+      <AppLayout activeWorkspaceId={activeWorkspaceId} onWorkspaceChange={setActiveWorkspaceId}>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-[#8a8a93] text-xs font-mono flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#d4a373] animate-ping" />
+            Loading distribution calendar...
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
+
   return (
     <AppLayout activeWorkspaceId={activeWorkspaceId} onWorkspaceChange={setActiveWorkspaceId}>
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header with View Controls */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-100 flex items-center gap-2.5">
-              <CalendarIcon className="w-6 h-6 text-indigo-400" />
+            <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-[#85827b] mb-1">
+              <CalendarIcon className="w-3.5 h-3.5 text-[#d4a373]" />
+              <span>Omnichannel Schedule Orchestration</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-normal tracking-tight text-[#ede8df]">
               Content Distribution Calendar
             </h1>
-            <p className="text-sm text-slate-400 mt-1">
-              Visualize, schedule, and orchestrate publishing across all connected channels.
+            <p className="text-xs sm:text-sm text-[#8a8a93] mt-1">
+              Visualize, schedule, and orchestrate automated publishing across all connected channels.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
-            <Link
-              href="/content"
-              className="py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 text-white text-xs font-semibold flex items-center gap-2 shadow-lg shadow-indigo-500/25 transition-all cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              <span>New Scheduled Post</span>
+            <Link href="/content">
+              <InteractiveButton
+                variant="primary"
+                size="md"
+                glow
+                shimmer
+                magnetic
+                leftIcon={<Plus className="w-3.5 h-3.5" />}
+                className="text-xs"
+              >
+                New Scheduled Post
+              </InteractiveButton>
             </Link>
           </div>
         </div>
@@ -124,19 +146,19 @@ export default function CalendarPage() {
         {/* Toolbar: Month selector, View switch, Platform Filter */}
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
           {/* Month Navigation */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <button
               onClick={prevMonth}
-              className="p-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition-colors"
+              className="p-2 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.08] text-[#ede8df] transition-colors"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="font-bold text-base text-slate-200 min-w-36 text-center">
+            <span className="font-medium text-sm text-[#ede8df] min-w-36 text-center">
               {monthNames[month]} {year}
             </span>
             <button
               onClick={nextMonth}
-              className="p-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition-colors"
+              className="p-2 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.08] text-[#ede8df] transition-colors"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -147,7 +169,7 @@ export default function CalendarPage() {
             <select
               value={selectedPlatform}
               onChange={(e) => setSelectedPlatform(e.target.value)}
-              className="px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-200 outline-none"
+              className="px-3 py-2 rounded-xl bg-black/40 border border-white/[0.08] text-xs text-[#ede8df] outline-none focus:border-[#d4a373]/60"
             >
               <option value="all">All Channels</option>
               <option value="linkedin">LinkedIn</option>
@@ -157,15 +179,15 @@ export default function CalendarPage() {
               <option value="tiktok">TikTok</option>
             </select>
 
-            <div className="flex items-center p-1 rounded-xl bg-slate-900 border border-slate-800">
+            <div className="flex items-center p-1 rounded-full bg-[#0a0a0d] border border-white/[0.08]">
               {(["month", "list"] as const).map((mode) => (
                 <button
                   key={mode}
                   onClick={() => setViewMode(mode)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all ${
+                  className={`px-3 py-1 rounded-full text-xs font-medium capitalize transition-all ${
                     viewMode === mode
-                      ? "bg-indigo-600/30 text-indigo-300 font-semibold"
-                      : "text-slate-400 hover:text-slate-200"
+                      ? "bg-[#ede8df] text-[#09090b] font-semibold shadow-sm"
+                      : "text-[#85827b] hover:text-[#ede8df]"
                   }`}
                 >
                   {mode}
@@ -177,149 +199,153 @@ export default function CalendarPage() {
 
         {/* Month Calendar Grid View */}
         {viewMode === "month" && (
-          <div className="glass-card rounded-3xl p-6 space-y-4">
-            {/* Weekdays Header */}
-            <div className="grid grid-cols-7 gap-2 text-center text-xs font-semibold text-slate-400 uppercase tracking-wider pb-2 border-b border-slate-800/80">
-              {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-                <div key={day}>{day}</div>
-              ))}
-            </div>
+          <ScrollReveal delay={0}>
+            <div className="hirael-card p-4 sm:p-6 space-y-4">
+              {/* Weekdays Header */}
+              <div className="grid grid-cols-7 gap-2 text-center text-[10px] font-mono text-[#85827b] uppercase tracking-wider pb-2 border-b border-white/[0.06]">
+                {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+                  <div key={day}>{day}</div>
+                ))}
+              </div>
 
-            {/* Day Cells Grid */}
-            <div className="grid grid-cols-7 gap-2 min-h-[520px]">
-              {/* Blank offset days */}
-              {Array.from({ length: firstDay }).map((_, i) => (
-                <div
-                  key={`empty-${i}`}
-                  className="rounded-2xl bg-slate-950/30 border border-slate-900/50 p-2 opacity-30"
-                />
-              ))}
-
-              {/* Days of Month */}
-              {Array.from({ length: daysInMonth }).map((_, i) => {
-                const dayNumber = i + 1;
-                const cellDate = new Date(year, month, dayNumber);
-                const dayEvents = filteredEvents.filter((e) => {
-                  const d = new Date(e.scheduled_at);
-                  return (
-                    d.getFullYear() === year &&
-                    d.getMonth() === month &&
-                    d.getDate() === dayNumber
-                  );
-                });
-
-                const isToday =
-                  new Date().toDateString() === cellDate.toDateString();
-
-                return (
+              {/* Day Cells Grid */}
+              <div className="grid grid-cols-7 gap-2 min-h-[480px]">
+                {/* Blank offset days */}
+                {Array.from({ length: firstDay }).map((_, i) => (
                   <div
-                    key={dayNumber}
-                    className={`rounded-2xl border p-2.5 flex flex-col justify-between transition-all min-h-[100px] ${
-                      isToday
-                        ? "bg-indigo-950/20 border-indigo-500/40 shadow-sm"
-                        : "bg-slate-900/40 border-slate-800/80 hover:border-slate-700"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span
-                        className={`text-xs font-bold ${
-                          isToday
-                            ? "w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[11px]"
-                            : "text-slate-300"
-                        }`}
-                      >
-                        {dayNumber}
-                      </span>
-                      {dayEvents.length > 0 && (
-                        <span className="text-[10px] text-slate-500 font-mono">
-                          {dayEvents.length} post{dayEvents.length > 1 ? "s" : ""}
-                        </span>
-                      )}
-                    </div>
+                    key={`empty-${i}`}
+                    className="rounded-xl bg-white/[0.01] border border-white/[0.03] p-2 opacity-20"
+                  />
+                ))}
 
-                    {/* Events inside this day */}
-                    <div className="space-y-1.5 flex-1 overflow-y-auto max-h-24 scrollbar-none">
-                      {dayEvents.map((evt) => (
-                        <div
-                          key={evt.id}
-                          className={`p-1.5 rounded-lg border text-[10px] font-medium leading-tight truncate ${getPlatformColor(
-                            evt.platform
-                          )}`}
-                          title={`${evt.title} - ${evt.snippet}`}
+                {/* Days of Month */}
+                {Array.from({ length: daysInMonth }).map((_, i) => {
+                  const dayNumber = i + 1;
+                  const cellDate = new Date(year, month, dayNumber);
+                  const dayEvents = filteredEvents.filter((e) => {
+                    const d = new Date(e.scheduled_at);
+                    return (
+                      d.getFullYear() === year &&
+                      d.getMonth() === month &&
+                      d.getDate() === dayNumber
+                    );
+                  });
+
+                  const isToday =
+                    new Date().toDateString() === cellDate.toDateString();
+
+                  return (
+                    <div
+                      key={dayNumber}
+                      className={`rounded-xl border p-2 flex flex-col justify-between transition-all min-h-[95px] ${
+                        isToday
+                          ? "bg-[#d4a373]/10 border-[#d4a373]/40 shadow-sm"
+                          : "bg-white/[0.02] border-white/[0.06] hover:border-white/[0.12]"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span
+                          className={`text-xs font-medium ${
+                            isToday
+                              ? "w-5 h-5 rounded-full bg-[#d4a373] text-[#09090b] font-bold flex items-center justify-center text-[10px]"
+                              : "text-[#ede8df]"
+                          }`}
                         >
-                          <span className="font-bold capitalize">{evt.platform}:</span>{" "}
-                          {evt.title}
-                        </div>
-                      ))}
+                          {dayNumber}
+                        </span>
+                        {dayEvents.length > 0 && (
+                          <span className="text-[10px] text-[#71717a] font-mono">
+                            {dayEvents.length} post{dayEvents.length > 1 ? "s" : ""}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Events inside this day */}
+                      <div className="space-y-1 flex-1 overflow-y-auto max-h-20 scrollbar-none">
+                        {dayEvents.map((evt) => (
+                          <div
+                            key={evt.id}
+                            className={`p-1.5 rounded-lg border text-[10px] font-medium leading-tight truncate ${getPlatformColor(
+                              evt.platform
+                            )}`}
+                            title={`${evt.title} - ${evt.snippet}`}
+                          >
+                            <span className="font-semibold uppercase text-[9px]">{evt.platform}:</span>{" "}
+                            {evt.title}
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          </ScrollReveal>
         )}
 
         {/* List View */}
         {viewMode === "list" && (
-          <div className="glass-card rounded-2xl p-6 space-y-4">
-            <h2 className="text-sm font-semibold text-slate-200 uppercase tracking-wider flex items-center gap-2">
-              <Clock className="w-4 h-4 text-indigo-400" />
-              Scheduled Publishing Queue ({filteredEvents.length})
-            </h2>
+          <ScrollReveal delay={0}>
+            <div className="hirael-card p-5 sm:p-6 space-y-4">
+              <h2 className="text-xs font-mono uppercase tracking-wider text-[#ede8df] flex items-center gap-2">
+                <Clock className="w-4 h-4 text-[#d4a373]" />
+                <span>Scheduled Publishing Queue ({filteredEvents.length})</span>
+              </h2>
 
-            {filteredEvents.length === 0 ? (
-              <div className="p-12 text-center text-xs text-slate-500">
-                No scheduled posts in queue. Approve variants in the Studio to schedule publication.
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {filteredEvents.map((evt) => (
-                  <div
-                    key={evt.id}
-                    className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs"
-                  >
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border capitalize ${getPlatformColor(
-                            evt.platform
-                          )}`}
-                        >
-                          {evt.platform}
-                        </span>
-                        <p className="font-semibold text-slate-200">{evt.title}</p>
-                      </div>
-                      <p className="text-slate-400 text-[11px] line-clamp-1">{evt.snippet}</p>
-                    </div>
-
-                    <div className="flex items-center gap-4 self-end sm:self-center">
-                      <div className="text-right text-[11px] text-slate-400">
-                        <p className="font-medium text-slate-200">
-                          {new Date(evt.scheduled_at).toLocaleDateString()}
-                        </p>
-                        <p className="text-[10px] text-slate-500">
-                          {new Date(evt.scheduled_at).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </p>
+              {filteredEvents.length === 0 ? (
+                <div className="p-12 text-center text-xs text-[#71717a]">
+                  No scheduled posts in queue. Approve variants in the Studio to schedule publication.
+                </div>
+              ) : (
+                <div className="space-y-2.5">
+                  {filteredEvents.map((evt) => (
+                    <div
+                      key={evt.id}
+                      className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs"
+                    >
+                      <div className="space-y-1 flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-mono uppercase border ${getPlatformColor(
+                              evt.platform
+                            )}`}
+                          >
+                            {evt.platform}
+                          </span>
+                          <p className="font-medium text-[#ede8df] truncate">{evt.title}</p>
+                        </div>
+                        <p className="text-[#8a8a93] text-[11px] line-clamp-1">{evt.snippet}</p>
                       </div>
 
-                      {evt.status !== "cancelled" && (
-                        <button
-                          onClick={() => handleCancelEvent(evt.job_id)}
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-950/30 transition-colors"
-                          title="Cancel Job"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      )}
+                      <div className="flex items-center gap-4 self-end sm:self-center shrink-0">
+                        <div className="text-right text-[11px] text-[#8a8a93]">
+                          <p className="font-medium text-[#ede8df]">
+                            {new Date(evt.scheduled_at).toLocaleDateString()}
+                          </p>
+                          <p className="text-[10px] text-[#71717a] font-mono">
+                            {new Date(evt.scheduled_at).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </p>
+                        </div>
+
+                        {evt.status !== "cancelled" && (
+                          <button
+                            onClick={() => handleCancelEvent(evt.job_id)}
+                            className="p-1.5 rounded-lg text-[#71717a] hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                            title="Cancel Job"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </ScrollReveal>
         )}
       </div>
     </AppLayout>

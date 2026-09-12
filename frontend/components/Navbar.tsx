@@ -11,7 +11,7 @@ import {
   setActiveWorkspaceId,
   removeToken,
 } from "@/lib/api";
-import { Building2, ChevronDown, Bell, LogOut, Plus, ShieldCheck } from "lucide-react";
+import { Building2, ChevronDown, Bell, LogOut, Plus } from "lucide-react";
 
 interface NavbarProps {
   onWorkspaceChange?: (workspaceId: string) => void;
@@ -43,14 +43,14 @@ export function Navbar({ onWorkspaceChange }: NavbarProps) {
             onWorkspaceChange(active.id);
           }
         }
-      } catch (err) {
+      } catch {
         // Redirect to login if unauthenticated
         router.push("/login");
       }
     }
 
     loadData();
-  }, [router]);
+  }, [router, onWorkspaceChange]);
 
   const handleSelectWorkspace = (ws: Workspace) => {
     setCurrentWorkspace(ws);
@@ -69,12 +69,12 @@ export function Navbar({ onWorkspaceChange }: NavbarProps) {
   };
 
   return (
-    <header className="h-16 border-b border-white/[0.07] bg-[#0a0a0c]/80 backdrop-blur-md px-6 flex items-center justify-between z-20">
+    <header className="h-14 sm:h-15 border-b border-white/[0.07] bg-[#0a0a0c]/85 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between z-20 shrink-0">
       {/* Workspace Selector */}
       <div className="relative">
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
-          className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/[0.05] border border-white/[0.08] hover:border-white/20 text-xs font-medium text-[#ede8df] transition-all shadow-sm"
+          className="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] hover:border-white/20 text-xs font-medium text-[#ede8df] transition-all duration-200 active:scale-[0.97] hover:bg-white/[0.07] cursor-pointer"
         >
           <Building2 className="w-3.5 h-3.5 text-[#d4a373]" />
           <span>{currentWorkspace?.name || "Select Workspace"}</span>

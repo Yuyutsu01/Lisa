@@ -2,12 +2,15 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  // Proxy /api/v1 requests to the FastAPI backend
+  // Optional proxy if external backend URL is explicitly configured
   async rewrites() {
     const backendUrl =
       process.env.BACKEND_INTERNAL_URL ||
-      process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v1\/?$/, "") ||
-      "http://localhost:8000";
+      process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v1\/?$/, "");
+
+    if (!backendUrl) {
+      return [];
+    }
 
     return [
       {
