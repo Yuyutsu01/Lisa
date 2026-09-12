@@ -180,7 +180,7 @@ export interface ContentVariant {
   content_source_id: string;
   platform: string;
   format: string;
-  status: "draft" | "needs_review" | "approved" | "scheduled" | "publishing" | "published" | "rejected";
+  status: "draft" | "needs_review" | "approved" | "scheduled" | "publishing" | "published" | "exported" | "rejected";
   title?: string;
   body: string;
   caption?: string;
@@ -219,7 +219,7 @@ export interface PublishingJob {
   connected_account_id?: string;
   scheduled_at: string;
   timezone: string;
-  status: "draft" | "approved" | "scheduled" | "queued" | "publishing" | "published" | "failed" | "cancelled";
+  status: "draft" | "approved" | "scheduled" | "queued" | "publishing" | "published" | "exported" | "failed" | "cancelled";
   idempotency_key: string;
   attempt_count: number;
   variant_platform?: string;
@@ -237,7 +237,7 @@ export interface CalendarEvent {
   title: string;
   snippet: string;
   scheduled_at: string;
-  status: "draft" | "approved" | "scheduled" | "queued" | "publishing" | "published" | "failed" | "cancelled";
+  status: "draft" | "approved" | "scheduled" | "queued" | "publishing" | "published" | "exported" | "failed" | "cancelled";
 }
 
 export interface ConnectedAccount {
@@ -259,6 +259,7 @@ export interface PublishedRecord {
   external_post_id: string;
   external_url: string;
   published_at: string;
+  metrics_source?: "platform_api" | "simulated" | "unavailable";
   metadata_json: Record<string, any>;
 }
 
@@ -695,6 +696,8 @@ export const publishingApi = {
   ) =>
     apiRequest<{
       success: boolean;
+      status?: string;
+      publishing_mode?: string;
       external_post_id?: string;
       external_url?: string;
       error_message?: string;

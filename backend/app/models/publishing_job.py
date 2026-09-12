@@ -27,6 +27,7 @@ class JobStatus(str, enum.Enum):
     QUEUED = "queued"
     PUBLISHING = "publishing"
     PUBLISHED = "published"
+    EXPORTED = "exported"  # Mode C: Manual handoff / teleprompter package export
     FAILED = "failed"
     CANCELLED = "cancelled"
 

@@ -23,18 +23,23 @@ class AnalyticsAgent(BaseAgent):
         - metrics_history: List[Dict[str, Any]] (list of metric records)
         - brand_profile: Dict[str, Any]
         """
-        metrics_history = inputs.get("metrics_history", [])
+        raw_metrics = inputs.get("metrics_history", [])
+        # Strict provenance filter: only analyze genuine platform_api metrics
+        metrics_history = [
+            m for m in raw_metrics
+            if m.get("metrics_source", "platform_api") == "platform_api"
+        ]
         
         if not metrics_history:
             return {
-                "summary": "No historical performance data available yet.",
+                "summary": "No verified platform API performance data available yet.",
                 "total_impressions": 0,
                 "total_engagements": 0,
                 "avg_engagement_rate": 0.0,
                 "insights": [
                     {
                         "type": "baseline",
-                        "observation": "Baseline tracking active. Publish initial posts to generate statistical benchmarks.",
+                        "observation": "Baseline tracking active. Connect social accounts and publish posts to sync verified API metrics.",
                         "confidence": "high",
                     }
                 ],

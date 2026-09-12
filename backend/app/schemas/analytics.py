@@ -6,6 +6,7 @@ from datetime import datetime
 class PerformanceMetricCreate(BaseModel):
     published_record_id: str
     platform: str
+    metrics_source: str = "platform_api"  # platform_api | simulated | unavailable
     impressions: int = 0
     reach: int = 0
     views: int = 0
@@ -22,6 +23,7 @@ class PerformanceMetricRead(BaseModel):
     workspace_id: str
     published_record_id: str
     platform: str
+    metrics_source: str
     impressions: int
     reach: int
     views: int

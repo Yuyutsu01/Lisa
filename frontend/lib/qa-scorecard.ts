@@ -1,17 +1,16 @@
 /**
- * Deterministic 10-Point Quality Assurance & Brand Compliance Scoring Engine.
+ * Local Heuristic Pre-Check Engine (Client-Side Instant Feedback).
  *
- * Evaluates content variants across 10 rigorous dimensions:
- * 1. Source Fidelity & Grounding
- * 2. Brand Voice & Tone Compliance
- * 3. Forbidden Clichés & Jargon Audit
- * 4. Preferred Vocabulary & Precision
- * 5. Platform Constraints & Native Syntax
- * 6. Opening Hook Strength & Retention
- * 7. Call-to-Action (CTA) Efficacy
- * 8. Hashtag Optimization & Policy
- * 9. Visual Pacing & Whitespace Rhythm
- * 10. Signal-to-Noise & Conciseness
+ * NOTE ON DUAL QA SYSTEM RECONCILIATION:
+ * This scorecard provides instantaneous, deterministic client-side feedback (keyword overlap,
+ * character limits, regex checks, and phrase scanning) while the user edits copy in the browser.
+ *
+ * It is distinct from the authoritative backend QualityAssuranceAgent (backend/app/agents/qa.py),
+ * which runs full LLM-based factual grounding, multi-agent auto-revision loops, and database logging.
+ *
+ * APPROVAL GATING RULE:
+ * Production release gating requires passing authoritative backend QA review or explicit human
+ * editorial sign-off. This local scorecard acts as a real-time drafting guide.
  */
 
 export interface QualityCheckItem {
@@ -117,7 +116,7 @@ const PLATFORM_LIMITS: Record<
 };
 
 /**
- * Calculates a comprehensive 10-point audit scorecard for any content variant.
+ * Calculates a local heuristic pre-check scorecard for any content variant.
  */
 export function calculateQAScorecard(
   variant?: VariantInput | null,
@@ -178,13 +177,13 @@ export function calculateQAScorecard(
   const fullText = `${lowerTitle} ${lowerCaption} ${lowerBody}`;
 
   // ==========================================
-  // 1. Source Fidelity & Grounding (10 pts)
+  // 1. Keyword Overlap with Source (10 pts)
+  // (Relabeled from "Source Fidelity" to accurately describe deterministic bag-of-words overlap)
   // ==========================================
   let fidelityScore = 10;
-  let fidelityReason = "Variant closely grounds its core technical concepts in the canonical source.";
+  let fidelityReason = "Variant maintains high keyword overlap with the canonical source.";
 
   if (sourceBody || sourceTitle) {
-    // Extract substantive words (length >= 5) from source
     const sourceWords = `${sourceTitle} ${sourceBody}`
       .toLowerCase()
       .replace(/[^a-z0-9\s]/g, " ")
@@ -201,24 +200,24 @@ export function calculateQAScorecard(
 
       if (overlapRatio < 0.15) {
         fidelityScore = 4;
-        fidelityReason = `Low semantic overlap (${Math.round(overlapRatio * 100)}%) with canonical source. Key technical entities missing.`;
-        issues.push({ severity: "warning", message: "Variant omits important technical concepts present in the original source." });
-        suggestions.push("Incorporate core keywords from the canonical source (e.g. system components, architecture metrics).");
+        fidelityReason = `Low keyword overlap (${Math.round(overlapRatio * 100)}%) with source. Key terms missing.`;
+        issues.push({ severity: "warning", message: "Variant omits core keywords present in the canonical source." });
+        suggestions.push("Incorporate core terms from the canonical source (e.g. system components, architecture metrics).");
       } else if (overlapRatio < 0.3) {
         fidelityScore = 7;
-        fidelityReason = `Moderate semantic grounding (${Math.round(overlapRatio * 100)}% keyword overlap with source).`;
+        fidelityReason = `Moderate keyword overlap (${Math.round(overlapRatio * 100)}% term coverage).`;
       } else {
         fidelityScore = 10;
-        fidelityReason = `Strong semantic alignment (${Math.round(overlapRatio * 100)}% source concept coverage).`;
+        fidelityReason = `Strong keyword overlap (${Math.round(overlapRatio * 100)}% source term coverage).`;
       }
     }
   } else {
     fidelityScore = 9;
-    fidelityReason = "Source text not provided; evaluated as standalone original content.";
+    fidelityReason = "Source text not provided; evaluated as standalone original copy.";
   }
 
   checkItems.push({
-    name: "Source Fidelity & Grounding",
+    name: "Keyword Overlap with Source",
     category: "Substance",
     score: fidelityScore,
     max_score: 10,
@@ -265,7 +264,7 @@ export function calculateQAScorecard(
   });
 
   // ==========================================
-  // 3. Forbidden Clichés & Jargon Audit (10 pts)
+  // 3. Forbidden Clichés & Brand Policy Audit (10 pts)
   // ==========================================
   const detectedForbidden: string[] = [];
   for (const phrase of forbiddenList) {
@@ -279,20 +278,20 @@ export function calculateQAScorecard(
     forbiddenScore = Math.max(0, 10 - detectedForbidden.length * 3);
     issues.push({
       severity: "critical",
-      message: `Forbidden clichés detected: "${detectedForbidden.join('", "')}". Prohibited by brand policy.`,
+      message: `Forbidden brand phrases/clichés detected: "${detectedForbidden.join('", "')}". Prohibited by brand policy.`,
     });
     suggestions.push(`Remove or rewrite banned phrases: "${detectedForbidden.join('", "')}".`);
   }
 
   checkItems.push({
-    name: "Forbidden Clichés & Jargon Audit",
+    name: "Forbidden Clichés & Policy Compliance",
     category: "Brand",
     score: forbiddenScore,
     max_score: 10,
     status: forbiddenScore === 10 ? "pass" : forbiddenScore >= 6 ? "warning" : "fail",
     reason:
       forbiddenScore === 10
-        ? "Zero forbidden phrases or marketing clichés detected. Clean copy."
+        ? "Zero forbidden phrases or policy violations detected. Clean copy."
         : `Detected ${detectedForbidden.length} prohibited term(s): ${detectedForbidden.map((f) => `"${f}"`).join(", ")}.`,
   });
 

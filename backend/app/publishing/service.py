@@ -95,21 +95,28 @@ class PublishingService:
 
         # 5. Process Outcome
         if result.success:
-            job.status = JobStatus.PUBLISHED.value
-            job.external_job_id = result.external_post_id
-            variant.status = VariantStatus.PUBLISHED.value
+            if result.publishing_mode == "export":
+                # Mode C: Manual handoff / teleprompter script package exported
+                job.status = JobStatus.EXPORTED.value
+                job.external_job_id = None
+                variant.status = VariantStatus.EXPORTED.value
+            else:
+                # Mode A: Direct automated API publishing with verified platform response
+                job.status = JobStatus.PUBLISHED.value
+                job.external_job_id = result.external_post_id
+                variant.status = VariantStatus.PUBLISHED.value
 
-            published_record = PublishedRecord(
-                workspace_id=workspace_id,
-                content_variant_id=variant.id,
-                publishing_job_id=job.id,
-                platform=variant.platform,
-                external_post_id=result.external_post_id or "id",
-                external_url=result.external_url or "https://social.platform.com",
-                published_at=datetime.now(timezone.utc),
-                metadata_json=result.raw_response,
-            )
-            self.db.add(published_record)
+                published_record = PublishedRecord(
+                    workspace_id=workspace_id,
+                    content_variant_id=variant.id,
+                    publishing_job_id=job.id,
+                    platform=variant.platform,
+                    external_post_id=result.external_post_id or "id",
+                    external_url=result.external_url or "https://social.platform.com",
+                    published_at=datetime.now(timezone.utc),
+                    metadata_json=result.raw_response,
+                )
+                self.db.add(published_record)
         else:
             job.status = JobStatus.FAILED.value
             job.attempt_count += 1

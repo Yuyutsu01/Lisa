@@ -317,6 +317,11 @@ export default function VariantReviewPage({
                 <Check className="w-4 h-4 text-emerald-400" />
                 Published
               </span>
+            ) : currentVariant?.status === "exported" ? (
+              <span className="py-2.5 px-5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30 text-xs sm:text-sm font-semibold flex items-center gap-2">
+                <Check className="w-4 h-4 text-amber-400" />
+                Script Exported (Mode C)
+              </span>
             ) : currentVariant?.status === "approved" ? (
               <div className="flex items-center gap-2.5">
                 <span className="py-2.5 px-4 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-xs sm:text-sm font-semibold flex items-center gap-2">
@@ -326,7 +331,7 @@ export default function VariantReviewPage({
                 <InteractiveButton
                   onClick={handlePublishNow}
                   loading={publishing}
-                  loadingText="Publishing..."
+                  loadingText={currentVariant.platform === "youtube" ? "Exporting Script..." : "Publishing..."}
                   variant="primary"
                   size="md"
                   glow
@@ -335,7 +340,7 @@ export default function VariantReviewPage({
                   leftIcon={<Send className="w-4 h-4" />}
                   className="px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold"
                 >
-                  Publish Now
+                  {currentVariant.platform === "youtube" ? "Export Production Script" : "Publish Now"}
                 </InteractiveButton>
               </div>
             ) : (
@@ -396,6 +401,18 @@ export default function VariantReviewPage({
           </ScrollReveal>
         )}
 
+        {/* Mode C Exported Banner */}
+        {currentVariant?.status === "exported" && (
+          <div className="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-4 animate-fadeIn">
+            <div className="flex items-center gap-2.5 text-amber-300 text-xs sm:text-sm font-medium">
+              <CheckCircle2 className="w-5 h-5 text-amber-400 shrink-0" />
+              <span>
+                <strong className="capitalize">{PLATFORM_LABELS[currentVariant.platform] || currentVariant.platform}</strong> production package &amp; script exported (Mode C: Manual Handoff). No fabricated video or simulated URL was created.
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Live Published Banner (Only displayed when the currently selected variant is published) */}
         {currentVariant?.status === "published" && (
           <div className="p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between gap-4 animate-fadeIn">
@@ -425,6 +442,7 @@ export default function VariantReviewPage({
               const isSelected = selectedPlatform === v.platform;
               const isApproved = v.status === "approved";
               const isPublished = v.status === "published";
+              const isExported = v.status === "exported";
               const platformName = PLATFORM_LABELS[v.platform] || v.platform;
               return (
                 <button
@@ -441,6 +459,8 @@ export default function VariantReviewPage({
                     className={`w-2 h-2 rounded-full ${
                       isPublished
                         ? "bg-blue-400"
+                        : isExported
+                        ? "bg-amber-400"
                         : isApproved
                         ? "bg-emerald-500"
                         : "bg-amber-400"
@@ -643,7 +663,7 @@ export default function VariantReviewPage({
               </ScrollReveal>
             </div>
 
-            {/* Right Column: 10-Point QA Scorecard & Strategy Insights */}
+            {/* Right Column: Local Heuristic Pre-Check & Strategy Insights */}
             <div className="space-y-6">
               {/* QA Scorecard */}
               <ScrollReveal delay={150}>
@@ -653,9 +673,9 @@ export default function VariantReviewPage({
                       <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
                       <div>
                         <h3 className="text-xs sm:text-sm font-semibold text-[#ede8df] uppercase tracking-wider">
-                          10-Point QA Scorecard
+                          Local Heuristic Pre-Check
                         </h3>
-                        <p className="text-[11px] text-[#71717a] font-mono">Live Deterministic Audit</p>
+                        <p className="text-[11px] text-[#71717a] font-mono">Client-Side Instant Feedback (10-Point Pre-Check)</p>
                       </div>
                     </div>
                     <div className="text-right">
@@ -746,6 +766,11 @@ export default function VariantReviewPage({
                       </ul>
                     </div>
                   )}
+
+                  {/* Architecture Note */}
+                  <div className="pt-2 border-t border-white/[0.06] text-[11px] text-[#71717a] leading-relaxed">
+                    <span className="font-semibold text-[#a6a39b]">QA Note:</span> Fast deterministic pre-check for instant editing feedback. Authoritative compliance gating and hallucination checking are enforced via the backend QA Agent and human editorial review.
+                  </div>
                 </div>
               </ScrollReveal>
 

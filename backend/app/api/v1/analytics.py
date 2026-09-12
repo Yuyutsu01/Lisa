@@ -172,6 +172,7 @@ async def record_performance_metric(
         workspace_id=workspace_id,
         published_record_id=payload.published_record_id,
         platform=payload.platform,
+        metrics_source=payload.metrics_source,
         impressions=payload.impressions,
         reach=payload.reach,
         views=payload.views,
@@ -220,13 +221,17 @@ async def trigger_analytics_and_opportunity_loop(
 ):
     """
     Trigger the AnalyticsAgent and ContentRecommendationAgent to discover new repurposing opportunities.
+    Filters exclusively for genuine platform_api metrics — simulated or unavailable data is omitted.
     """
-    # 1. Fetch performance metrics with published records & variants
+    # 1. Fetch verified platform API performance metrics with published records & variants
     top_q = (
         select(PerformanceMetric, PublishedRecord, ContentVariant)
         .join(PublishedRecord, PerformanceMetric.published_record_id == PublishedRecord.id)
         .join(ContentVariant, PublishedRecord.content_variant_id == ContentVariant.id)
-        .where(PerformanceMetric.workspace_id == workspace_id)
+        .where(
+            PerformanceMetric.workspace_id == workspace_id,
+            PerformanceMetric.metrics_source == "platform_api",
+        )
         .order_by(PerformanceMetric.engagement_rate.desc())
         .limit(10)
     )

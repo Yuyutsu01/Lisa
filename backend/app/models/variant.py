@@ -27,6 +27,7 @@ class VariantStatus(str, enum.Enum):
     SCHEDULED = "scheduled"
     PUBLISHING = "publishing"
     PUBLISHED = "published"
+    EXPORTED = "exported"  # Mode C: Script exported for manual creator upload
     REJECTED = "rejected"
 
 

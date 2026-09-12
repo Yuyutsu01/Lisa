@@ -574,62 +574,89 @@ export async function POST(req: NextRequest, context: RouteContext) {
     const wsId = slug[1];
     const variantId = slug[3];
     const v = store.variants.get(variantId);
-    if (v) {
-      v.status = "published";
-      const qualityScore = v.quality_review_json?.quality_score || 90;
-      const baseImp =
-        v.platform === "x"
-          ? 38000
-          : v.platform === "linkedin"
-          ? 22500
-          : v.platform === "instagram"
-          ? 14000
-          : v.platform === "discord"
-          ? 6500
-          : 9500;
-      const impressions = Math.round(baseImp * (0.85 + (qualityScore / 100) * 0.35) + Math.random() * 1500);
-      const engagementRate = 0.058 + (qualityScore / 100) * 0.03 + (Math.random() * 0.008 - 0.004);
-      const engagements = Math.round(impressions * engagementRate);
-      const reactions = Math.round(engagements * 0.72);
-      const comments = Math.round(engagements * 0.16);
-      const retweets = Math.round(engagements * 0.12);
+    if (!v) {
+      return NextResponse.json({ detail: "Variant not found" }, { status: 404 });
+    }
 
-      const record: PublishedRecord = {
-        id: `pub_${Date.now()}`,
-        workspace_id: wsId,
-        content_variant_id: variantId,
-        platform: v.platform,
-        external_post_id: `ext_${Date.now()}`,
-        external_url: `https://${
-          v.platform === "x"
-            ? "x.com"
-            : v.platform === "linkedin"
-            ? "linkedin.com/feed/update"
-            : `${v.platform}.com`
-        }/post/${Date.now()}`,
-        published_at: new Date().toISOString(),
-        metadata_json: {
-          status: "live",
-          impressions,
-          engagements,
-          reactions,
-          likes: reactions,
-          comments,
-          retweets,
-          shares: retweets,
-          engagement_rate: engagementRate,
-        },
+    // Platform-specific Mode C (Export/Manual Handoff) for YouTube and manual formats
+    if (v.platform === "youtube" || v.format === "short_video" || v.format === "video") {
+      v.status = "exported";
+      v.updated_at = new Date().toISOString();
+
+      const exportPackage = {
+        title: v.title || "YouTube Shorts Adaptation",
+        script: v.body,
+        caption: v.caption || "",
+        tags: v.hashtags_json || [],
+        format: v.format,
+        exported_at: new Date().toISOString(),
       };
-      const records = store.publishedRecords.get(wsId) || [];
-      records.unshift(record);
-      store.publishedRecords.set(wsId, records);
+
       return NextResponse.json({
         success: true,
-        external_url: record.external_url,
-        published_record_id: record.id,
+        status: "exported",
+        publishing_mode: "export",
+        external_url: undefined,
+        external_post_id: undefined,
+        message: "YouTube script exported successfully for manual creator upload.",
+        raw_response: {
+          status: "exported",
+          mode: "export_teleprompter_script",
+          package: exportPackage,
+        },
       });
     }
-    return NextResponse.json({ success: true, external_url: `https://social.com/post/${Date.now()}` });
+
+    // Mode A: Direct API Publishing for connected accounts (e.g. LinkedIn, X)
+    v.status = "published";
+    v.updated_at = new Date().toISOString();
+
+    const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+    const metricsSource = isDemoMode ? "simulated" : "platform_api";
+
+    // In production, newly published posts start with 0 metrics until the OAuth analytics sync job runs.
+    // In explicit DEMO_MODE, initial baseline numbers are tagged as metrics_source="simulated".
+    const initialImpressions = isDemoMode ? 1200 : 0;
+    const initialEngagements = isDemoMode ? 45 : 0;
+
+    const record: PublishedRecord = {
+      id: `pub_${Date.now()}`,
+      workspace_id: wsId,
+      content_variant_id: variantId,
+      platform: v.platform,
+      external_post_id: `post_${Date.now()}`,
+      external_url: `https://${
+        v.platform === "x"
+          ? "x.com"
+          : v.platform === "linkedin"
+          ? "linkedin.com/feed/update"
+          : `${v.platform}.com`
+      }/post/${Date.now()}`,
+      published_at: new Date().toISOString(),
+      metrics_source: metricsSource,
+      metadata_json: {
+        status: "live",
+        impressions: initialImpressions,
+        engagements: initialEngagements,
+        reactions: initialEngagements,
+        likes: initialEngagements,
+        comments: 0,
+        shares: 0,
+        engagement_rate: initialImpressions > 0 ? initialEngagements / initialImpressions : 0,
+      },
+    };
+    const records = store.publishedRecords.get(wsId) || [];
+    records.unshift(record);
+    store.publishedRecords.set(wsId, records);
+
+    return NextResponse.json({
+      success: true,
+      status: "published",
+      publishing_mode: "direct",
+      external_url: record.external_url,
+      published_record_id: record.id,
+      metrics_source: metricsSource,
+    });
   }
 
   // Connections create: /workspaces/:id/connections

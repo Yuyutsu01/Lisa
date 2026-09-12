@@ -42,6 +42,8 @@ class PerformanceMetric(Base):
         index=True,
     )
     platform = Column(String(50), nullable=False, index=True)
+    # Provenance Tracking: platform_api | simulated | unavailable
+    metrics_source = Column(String(30), default="platform_api", nullable=False, index=True)
 
     # Core Performance Metrics
     impressions = Column(BigInteger, default=0, nullable=False)
