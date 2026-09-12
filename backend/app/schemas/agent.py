@@ -63,6 +63,7 @@ class QualityCheckResult(BaseModel):
     check_items: List[QualityCheckItem] = Field(default_factory=list)
     issues: List[QualityIssue] = Field(default_factory=list)
     improvement_suggestions: List[str] = Field(default_factory=list)
+    unverified_claims: List[str] = Field(default_factory=list)
     needs_regeneration: bool = False
     passed: bool = True
 

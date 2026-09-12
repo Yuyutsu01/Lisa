@@ -15,6 +15,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     JSON,
+    Boolean,
 )
 from sqlalchemy.orm import relationship
 from app.db.session import Base
@@ -23,6 +24,8 @@ from app.db.session import Base
 class VariantStatus(str, enum.Enum):
     DRAFT = "draft"
     NEEDS_REVIEW = "needs_review"
+    POLICY_FLAGGED = "policy_flagged"  # Guardrail: blocked from review until human override
+    BUDGET_EXCEEDED = "budget_exceeded"  # Guardrail: token/cost ceiling reached
     APPROVED = "approved"
     SCHEDULED = "scheduled"
     PUBLISHING = "publishing"
@@ -54,6 +57,10 @@ class ContentVariant(Base):
     caption = Column(Text, nullable=True)
     cta = Column(String(500), nullable=True)
     hashtags_json = Column(JSON, default=list, nullable=False)
+
+    # Guardrails & Provenance
+    is_fallback = Column(Boolean, default=False, nullable=False)
+    policy_flags_json = Column(JSON, default=list, nullable=False)
 
     # Strategy & Quality Assurance
     strategy_json = Column(JSON, default=dict, nullable=False)

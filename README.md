@@ -6,99 +6,54 @@
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg)](https://fastapi.tiangolo.com)
 [![Next.js 16](https://img.shields.io/badge/Frontend-Next.js%2016%20(App%20Router)-black.svg)](https://nextjs.org)
 [![PostgreSQL / SQLite](https://img.shields.io/badge/Database-SQLAlchemy%202.0%20Async-blue.svg)](https://www.sqlalchemy.org)
-[![Tests](https://img.shields.io/badge/Tests-19%20Passed%20(100%25)-emerald.svg)](backend/tests)
+[![Tests](https://img.shields.io/badge/Tests-37%20Passed%20(100%25)-emerald.svg)](backend/tests)
+[![Guardrails](https://img.shields.io/badge/AI%20Guardrails-Active%20%26%20Enforced-indigo.svg)](docs/AI_HARNESSING_AND_GUARDRAILS.md)
 
 ---
 
 ## 1. Product Overview
 
-**Lisa** is an enterprise-grade, multi-tenant AI content operations operating system (OS). Rather than acting as a simple generic chat wrapper that writes captions, Lisa is an orchestrated pipeline where **specialized AI agents** collaborate with deterministic software safeguards to ingest canonical content sources, adapt them into platform-native variants (LinkedIn, X/Twitter, Instagram, YouTube Shorts, TikTok, Threads, Email Newsletters, and Blog CMS), validate them against brand guidelines, schedule them via an idempotent state machine, and analyze cross-platform performance in a **closed-loop feedback loop**.
+**Lisa** is an enterprise-grade, multi-tenant AI content operations operating system (OS). Rather than acting as a simple generic chat wrapper that writes captions, Lisa is an orchestrated pipeline where **specialized AI agents** collaborate with deterministic software safeguards to ingest canonical content sources, adapt them into platform-native variants (LinkedIn, X/Twitter, Instagram, YouTube Shorts, Discord, Threads, Email Newsletters, and Blog CMS), validate them against brand guidelines and policy gates, schedule them via an idempotent state machine, and analyze cross-platform performance in a **closed-loop feedback loop**.
 
 ### Core Product Principle
 * **AI proposes structured variants.**
-* **Deterministic software validates boundaries, character limits, forbidden phrases, and aspect ratios.**
+* **Deterministic software validates boundaries, character limits, PII protection, and platform ToS policies.**
+* **Semantic QA guards against hallucinated metrics and ungrounded facts.**
 * **Humans review, edit, and approve before verified publishing.**
 * **Analytics feeds actionable opportunities back into the top of the content funnel.**
 
 ---
 
-## 2. Problem Statement
+## 2. AI Harnessing & Guardrails Architecture
 
-Modern content creators, marketing teams, agency leads, and enterprise founders face a repetitive, manual, and fragmented content operations workflow:
-1. **Manual Repurposing Overhead:** Writing one high-value long-form article requires manually rewriting 8 different posts with distinct platform hooks, formatting rules, and character constraints.
-2. **Brand Voice Drift:** Multi-member teams struggle to maintain consistent brand tone, terminology, forbidden phrase compliance, and audience positioning.
-3. **Media Format Mismatches:** Manually cropping, resizing, and aspect-ratio converting visual assets (Portrait `4:5`, Square `1:1`, Reels `9:16`, Thumbnails `16:9`) causes friction and visual bugs.
-4. **Scattered Distribution & Disconnected Analytics:** Scheduling across multiple third-party schedulers prevents normalized cross-platform performance tracking and intelligent closed-loop repurposing.
+Lisa enforces 8 distinct layers of AI harnessing, safety, and operational reliability (see [docs/AI_HARNESSING_AND_GUARDRAILS.md](docs/AI_HARNESSING_AND_GUARDRAILS.md) for the complete engineering specification):
 
----
-
-## 3. Key Features
-
-- **Multi-Tenant RBAC & Workspaces:** Enterprise tenant isolation with 5 granular permission roles (`Owner`, `Admin`, `Editor`, `Reviewer`, `Viewer`).
-- **Brand Intelligence System:** Contextual storage for brand mission, target audience, tone guidelines, forbidden phrase filters, content pillars, and RAG knowledge base document storage.
-- **Canonical Content Studio:** Rich-text source editor with debounced auto-saving, version history tracking, and one-click version rollback.
-- **SHA-256 Media Deduplication Engine:** Uploads manager with automated Pillow dimension extraction, checksum deduplication, and asset linking.
-- **Multi-Agent Orchestrator:** 5 specialized agents that process canonical ideas into platform-native variants with structured JSON schemas.
-- **Variant Review & QA Studio:** Live simulated feed previews (LinkedIn post, X thread, IG caption, etc.) with real-time QA scorecard compliance checks and single-element AI regeneration modifiers.
-- **Media Derivative Processor:** Aspect ratio preset transformations (`4:5`, `1:1`, `9:16`, `16:9`, `1.91:1`) for image assets.
-- **Content Distribution Calendar:** Interactive Month and Queue List scheduling interface powered by a SHA-256 idempotent publishing state machine.
-- **Omnichannel Platform Adapters:** Dedicated publishing adapters for **LinkedIn, X (Twitter), Instagram, YouTube Shorts, TikTok, Threads, Email Newsletters, and Blog/CMS**.
-- **Performance Analytics & Opportunity Engine:** Cross-network metric normalization (impressions, reach, views, engagements, engagement rate %) paired with closed-loop AI repurposing suggestions.
-- **Production Hardening & Telemetry:** WebSocket real-time event hub (`/ws/workspaces/{id}`), immutable audit logging (`AuditLog`), and sub-agent latency & token usage traces (`AgentRun`).
-
----
-
-## 4. Agent Architecture
-
-Lisa organizes intelligence into discrete, single-responsibility agents coordinated by a central orchestrator:
-
-```text
-Canonical Source
-       │
-       ▼
-┌──────────────────────────────────────────────┐
-│       GenerationPipeline Orchestrator        │
-└──────┬────────────────────────────────┬──────┘
-       │                                │
-       ▼                                ▼
-┌───────────────────────┐    ┌───────────────────────────┐
-│ Content Intake Agent  │    │  Platform Strategy Agent  │
-│ - Key points extract  │    │  - Platform-specific angle│
-│ - Core claim detection│    │  - Format selection       │
-└──────────┬────────────┘    └──────────┬────────────────┘
-           │                            │
-           └────────────┬───────────────┘
-                        ▼
-       ┌─────────────────────────────────┐
-       │   Content Adaptation Agent      │
-       │   - Hook creation               │
-       │   - Platform-native body copy   │
-       │   - Target CTA formatting       │
-       └────────────────┬────────────────┘
-                        ▼
-       ┌─────────────────────────────────┐
-       │      Caption & Hook Agent       │
-       │      - 3 hook alternatives      │
-       │      - Channel hashtags         │
-       └────────────────┬────────────────┘
-                        ▼
-       ┌─────────────────────────────────┐
-       │    Quality Assurance Agent      │
-       │    - Forbidden phrase check     │
-       │    - Voice alignment (0.0-1.0)  │
-       │    - Format constraint validation│
-       └────────────────┬────────────────┘
-                        ▼
-             Platform Content Variants
-```
-
-### Closed-Loop Feedback Agents
-- **Analytics Agent:** Ingests raw social metric snapshots, normalizes engagement rates, and isolates conversion-leading channels.
-- **Content Recommendation Agent:** Identifies high-performing posts (>80th percentile) and generates evidence-backed repurposing recipes that can be converted into new Studio drafts with 1 click.
+1. **Prompt Injection Defense (FR-BRAND-005):**
+   - Untrusted boundary: all user text, uploaded docs, and RAG context are delimited in `<untrusted_content>` tags.
+   - Strict anti-override system prompt directives instruct models to treat enclosed tags purely as data to summarize, never as instructions to execute.
+   - Deterministic regex scanner detects injection signatures (`ignore previous instructions`, `you are now DAN`, `###override`) and sets `injection_risk_flag=True` for human audit.
+2. **Output Schema Validation Layer:**
+   - Strict Pydantic model validation immediately after agent responses with bounded 1-retry on malformed JSON.
+3. **Independent Policy Validation Gate:**
+   - Scans copy for PII leakage (unredacted emails, phone numbers, SSNs), Meta/X ToS banned engagement bait (e.g. comment-gating patterns), and brand forbidden terms.
+   - Violating variants are routed to `policy_flagged` status and blocked from review until human override.
+4. **Semantic Hallucination & Fact-Grounding Guardrail:**
+   - Dedicated fact extractor isolates quantitative claims (percentages, latency benchmarks, numbers with units) and verifies grounding against canonical source facts.
+   - Unverified claims cap quality scores ($\le 0.50$), trigger `unverified_claim` flags, and strictly block auto-approval.
+5. **Human-in-the-Loop (HITL) & Trusted Automation:**
+   - Publishing Orchestrator blocks any publishing attempt unless the variant has explicit human approval (`approved_by`/`approved_at`) or matches an active, unexpired 30-day `TrustedAutomationRule`.
+6. **Token Budget & Cost Ceilings:**
+   - Per-job token ceilings (15k tokens) and per-workspace sliding-window rate limiters prevent runaway revision loops. Exceeding ceilings raises `BudgetExceededError` and sets status `budget_exceeded`.
+7. **Fabricated-Success & Provenance Invariant:**
+   - Video formats without rendered binary uploads use **Mode C (Export/Manual Handoff)** with status `exported`—never writing fake live URLs (`youtube.com/shorts/mock_...`) or phantom feed records.
+   - All performance metrics carry explicit `metrics_source` tags (`platform_api`, `simulated`, `unavailable`).
+8. **Circuit Breakers & Fallback Markers:**
+   - Explicit timeouts (30s API / 75s generation) with bounded transient retries.
+   - Offline template fallback engine stamps `is_fallback: true` to clearly distinguish offline templates from live model generations.
 
 ---
 
-## 5. Tech Stack
+## 3. Tech Stack
 
 | Layer | Technology | Details |
 |---|---|---|
@@ -110,7 +65,7 @@ Canonical Source
 | **Frontend Framework** | **Next.js 16 (App Router)** | Modern React 19 architecture with Webpack bundling on Windows |
 | **Styling & UI** | **TailwindCSS + Lucide Icons** | Dark-mode glassmorphic theme, responsive dashboard components |
 | **Real-Time Gateway** | **WebSockets** | Tenant-multiplexed event broadcasting (`/ws/workspaces/{id}`) |
-| **Testing** | **Pytest + AnyIO + HTTPX** | 100% async endpoint and model test coverage (19 passing tests) |
+| **Testing & CI** | **Pytest + AnyIO + HTTPX** | 100% async endpoint and red-team test coverage (37 passing tests) |
 
 ---
 

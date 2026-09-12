@@ -16,6 +16,7 @@ from sqlalchemy import (
     ForeignKey,
     JSON,
     Integer,
+    Boolean,
 )
 from sqlalchemy.orm import relationship
 from app.db.session import Base
@@ -49,6 +50,10 @@ class ContentSource(Base):
     language = Column(String(50), default="English", nullable=False)
     status = Column(String(50), default=SourceStatus.DRAFT.value, nullable=False, index=True)
     
+    # Prompt injection guardrail flags (FR-BRAND-005)
+    injection_risk_flag = Column(Boolean, default=False, nullable=False)
+    injection_risk_details = Column(JSON, default=dict, nullable=False)
+
     # Platform targeting and categorization
     target_platforms_json = Column(JSON, default=list, nullable=False)  # ["linkedin", "x", "instagram", "youtube", "email"]
     content_pillar = Column(String(100), default="", nullable=False)

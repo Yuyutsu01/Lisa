@@ -25,6 +25,63 @@ FORBIDDEN_CLICHES = [
 ]
 
 
+def extract_factual_claims(text: str) -> List[str]:
+    """
+    Extracts concrete numerical claims, percentages, latency figures, scale metrics,
+    and quantitative assertions from candidate copy.
+    """
+    if not text:
+        return []
+
+    claims: List[str] = []
+    # Match numbers with units (e.g. 10M, 99.99%, 1.2ms, 500k, $100k, 10,000)
+    patterns = [
+        r"\b\d+(?:\.\d+)?%",
+        r"\b\d+(?:\.\d+)?\s*(?:ms|s|sec|min|hours?|days?|events/sec|qps|rps)\b",
+        r"\b\d+(?:\.\d+)?\s*(?:k|m|b|million|billion|gb|tb|mb)\b",
+        r"\$\d+(?:,\d{3})*(?:\.\d+)?(?:\s*(?:k|m|b|million|billion))?\b",
+        r"\b\d+x\b",
+    ]
+
+    for p in patterns:
+        for match in re.finditer(p, text, flags=re.IGNORECASE):
+            claims.append(match.group(0).strip())
+
+    return list(set(claims))
+
+
+def verify_claims_grounding(
+    claims: List[str], source_body: str, brief: Optional[ContentBrief] = None
+) -> List[str]:
+    """
+    Verifies that extracted quantitative claims appear or are substantiated by the canonical source
+    or structured brief. Returns list of unverified claims.
+    """
+    if not claims:
+        return []
+
+    # Assemble complete canonical source context
+    source_context = (source_body or "").lower()
+    if brief:
+        source_context += " " + (brief.summary or "").lower()
+        source_context += " " + " ".join([f.lower() for f in brief.supporting_facts])
+        source_context += " " + " ".join([k.lower() for k in brief.key_insights])
+
+    unverified: List[str] = []
+    for claim in claims:
+        claim_clean = claim.lower()
+        # Check direct presence or normalized number presence
+        num_match = re.search(r"\d+(?:\.\d+)?", claim_clean)
+        if num_match:
+            number = num_match.group(0)
+            if number not in source_context:
+                unverified.append(claim)
+        elif claim_clean not in source_context:
+            unverified.append(claim)
+
+    return unverified
+
+
 class QualityAssuranceAgent:
     """
     Agent 4: Quality Reviewer & 10-Point Scorer
@@ -44,6 +101,7 @@ class QualityAssuranceAgent:
         caption: Optional[str],
         strategy: PlatformStrategy,
         brief: Optional[ContentBrief] = None,
+        source_body: str = "",
     ) -> QualityCheckResult:
         """
         Evaluate generated variant copy across the 10 quality dimensions.
@@ -54,16 +112,42 @@ class QualityAssuranceAgent:
         suggestions: List[str] = []
         check_items: List[QualityCheckItem] = []
         checks_dict: Dict[str, str] = {}
+        unverified_claims: List[str] = []
 
-        # 1. Source Fidelity Check
+        # 1. Semantic Source Fidelity & Fact-Grounding Check (Dedicated Hallucination Guardrail)
+        extracted_claims = extract_factual_claims(combined_text)
+        unverified = verify_claims_grounding(extracted_claims, source_body, brief)
+        unverified_claims = unverified
+
         source_score = 1.0
-        source_reason = "Copy aligns with canonical source facts."
-        if brief and brief.core_idea.lower() not in combined_lower and not any(kw.lower() in combined_lower for kw in brief.core_idea.split()[:2]):
+        source_reason = "Copy is grounded in canonical source facts."
+
+        if unverified:
+            source_score = 0.2
+            source_reason = f"Unverified claims/hallucinated metrics detected: {', '.join(unverified)}"
+            issues.append(
+                QualityIssue(
+                    severity="error",
+                    message=f"Hallucination guardrail triggered: Unverified claims not found in source ({', '.join(unverified)}).",
+                )
+            )
+            suggestions.append(
+                f"Remove or substantiate unverified statistics ({', '.join(unverified)}) with source data."
+            )
+        elif brief and brief.core_idea.lower() not in combined_lower and not any(kw.lower() in combined_lower for kw in brief.core_idea.split()[:2]):
             source_score = 0.65
             source_reason = "Weak alignment with source central thesis."
             issues.append(QualityIssue(severity="warning", message="Central source thesis is not clearly articulated."))
             suggestions.append("Re-anchor the opening hook closer to the primary source thesis.")
-        check_items.append(QualityCheckItem(name="Source Fidelity", status="pass" if source_score >= 0.8 else "warning", score=source_score, reason=source_reason))
+
+        check_items.append(
+            QualityCheckItem(
+                name="Source Fidelity",
+                status="pass" if source_score >= 0.8 else ("warning" if source_score >= 0.6 else "fail"),
+                score=source_score,
+                reason=source_reason,
+            )
+        )
 
         # 2. Brand Voice Match
         voice_score = 1.0
@@ -165,14 +249,14 @@ class QualityAssuranceAgent:
         has_critical_error = any(issue.severity == "error" for issue in issues)
 
         if has_critical_error:
-            # Critical errors (e.g. forbidden phrases, malformed copy) strictly cap score
-            total_score = min(total_score * 0.65, 0.55)
+            # Critical errors (e.g. unverified claims, forbidden phrases) strictly cap score below approval threshold
+            total_score = min(total_score * 0.50, 0.45)
         elif len([i for i in issues if i.severity == "warning"]) >= 2:
             total_score = total_score * 0.90
 
         rounded_score = round(max(min(total_score, 1.0), 0.1), 2)
-        needs_regeneration = rounded_score < 0.75 or has_critical_error
-        passed = not has_critical_error and rounded_score >= 0.70
+        needs_regeneration = rounded_score < 0.75 or has_critical_error or len(unverified_claims) > 0
+        passed = not has_critical_error and len(unverified_claims) == 0 and rounded_score >= 0.70
 
         return QualityCheckResult(
             quality_score=rounded_score,
@@ -180,6 +264,7 @@ class QualityAssuranceAgent:
             check_items=check_items,
             issues=issues,
             improvement_suggestions=suggestions,
+            unverified_claims=unverified_claims,
             needs_regeneration=needs_regeneration,
             passed=passed,
         )

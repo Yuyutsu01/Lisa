@@ -50,6 +50,13 @@ async def test_analytics_metrics_and_closed_loop_opportunity_generation(client: 
     )
     variant_id = gen_res.json()["variants"][0]["id"]
 
+    # Approve variant per Human-in-the-loop requirement
+    appr_res = await client.post(
+        f"/api/v1/variants/{variant_id}/approve",
+        headers=headers,
+    )
+    assert appr_res.status_code == 200
+
     pub_res = await client.post(
         f"/api/v1/workspaces/{ws_id}/variants/{variant_id}/publish",
         headers=headers,

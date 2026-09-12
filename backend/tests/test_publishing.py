@@ -66,6 +66,13 @@ async def test_connected_accounts_and_immediate_publishing(client: AsyncClient):
     )
     variant_id = gen_res.json()["variants"][0]["id"]
 
+    # 3.5 Approve Variant (Human-in-the-loop requirement)
+    appr_res = await client.post(
+        f"/api/v1/variants/{variant_id}/approve",
+        headers=headers,
+    )
+    assert appr_res.status_code == 200
+
     # 4. Publish Variant Immediately
     pub_res = await client.post(
         f"/api/v1/workspaces/{ws_id}/variants/{variant_id}/publish",
@@ -86,16 +93,17 @@ async def test_connected_accounts_and_immediate_publishing(client: AsyncClient):
     assert var_check.status_code == 200
     assert var_check.json()["status"] == "published"
 
-    # 6. Retrieve Workspace Published Records
-    records_res = await client.get(
+    # 6. Verify Published Record created
+    rec_check = await client.get(
         f"/api/v1/workspaces/{ws_id}/published",
         headers=headers,
     )
-    assert records_res.status_code == 200
-    records = records_res.json()
+    assert rec_check.status_code == 200
+    records = rec_check.json()
     assert len(records) == 1
     assert records[0]["platform"] == "linkedin"
     assert records[0]["external_post_id"] == pub_data["external_post_id"]
+    assert records[0]["external_url"] == pub_data["external_url"]
 
     # 7. Disconnect Account
     del_res = await client.delete(
@@ -139,6 +147,13 @@ async def test_youtube_mode_c_export_prevents_fake_published_status(client: Asyn
         json={"platforms": ["youtube"]},
     )
     variant_id = gen_res.json()["variants"][0]["id"]
+
+    # 2.5 Approve YouTube Variant (Human-in-the-loop requirement)
+    appr_res = await client.post(
+        f"/api/v1/variants/{variant_id}/approve",
+        headers=headers,
+    )
+    assert appr_res.status_code == 200
 
     # 3. Publish YouTube Variant (Mode C Export)
     pub_res = await client.post(

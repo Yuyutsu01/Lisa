@@ -17,6 +17,9 @@ from app.publishing.registry import AdapterRegistry
 from app.publishing.base import PublishingResult
 
 
+from app.models.trusted_automation import TrustedAutomationRule
+
+
 class PublishingService:
     def __init__(self, db: AsyncSession):
         self.db = db
@@ -29,6 +32,7 @@ class PublishingService:
     ) -> PublishingResult:
         """
         Execute publishing of a variant to its target platform adapter.
+        Enforces Section 23 Human-In-The-Loop and policy guardrails.
         """
         # 1. Fetch Variant
         var_query = select(ContentVariant).where(ContentVariant.id == variant_id)
@@ -39,6 +43,40 @@ class PublishingService:
             return PublishingResult(
                 success=False, error_message="Variant not found"
             )
+
+        # Guardrail 1: Block policy_flagged variants
+        if variant.status == VariantStatus.POLICY_FLAGGED.value:
+            return PublishingResult(
+                success=False,
+                error_message="Publishing blocked: Variant is policy_flagged. Human editorial override is required before publishing.",
+            )
+
+        # Guardrail 2: Human-In-The-Loop (HITL) Enforcement (Section 23 & 15.1)
+        is_human_approved = (
+            variant.status == VariantStatus.APPROVED.value
+            and getattr(variant, "approved_by", None) is not None
+        )
+
+        trusted_rule_id = None
+        if not is_human_approved:
+            # Check for active, unexpired Trusted Automation Rule
+            now_utc = datetime.now(timezone.utc)
+            rule_query = select(TrustedAutomationRule).where(
+                TrustedAutomationRule.workspace_id == workspace_id,
+                TrustedAutomationRule.platform == variant.platform,
+                TrustedAutomationRule.format == variant.format,
+                TrustedAutomationRule.is_active == True,
+                TrustedAutomationRule.expires_at > now_utc,
+            )
+            rule_res = await self.db.execute(rule_query)
+            matching_rule = rule_res.scalar_one_or_none()
+
+            if not matching_rule:
+                return PublishingResult(
+                    success=False,
+                    error_message="Publishing blocked by Human-In-The-Loop guardrail: Variant requires explicit human approval or an active, unexpired Trusted Automation rule (Section 23).",
+                )
+            trusted_rule_id = matching_rule.id
 
         adapter = AdapterRegistry.get_adapter(variant.platform)
         if not adapter:

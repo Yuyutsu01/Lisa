@@ -9,12 +9,14 @@ from app.models.content import ContentSource
 from app.models.brand import BrandProfile
 from app.models.variant import ContentVariant, VariantStatus
 from app.models.agent_run import AgentRun
-from app.agents.base import AgentContext
+from app.agents.base import AgentContext, scan_prompt_injection
 from app.agents.intake import ContentIntakeAgent
 from app.agents.strategy import PlatformStrategyAgent
 from app.agents.adaptation import ContentAdaptationAgent
 from app.agents.caption import CaptionHookAgent
 from app.agents.qa import QualityAssuranceAgent
+from app.core.guardrails import validate_policy
+from app.core.rate_limiter import budget_tracker, BudgetExceededError
 
 
 class GenerationPipeline:
@@ -35,6 +37,16 @@ class GenerationPipeline:
         start_time = time.time()
         workflow_id = uuid.uuid4().hex
 
+        # Guardrail 1: Prompt Injection Defense Pre-Check (FR-BRAND-005)
+        has_injection, matched_patterns = scan_prompt_injection(f"{source.title} {source.body}")
+        if has_injection:
+            source.injection_risk_flag = True
+            source.injection_risk_details = {
+                "matched_patterns": matched_patterns,
+                "detected_at": datetime.now(timezone.utc).isoformat(),
+            }
+            self.db.add(source)
+
         # 1. Fetch Workspace Brand Profile
         brand_query = select(BrandProfile).where(
             BrandProfile.workspace_id == self.workspace_id
@@ -45,15 +57,20 @@ class GenerationPipeline:
         context = AgentContext(brand_profile=brand_profile)
         platforms = target_platforms or source.target_platforms_json or ["linkedin", "x", "instagram"]
 
+        # Track token usage across agents
+        total_tokens_used = (len(source.title) + len(source.body)) // 4
+
         # 2. Agent 1: Source Analyst (Intake)
         intake_agent = ContentIntakeAgent(context)
         brief = await intake_agent.analyze(
             title=source.title, body=source.body, content_pillar=source.content_pillar
         )
+        total_tokens_used += 450
 
         # 3. Agent 2: Platform Strategy Agent
         strategy_agent = PlatformStrategyAgent(context)
         strategies = await strategy_agent.formulate_strategies(brief, platforms)
+        total_tokens_used += len(platforms) * 250
 
         # 4. Agent 3 & 4: Platform Native Writer & Quality Reviewer
         adaptation_agent = ContentAdaptationAgent(context)
@@ -68,6 +85,13 @@ class GenerationPipeline:
             if not strategy:
                 continue
 
+            # Guardrail 2: Token Budget & Rate Ceilings
+            is_budget_exceeded = False
+            try:
+                budget_tracker.record_usage(self.workspace_id, workflow_id, total_tokens_used)
+            except BudgetExceededError:
+                is_budget_exceeded = True
+
             # Initial Generation Pass
             current_instruction = custom_instruction
             adapted = await adaptation_agent.adapt_content(
@@ -77,6 +101,7 @@ class GenerationPipeline:
                 strategy=strategy,
                 custom_instruction=current_instruction,
             )
+            total_tokens_used += 600
 
             captions = caption_agent.generate_caption_package(
                 platform=plat_key, brief=brief, title=source.title
@@ -89,14 +114,21 @@ class GenerationPipeline:
                 caption=adapted.get("caption"),
                 strategy=strategy,
                 brief=brief,
+                source_body=source.body,
             )
 
             # 5. Automatic Revision Loop (if score < threshold and retries available)
             retry_count = 0
             max_retries = settings.MAX_AUTO_REVISION_RETRIES
 
-            while qa_result.needs_regeneration and retry_count < max_retries:
+            while qa_result.needs_regeneration and retry_count < max_retries and not is_budget_exceeded:
                 retry_count += 1
+                try:
+                    budget_tracker.record_usage(self.workspace_id, workflow_id, 800)
+                except BudgetExceededError:
+                    is_budget_exceeded = True
+                    break
+
                 # Synthesize targeted improvement instruction
                 suggestions_str = "; ".join(qa_result.improvement_suggestions)
                 revision_instruction = f"Revision pass {retry_count}: {suggestions_str}. {custom_instruction}".strip()
@@ -116,6 +148,7 @@ class GenerationPipeline:
                     caption=revised_adapted.get("caption"),
                     strategy=strategy,
                     brief=brief,
+                    source_body=source.body,
                 )
 
                 # If revised variant improved or passed, adopt it
@@ -126,8 +159,20 @@ class GenerationPipeline:
                 if not qa_result.needs_regeneration:
                     break
 
+            # Guardrail 3: Independent Policy Validation Gate
+            policy_check = validate_policy(
+                text=adapted.get("body", ""),
+                source_body=source.body,
+                brand_profile=brand_profile,
+                platform=plat_key,
+            )
+
             # Determine final status
-            if qa_result.quality_score >= settings.QUALITY_APPROVAL_THRESHOLD and not qa_result.issues:
+            if is_budget_exceeded:
+                variant_status = VariantStatus.BUDGET_EXCEEDED.value
+            elif not policy_check.passed:
+                variant_status = VariantStatus.POLICY_FLAGGED.value
+            elif qa_result.quality_score >= settings.QUALITY_APPROVAL_THRESHOLD and not qa_result.issues:
                 variant_status = VariantStatus.NEEDS_REVIEW.value
             elif qa_result.quality_score >= settings.QUALITY_REVIEW_THRESHOLD:
                 variant_status = VariantStatus.NEEDS_REVIEW.value
@@ -148,6 +193,8 @@ class GenerationPipeline:
                 caption=adapted.get("caption") or captions.primary_caption,
                 cta=adapted.get("cta"),
                 hashtags_json=hashtags,
+                is_fallback=False,
+                policy_flags_json=policy_check.flags,
                 strategy_json=strategy.model_dump(),
                 quality_review_json=qa_result.model_dump(),
             )
