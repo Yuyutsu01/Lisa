@@ -1,28 +1,29 @@
 /**
- * Lisa API Client
- * Connects Next.js frontend to FastAPI backend.
+ * Lisa Central API Client
+ * Connects Next.js frontend to FastAPI backend with JWT token authorization.
  */
 
-// Resolve API Base URL supporting NEXT_PUBLIC_API_URL or NEXT_PUBLIC_API_BASE_URL
+// Resolve API Base URL supporting relative proxy, custom env vars, or server-side internal URL
 const resolveApiBaseUrl = (): string => {
-  let rawUrl =
-    process.env.NEXT_PUBLIC_API_URL ||
-    process.env.NEXT_PUBLIC_API_BASE_URL ||
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    "http://localhost:8000/api/v1";
-
-  // Remove trailing slashes
-  rawUrl = rawUrl.replace(/\/+$/, "");
-
-  // Auto-append /api/v1 if root domain was provided
-  if (!rawUrl.endsWith("/api/v1")) {
-    rawUrl = `${rawUrl}/api/v1`;
+  if (typeof window !== "undefined") {
+    // In browser, relative /api/v1 goes through Next.js proxy rewrites
+    const envUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
+    if (envUrl && envUrl.trim() !== "") {
+      let raw = envUrl.trim().replace(/\/+$/, "");
+      return raw.endsWith("/api/v1") ? raw : `${raw}/api/v1`;
+    }
+    return "/api/v1";
   }
-  return rawUrl;
+
+  // Server-side
+  let serverUrl = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  serverUrl = serverUrl.replace(/\/+$/, "");
+  return serverUrl.endsWith("/api/v1") ? serverUrl : `${serverUrl}/api/v1`;
 };
 
-const API_BASE_URL = resolveApiBaseUrl();
+export const API_BASE_URL = resolveApiBaseUrl();
 
+// --- Domain Interfaces ---
 
 export interface User {
   id: string;
@@ -163,6 +164,13 @@ export interface ContentSourceVersion {
   created_at: string;
 }
 
+export interface QualityCheckItem {
+  name: string;
+  status: "pass" | "warning" | "fail";
+  score: number;
+  reason: string;
+}
+
 export interface ContentVariant {
   id: string;
   workspace_id: string;
@@ -183,11 +191,15 @@ export interface ContentVariant {
     target_length_chars?: number;
     cta_recommendation?: string;
     media_required?: boolean;
+    writing_rules?: string[];
   };
   quality_review_json: {
     quality_score?: number;
     checks?: Record<string, string>;
+    check_items?: QualityCheckItem[];
     issues?: { severity: string; message: string }[];
+    improvement_suggestions?: string[];
+    needs_regeneration?: boolean;
     passed?: boolean;
   };
   approved_by?: string;
@@ -225,10 +237,112 @@ export interface CalendarEvent {
   status: "draft" | "approved" | "scheduled" | "queued" | "publishing" | "published" | "failed" | "cancelled";
 }
 
-// Token storage helper
+export interface ConnectedAccount {
+  id: string;
+  workspace_id: string;
+  platform: string;
+  external_account_id: string;
+  account_name: string;
+  status: string;
+  scopes_json: string[];
+  created_at: string;
+}
+
+export interface PublishedRecord {
+  id: string;
+  workspace_id: string;
+  content_variant_id: string;
+  platform: string;
+  external_post_id: string;
+  external_url: string;
+  published_at: string;
+  metadata_json: Record<string, any>;
+}
+
+export interface PlatformMetricSummary {
+  platform: string;
+  total_posts: number;
+  impressions: number;
+  engagements: number;
+  avg_engagement_rate: number;
+}
+
+export interface TopPostSummary {
+  published_record_id: string;
+  platform: string;
+  title?: string;
+  external_url: string;
+  impressions: number;
+  engagements: number;
+  engagement_rate: number;
+  published_at: string;
+}
+
+export interface AnalyticsOverview {
+  total_impressions: number;
+  total_reach: number;
+  total_engagements: number;
+  avg_engagement_rate: number;
+  total_posts_published: number;
+  platform_breakdown: PlatformMetricSummary[];
+  top_performing_posts: TopPostSummary[];
+  open_opportunities_count: number;
+}
+
+export interface ContentOpportunity {
+  id: string;
+  workspace_id: string;
+  title: string;
+  content_pillar: string;
+  suggested_platforms_json: string[];
+  reason: string;
+  confidence: string;
+  source_evidence_json: Record<string, any>;
+  status: string;
+  created_at: string;
+}
+
+export interface AgentRun {
+  id: string;
+  workflow_id: string;
+  agent_name: string;
+  agent_version: string;
+  status: string;
+  model: string;
+  latency_ms: number;
+  token_usage_json: {
+    prompt_tokens?: number;
+    completion_tokens?: number;
+    total_tokens?: number;
+  };
+  created_at: string;
+}
+
+export interface AuditLog {
+  id: string;
+  actor_id?: string;
+  action: string;
+  resource_type: string;
+  resource_id: string;
+  metadata_json: Record<string, any>;
+  created_at: string;
+}
+
+export interface SystemHealth {
+  status: string;
+  database: string;
+  agents: Record<string, string>;
+  supported_platform_adapters: Record<string, any>;
+}
+
+// --- Token & Workspace Storage Helpers ---
+
 export const getToken = (): string | null => {
   if (typeof window !== "undefined") {
-    return localStorage.getItem("lisa_access_token");
+    return (
+      localStorage.getItem("lisa_access_token") ||
+      localStorage.getItem("lisa_token")
+    );
   }
   return null;
 };
@@ -236,12 +350,14 @@ export const getToken = (): string | null => {
 export const setToken = (token: string) => {
   if (typeof window !== "undefined") {
     localStorage.setItem("lisa_access_token", token);
+    localStorage.setItem("lisa_token", token);
   }
 };
 
 export const removeToken = () => {
   if (typeof window !== "undefined") {
     localStorage.removeItem("lisa_access_token");
+    localStorage.removeItem("lisa_token");
     localStorage.removeItem("lisa_active_workspace_id");
   }
 };
@@ -259,9 +375,11 @@ export const setActiveWorkspaceId = (workspaceId: string) => {
   }
 };
 
-async function apiRequest<T>(
+// Generic API Request Dispatcher with timeout & cold-start retry
+export async function apiRequest<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  retries: number = 1
 ): Promise<T> {
   const token = getToken();
   const headers: Record<string, string> = {
@@ -273,25 +391,54 @@ async function apiRequest<T>(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  const url = `${API_BASE_URL}${endpoint}`;
+  const timeoutMs = endpoint.includes("/generate") ? 75000 : 30000;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    const message = errorData.detail || `Request failed with status ${response.status}`;
-    throw new Error(message);
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers,
+      signal: options.signal || controller.signal,
+    });
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      if ((response.status === 502 || response.status === 503 || response.status === 504) && retries > 0) {
+        // Cold start waking up on Render - wait 2 seconds and retry once
+        await new Promise((res) => setTimeout(res, 2000));
+        return apiRequest<T>(endpoint, options, retries - 1);
+      }
+
+      const errorData = await response.json().catch(() => ({}));
+      const message =
+        errorData.detail ||
+        errorData.error_message ||
+        `Request to ${endpoint} failed with status ${response.status}`;
+      throw new Error(message);
+    }
+
+    if (response.status === 204) {
+      return {} as T;
+    }
+
+    return response.json();
+  } catch (err: any) {
+    clearTimeout(timeoutId);
+    if (err.name === "AbortError") {
+      throw new Error(`Request to ${endpoint} timed out after ${timeoutMs / 1000}s. Service may be waking up.`);
+    }
+    if (retries > 0 && err.message?.includes("Failed to fetch")) {
+      // Possible cold start initial connection drop - retry once after 2s
+      await new Promise((res) => setTimeout(res, 2000));
+      return apiRequest<T>(endpoint, options, retries - 1);
+    }
+    throw err;
   }
-
-  if (response.status === 204) {
-    return {} as T;
-  }
-
-  return response.json();
 }
 
-// Auth API
+// --- Auth API ---
 export const authApi = {
   register: (data: { email: string; name: string; password: string }) =>
     apiRequest<{ user: User; workspace_id: string; token: { access_token: string } }>(
@@ -306,7 +453,7 @@ export const authApi = {
   getMe: () => apiRequest<User>("/auth/me"),
 };
 
-// Workspaces API
+// --- Workspaces API ---
 export const workspacesApi = {
   list: () => apiRequest<Workspace[]>("/workspaces"),
   create: (data: { name: string; slug?: string }) =>
@@ -338,7 +485,7 @@ export const workspacesApi = {
     }),
 };
 
-// Brand Intelligence API
+// --- Brand Intelligence API ---
 export const brandApi = {
   getProfile: (workspaceId: string) =>
     apiRequest<BrandProfile>(`/workspaces/${workspaceId}/brand`),
@@ -363,7 +510,7 @@ export const brandApi = {
     }),
 };
 
-// Media API
+// --- Media Assets API ---
 export const mediaApi = {
   upload: async (workspaceId: string, file: File): Promise<MediaAsset> => {
     const token = getToken();
@@ -403,7 +550,7 @@ export const mediaApi = {
     apiRequest<MediaDerivative[]>(`/media/${assetId}/derivatives`),
 };
 
-// Content Sources & Variants API
+// --- Content Sources API ---
 export const sourcesApi = {
   create: (workspaceId: string, data: Partial<ContentSource> & { asset_ids?: string[] }) =>
     apiRequest<ContentSource>(`/workspaces/${workspaceId}/sources`, {
@@ -447,7 +594,7 @@ export const sourcesApi = {
     apiRequest<ContentVariant[]>(`/sources/${sourceId}/variants`),
 };
 
-// Variants API
+// --- Variants API ---
 export const variantsApi = {
   get: (variantId: string) => apiRequest<ContentVariant>(`/variants/${variantId}`),
   update: (variantId: string, data: Partial<ContentVariant>) =>
@@ -476,7 +623,7 @@ export const variantsApi = {
     }),
 };
 
-// Calendar & Publishing Jobs API
+// --- Calendar & Publishing Jobs API ---
 export const calendarApi = {
   getEvents: (workspaceId: string) =>
     apiRequest<CalendarEvent[]>(`/workspaces/${workspaceId}/calendar`),
@@ -489,4 +636,79 @@ export const calendarApi = {
     apiRequest<PublishingJob>(`/publishing-jobs/${jobId}/cancel`, {
       method: "POST",
     }),
+};
+
+// --- Connections (Platform Integrations) API ---
+export const connectionsApi = {
+  list: (workspaceId: string) =>
+    apiRequest<ConnectedAccount[]>(`/workspaces/${workspaceId}/connections`),
+  connect: (
+    workspaceId: string,
+    data: {
+      platform: string;
+      account_name: string;
+      external_account_id: string;
+      access_token: string;
+      refresh_token?: string;
+      scopes?: string[];
+      metadata?: Record<string, any>;
+    }
+  ) =>
+    apiRequest<ConnectedAccount>(`/workspaces/${workspaceId}/connections`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  disconnect: (workspaceId: string, connectionId: string) =>
+    apiRequest<void>(`/workspaces/${workspaceId}/connections/${connectionId}`, {
+      method: "DELETE",
+    }),
+};
+
+// --- Publishing History & Live Dispatch API ---
+export const publishingApi = {
+  publishVariant: (
+    workspaceId: string,
+    variantId: string,
+    data?: { connected_account_id?: string }
+  ) =>
+    apiRequest<{
+      success: boolean;
+      external_post_id?: string;
+      external_url?: string;
+      error_message?: string;
+      raw_response?: Record<string, any>;
+    }>(`/workspaces/${workspaceId}/variants/${variantId}/publish`, {
+      method: "POST",
+      body: JSON.stringify(data || {}),
+    }),
+  listPublished: (workspaceId: string) =>
+    apiRequest<PublishedRecord[]>(`/workspaces/${workspaceId}/published`),
+};
+
+// --- Analytics & Opportunity Loop API ---
+export const analyticsApi = {
+  getOverview: (workspaceId: string) =>
+    apiRequest<AnalyticsOverview>(`/workspaces/${workspaceId}/analytics/overview`),
+  getOpportunities: (workspaceId: string) =>
+    apiRequest<ContentOpportunity[]>(`/workspaces/${workspaceId}/analytics/opportunities`),
+  actionOpportunity: (workspaceId: string, opportunityId: string) =>
+    apiRequest<{ success: boolean; content_source_id: string }>(
+      `/workspaces/${workspaceId}/analytics/opportunities/${opportunityId}/action`,
+      { method: "POST" }
+    ),
+  runAnalytics: (workspaceId: string) =>
+    apiRequest<{ status: string; opportunities_generated: number }>(
+      `/workspaces/${workspaceId}/analytics/run`,
+      { method: "POST" }
+    ),
+};
+
+// --- Audit & System Operations API ---
+export const operationsApi = {
+  listAuditLogs: (workspaceId: string, limit: number = 50) =>
+    apiRequest<AuditLog[]>(`/workspaces/${workspaceId}/audit-logs?limit=${limit}`),
+  listAgentRuns: (workspaceId: string, limit: number = 50) =>
+    apiRequest<AgentRun[]>(`/workspaces/${workspaceId}/agent-runs?limit=${limit}`),
+  getSystemHealth: (workspaceId: string) =>
+    apiRequest<SystemHealth>(`/workspaces/${workspaceId}/system-health`),
 };

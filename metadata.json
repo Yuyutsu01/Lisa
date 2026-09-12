@@ -1,0 +1,8 @@
+{
+  "name": "Lisa — AI Content Distribution & Repurposing Platform",
+  "description": "Create once. Adapt intelligently. Publish everywhere possible. Learn from performance.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
