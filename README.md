@@ -15,18 +15,101 @@
 
 **Lisa** is an enterprise-grade, multi-tenant AI content operations operating system (OS). Rather than acting as a simple generic chat wrapper that writes captions, Lisa is an orchestrated pipeline where **specialized AI agents** collaborate with deterministic software safeguards to ingest canonical content sources, adapt them into platform-native variants (LinkedIn, X/Twitter, Instagram, YouTube Shorts, Discord, Threads, Email Newsletters, and Blog CMS), validate them against brand guidelines and policy gates, schedule them via an idempotent state machine, and analyze cross-platform performance in a **closed-loop feedback loop**.
 
-### Core Product Principle
-* **AI proposes structured variants.**
-* **Deterministic software validates boundaries, character limits, PII protection, and platform ToS policies.**
-* **Semantic QA guards against hallucinated metrics and ungrounded facts.**
-* **Humans review, edit, and approve before verified publishing.**
-* **Analytics feeds actionable opportunities back into the top of the content funnel.**
+### Core Product Principles
+* **AI Proposes Structured Variants:** Specialized agents analyze sources and formulate platform-native angles and formatting.
+* **Deterministic Software Enforces Hard Boundaries:** Pydantic schemas, character limits, PII protection, aspect ratios, and platform ToS policies are enforced at the application layer.
+* **Semantic QA Prevents Hallucinations:** Quantitative claims and metrics are extracted and verified against canonical source facts before approval.
+* **Human-in-the-Loop Governance:** Autonomous publishing is strictly blocked unless explicit human approval or an active 30-day Trusted Automation rule is present.
+* **Closed-Loop Feedback:** Real engagement metrics drive AI-generated repurposing opportunities fed directly back into the content studio.
 
 ---
 
-## 2. AI Harnessing & Guardrails Architecture
+## 2. Complete System Architecture
 
-Lisa enforces 8 distinct layers of AI harnessing, safety, and operational reliability (see [docs/AI_HARNESSING_AND_GUARDRAILS.md](docs/AI_HARNESSING_AND_GUARDRAILS.md) for the complete engineering specification):
+```mermaid
+flowchart TB
+    subgraph ClientLayer["1. Client Layer (Next.js 16 App Router / React 19)"]
+        UI_Studio["Canonical Content Studio & Versioning"]
+        UI_Variants["Native Feed Preview & QA Scorecard"]
+        UI_Calendar["Content Distribution Calendar"]
+        UI_Integrations["Connected Channels & OAuth Hub"]
+        UI_Analytics["Analytics & Opportunity Hub"]
+        UI_Settings["Settings, Audit Logs & Telemetry"]
+    end
+
+    subgraph GatewayLayer["2. API Gateway & Security (FastAPI)"]
+        AuthRouter["Auth & RBAC Middleware (JWT / Bcrypt)"]
+        WSRouter["WebSocket Real-Time Event Hub"]
+        RateLimitGate["Token Budget & Rate Limiter Gateway"]
+    end
+
+    subgraph GuardrailsLayer["3. AI Harnessing & Safety Guardrail Suite"]
+        InjectionShield["Prompt Injection Defense (<untrusted_content> + Regex Scanner)"]
+        SchemaValidator["Pydantic Output Validation (Bounded 1-Retry)"]
+        PolicyGate["Independent Policy Gate (PII + Meta/X ToS + Brand Safety)"]
+        FactGrounding["Semantic Fact-Grounding & Hallucination QA"]
+        HITLGate["Human-in-the-Loop & 30-Day Trusted Automation Gate"]
+    end
+
+    subgraph AgentPipeline["4. Specialized Multi-Agent Intelligence Engine"]
+        Agent_Intake["Agent 1: Content Intake / Source Analyst"]
+        Agent_Strategy["Agent 2: Platform Strategy Agent"]
+        Agent_Writer["Agent 3: Platform Native Writer"]
+        Agent_Caption["Agent 4: Caption & Hook Generator"]
+        Agent_QA["Agent 5: Quality Reviewer & 10-Point Scorer"]
+        Agent_Editorial["Agent 6: Targeted Editorial Refinement"]
+        Agent_Analytics["Agent 7: Analytics Performance Normalizer"]
+        Agent_Recom["Agent 8: Closed-Loop Opportunity Engine"]
+    end
+
+    subgraph PublishingOrchestrator["5. Publishing Orchestrator & Channel Adapters"]
+        PubService["Publishing Engine (SHA-256 Idempotency)"]
+        
+        Adapter_LI["LinkedIn Adapter (Mode A: Direct API)"]
+        Adapter_X["X / Twitter Adapter (Mode A: Direct API)"]
+        Adapter_IG["Instagram Adapter (Mode A: Direct API)"]
+        Adapter_YT["YouTube Shorts Adapter (Mode C: Script Export)"]
+        Adapter_DC["Discord Adapter (Webhook Dispatch)"]
+        Adapter_TH["Threads Adapter (Mode A: Direct API)"]
+        Adapter_EM["Email / Newsletter Adapter"]
+        Adapter_BL["Blog / CMS Adapter"]
+    end
+
+    subgraph StorageLayer["6. Persistence, Cache & Asset Storage"]
+        DB[(PostgreSQL / SQLite Async SQLAlchemy 2.0)]
+        RedisQueue["Redis Task Queue & Workers"]
+        MediaStore["Media Asset & Derivative Store (Pillow / S3)"]
+    end
+
+    %% Client to Gateway
+    UI_Studio & UI_Variants & UI_Calendar & UI_Integrations & UI_Analytics & UI_Settings --> AuthRouter
+    AuthRouter --> RateLimitGate
+    WSRouter <--> UI_Studio & UI_Variants & UI_Settings
+
+    %% Gateway to Guardrails and Agents
+    RateLimitGate --> InjectionShield
+    InjectionShield --> Agent_Intake --> Agent_Strategy --> Agent_Writer --> Agent_Caption
+    Agent_Writer --> SchemaValidator --> PolicyGate --> Agent_QA
+    Agent_QA --> FactGrounding
+
+    %% Feedback loop
+    Agent_Analytics --> Agent_Recom --> UI_Studio
+
+    %% Publishing Flow
+    FactGrounding --> HITLGate --> PubService
+    PubService --> Adapter_LI & Adapter_X & Adapter_IG & Adapter_YT & Adapter_DC & Adapter_TH & Adapter_EM & Adapter_BL
+
+    %% Persistence connections
+    GatewayLayer & AgentPipeline & PublishingOrchestrator --> DB
+    PubService --> RedisQueue
+    ClientLayer --> MediaStore
+```
+
+---
+
+## 3. AI Harnessing & Pipeline Guardrails
+
+Lisa enforces 8 comprehensive layers of AI harnessing, safety, and operational reliability (see [docs/AI_HARNESSING_AND_GUARDRAILS.md](docs/AI_HARNESSING_AND_GUARDRAILS.md) for the complete engineering specification):
 
 1. **Prompt Injection Defense (FR-BRAND-005):**
    - Untrusted boundary: all user text, uploaded docs, and RAG context are delimited in `<untrusted_content>` tags.
@@ -53,7 +136,7 @@ Lisa enforces 8 distinct layers of AI harnessing, safety, and operational reliab
 
 ---
 
-## 3. Tech Stack
+## 4. Tech Stack
 
 | Layer | Technology | Details |
 |---|---|---|
@@ -69,164 +152,22 @@ Lisa enforces 8 distinct layers of AI harnessing, safety, and operational reliab
 
 ---
 
-## 6. System Architecture
+## 5. Omnichannel Platform Distribution Matrix
 
-```mermaid
-flowchart TB
-    subgraph Client["Frontend Client (Next.js 16)"]
-        UI_Studio["Content Studio & Editor"]
-        UI_Variants["Variant Review & QA"]
-        UI_Calendar["Distribution Calendar"]
-        UI_Integrations["Connected Channels Hub"]
-        UI_Analytics["Analytics & Opportunity Hub"]
-        UI_Settings["Settings & Audit Logs"]
-    end
-
-    subgraph Gateway["API Gateway (FastAPI)"]
-        AuthRouter["Auth & RBAC Middleware"]
-        WSRouter["WebSocket Event Hub"]
-        APIRouter["API v1 Endpoints"]
-    end
-
-    subgraph CoreEngine["Lisa Core Engine"]
-        AgentPipeline["Multi-Agent Pipeline"]
-        MediaWorker["Media Derivative Transformer"]
-        PublishService["Publishing Engine & Idempotency"]
-        AnalyticsService["Analytics & Closed-Loop Engine"]
-    end
-
-    subgraph Adapters["Platform Publishing Adapters"]
-        LI["LinkedIn Adapter"]
-        X["X / Twitter Adapter"]
-        IG["Instagram Adapter"]
-        YT["YouTube Shorts Adapter"]
-        TT["TikTok Adapter"]
-        TH["Threads Adapter"]
-        EM["Email / Newsletter Adapter"]
-        BL["Blog / CMS Adapter"]
-    end
-
-    subgraph Storage["Persistence Layer"]
-        DB[(PostgreSQL / SQLite)]
-        DiskStore["Media Asset Storage"]
-    end
-
-    UI_Studio & UI_Variants & UI_Calendar & UI_Integrations & UI_Analytics & UI_Settings --> AuthRouter
-    AuthRouter --> APIRouter
-    WSRouter <--> UI_Studio & UI_Variants & UI_Settings
-    
-    APIRouter --> AgentPipeline & MediaWorker & PublishService & AnalyticsService
-    PublishService --> LI & X & IG & YT & TT & TH & EM & BL
-    
-    AgentPipeline & MediaWorker & PublishService & AnalyticsService --> DB
-    MediaWorker --> DiskStore
-```
+| Platform | Format | Publishing Mode | Guardrail Behavior |
+|---|---|---|---|
+| **LinkedIn** | Long-form Post / Article | **Mode A (Direct API)** | Enforces professional tone, whitespace pacing, max 3 hashtags |
+| **X (Twitter)** | Single Tweet / Multi-Tweet Thread | **Mode A (Direct API)** | Enforces 280-char boundaries and sequential thread formatting (1/N) |
+| **Instagram** | Carousel / Image Caption | **Mode A (Direct API)** | Validates 4:5 / 1:1 image aspect ratios, blocks comment-gating bait |
+| **YouTube Shorts** | Script & Teleprompter Package | **Mode C (Manual Export)** | Exports cue markers (`[00:00 - 00:05] HOOK`) with status `exported` |
+| **Discord** | Rich Embed Announcement | **Direct Webhook Dispatch** | Tags metrics as `unavailable` to prevent synthetic impression hallucination |
+| **Threads** | Conversational Micro-Post | **Mode A (Direct API)** | 500-char limits, conversational hook styling |
+| **Email Newsletters** | Structured Markdown Dispatch | **Direct SMTP / API** | Validates subject line, preview snippet, and body depth |
+| **Blog / CMS** | In-depth Reference Guide | **REST API / Webhook** | Canonical header structure and SEO meta tagging |
 
 ---
 
-## 7. Demo Instructions (Step-by-Step Flow)
-
-Follow this 5-minute walkthrough to experience the entire Lisa platform lifecycle:
-
-1. **Sign Up & Workspace Creation:**
-   - Navigate to `http://localhost:3000/register`.
-   - Register a new account (`demo@lisa.ai` / `DemoPassword123!`). An active workspace is automatically provisioned.
-2. **Configure Brand Voice:**
-   - Go to `/brand`.
-   - Define Tone (*"Visionary yet grounded"*), Forbidden Phrases (*"synergy, revolutionary"*), and Content Pillars (*"AI Infrastructure, Product Updates"*).
-3. **Create Canonical Source:**
-   - Open `/content`.
-   - Title: *"Scaling Multi-Agent Content Orchestration in 2026"*.
-   - Body: Add 2-3 paragraphs describing autonomous pipeline execution. Notice the debounced auto-save status indicator.
-4. **Generate & Review Variants:**
-   - Click **"Generate Platform Variants"**.
-   - Navigate through the simulated feed tabs: **LinkedIn**, **X (Twitter)**, **Instagram**, **YouTube Shorts**, and **TikTok**.
-   - Inspect the **QA Quality Scorecard** (brand voice alignment, character limit validation, and forbidden word scans).
-   - Test an AI modifier: Type *"Make hook more controversial"* and click **Regenerate**.
-5. **Approve & Publish Immediately:**
-   - Click **"Approve Variant"**.
-   - Click **"Publish Now"** to immediately dispatch the post through the platform adapter and verify the live permalink.
-6. **Schedule on Content Calendar:**
-   - Navigate to `/calendar` to view your scheduled queue across Month and List views.
-7. **Inspect Analytics & Closed-Loop Opportunities:**
-   - Go to `/analytics`.
-   - Click **"Discover AI Opportunities"**.
-   - Observe how the `ContentRecommendationAgent` identifies top-performing angles and provides a **1-Click "Repurpose into Studio Draft"** action.
-8. **Inspect Telemetry & Audit Logs:**
-   - Open `/settings`.
-   - Inspect the **Agent Telemetry Traces** table (latency in ms, token usage) and **System Operations Health**.
-
----
-
-## 8. Deployment Architecture
-
-```text
-                [ Cloudflare / CDN ]
-                         │
-                         ▼
-             [ Nginx / Reverse Proxy ]
-             ┌───────────┴───────────┐
-             ▼                       ▼
-    [ Next.js Frontend ]    [ FastAPI Backend ]
-      (Port: 3000)            (Port: 8000)
-                                     │
-                 ┌───────────────────┼───────────────────┐
-                 ▼                   ▼                   ▼
-          [ PostgreSQL ]      [ Redis Queue ]     [ S3 Storage ]
-          (Primary Data)      (Async Workers)     (Media Assets)
-```
-
-- **Production Docker Compose:** The platform includes a production [`docker-compose.yml`](docker-compose.yml) managing the backend, database, and background services.
-- **Database Migrations:** Managed through Alembic (`alembic upgrade head`).
-- **Media Assets:** Stored locally in `/uploads` during development or configured for AWS S3 / Cloudflare R2 in production.
-
----
-
-## 9. Environment Variables
-
-Create a `.env` file in the `backend/` directory:
-
-```env
-# Application Settings
-ENVIRONMENT=production
-SECRET_KEY=generate_a_secure_random_64_character_hex_string_here
-ACCESS_TOKEN_EXPIRE_MINUTES=1440
-
-# Database Configuration
-DATABASE_URL=sqlite+aiosqlite:///./lisa.db
-# For PostgreSQL: postgresql+asyncpg://lisa_user:password@localhost:5432/lisa_db
-
-# CORS Configuration
-BACKEND_CORS_ORIGINS=["http://localhost:3000", "https://app.lisa.ai"]
-
-# File Storage
-UPLOAD_DIR=./uploads
-MAX_UPLOAD_SIZE_MB=50
-
-# LLM Providers (Optional for Live Production API keys)
-OPENAI_API_KEY=
-GEMINI_API_KEY=
-ANTHROPIC_API_KEY=
-
-# Platform Integration Credentials (Optional)
-LINKEDIN_CLIENT_ID=
-LINKEDIN_CLIENT_SECRET=
-X_API_KEY=
-X_API_SECRET=
-INSTAGRAM_APP_ID=
-INSTAGRAM_APP_SECRET=
-```
-
-Frontend environment variables in `frontend/.env.local`:
-
-```env
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api/v1
-NEXT_PUBLIC_WS_BASE_URL=ws://localhost:8000/api/v1
-```
-
----
-
-## 10. Local Setup & Quickstart
+## 6. Local Setup & Quickstart
 
 ### Prerequisites
 - **Python 3.11+**
@@ -251,7 +192,7 @@ source venv/bin/activate
 
 pip install -r requirements.txt
 
-# Run Automated Test Suite (19 tests)
+# Run Automated Test Suite (37 tests including red-team adversarial suite)
 python -m pytest tests/ -v
 
 # Start FastAPI Development Server
@@ -275,42 +216,44 @@ Web Application will be accessible at: `http://localhost:3000`.
 
 ---
 
-## 11. Known Limitations & Roadmap
+## 7. Environment Variables
 
-- **Social Media API Sandboxes:** Live external publishing requires registered OAuth Developer Apps with Meta, LinkedIn, and X. In development mode, platform adapters simulate full REST verification, idempotency generation, and live record permalinks.
-- **Video Rendering Workers:** Video rendering utilizes frame-based thumbnail extraction and transcoding presets; full multi-track subtitle burning is scheduled for the next release.
-- **Vector Database Backend:** Knowledge doc search currently leverages structured RAG embeddings; distributed ChromaDB/Pinecone sync is supported as a modular drop-in.
+Create a `.env` file in the `backend/` directory:
+
+```env
+# Application Settings
+ENVIRONMENT=production
+SECRET_KEY=generate_a_secure_random_64_character_hex_string_here
+ACCESS_TOKEN_EXPIRE_MINUTES=1440
+
+# Database Configuration
+DATABASE_URL=sqlite+aiosqlite:///./lisa.db
+# For PostgreSQL: postgresql+asyncpg://lisa_user:password@localhost:5432/lisa_db
+
+# CORS Configuration
+BACKEND_CORS_ORIGINS=["http://localhost:3000", "https://app.lisa.ai"]
+
+# File Storage
+UPLOAD_DIR=./uploads
+MAX_UPLOAD_SIZE_MB=50
+
+# LLM Providers (Groq, OpenAI)
+GROQ_API_KEY=
+GROQ_MODEL=llama-3.3-70b-versatile
+OPENAI_API_KEY=
+OPENAI_MODEL=gpt-4o-mini
+```
+
+Frontend environment variables in `frontend/.env.local`:
+
+```env
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api/v1
+NEXT_PUBLIC_WS_BASE_URL=ws://localhost:8000/api/v1
+```
 
 ---
 
-## 12. Screenshots & UI Layout Breakdown
-
-### 1. Executive Dashboard (`/dashboard`)
-*High-level overview of generation metrics, active workspaces, publishing queue, and platform conversion leaders.*
-
-### 2. Canonical Content Studio (`/content`)
-*Dual-pane workspace with debounced auto-saving, version history rollback, target platform selection, and instant multi-agent variant generation.*
-
-### 3. Platform Variant Review Studio (`/content/[id]/variants`)
-*Simulated native social feed previews (LinkedIn essay, X thread, IG visual post, YouTube Shorts script), QA compliance scorecards, and single-element AI regeneration controls.*
-
-### 4. Content Distribution Calendar (`/calendar`)
-*Interactive monthly and queue list scheduling interface with drag-and-drop rescheduling and status filters.*
-
-### 5. Omnichannel Integrations Hub (`/integrations`)
-*Connected social accounts manager with OAuth status badges, capability matrices, and published post permalinks.*
-
-### 6. Closed-Loop Performance Analytics (`/analytics`)
-*Normalized cross-channel KPI counters, format performance distribution, leaderboard, and AI Opportunity repurposing cards.*
-
-### 7. Governance, Telemetry & Settings (`/settings`)
-*Real-time agent execution latency traces (ms), token usage explorer, immutable audit log, and system operational health diagnostics.*
-
----
-
-## 13. Demo Credentials
-
-You can create an account instantly via the registration page, or use the baseline test credentials:
+## 8. Demo Credentials
 
 | Role | Email | Password | Permissions |
 |---|---|---|---|
@@ -322,27 +265,14 @@ You can create an account instantly via the registration page, or use the baseli
 
 ---
 
-## 14. Team Members
+## 9. Team Members
 
-- **Shivang Shekhar** — Architecture, Multi-Agent Systems & Full-Stack Engineering.
-- **Lisa Core Team** — AI Product Design & Agentic Content Operations.
+* **Shivam Sharma**
+* **Shreya Sah**
+* **Shubham Raikwar**
 
 ---
 
-## 15. License
+## 10. License
 
 This project is open-source software licensed under the **[MIT License](LICENSE)**.
-
-```text
-Copyright (c) 2026 Lisa Platform Contributors
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-```
