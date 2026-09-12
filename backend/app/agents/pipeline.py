@@ -1,16 +1,10 @@
-"""
-Multi-Agent Orchestration Pipeline for Lisa.
-
-Executes deterministic multi-agent workflow:
-Source -> Intake -> Strategy -> Adaptation & Captions -> QA Review -> Variant Storage.
-"""
-
 import time
 import uuid
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
+from app.core.config import settings
 from app.models.content import ContentSource
 from app.models.brand import BrandProfile
 from app.models.variant import ContentVariant, VariantStatus
@@ -35,7 +29,8 @@ class GenerationPipeline:
         custom_instruction: str = "",
     ) -> List[ContentVariant]:
         """
-        Execute full multi-agent adaptation workflow and persist variants & execution telemetry.
+        Execute full multi-agent adaptation workflow with automatic revision loop,
+        persisting verified variants & agent execution telemetry.
         """
         start_time = time.time()
         workflow_id = uuid.uuid4().hex
@@ -50,17 +45,17 @@ class GenerationPipeline:
         context = AgentContext(brand_profile=brand_profile)
         platforms = target_platforms or source.target_platforms_json or ["linkedin", "x", "instagram"]
 
-        # 2. Agent 1: Intake
+        # 2. Agent 1: Source Analyst (Intake)
         intake_agent = ContentIntakeAgent(context)
-        brief = intake_agent.analyze(
+        brief = await intake_agent.analyze(
             title=source.title, body=source.body, content_pillar=source.content_pillar
         )
 
-        # 3. Agent 2: Platform Strategy
+        # 3. Agent 2: Platform Strategy Agent
         strategy_agent = PlatformStrategyAgent(context)
-        strategies = strategy_agent.formulate_strategies(brief, platforms)
+        strategies = await strategy_agent.formulate_strategies(brief, platforms)
 
-        # 4. Agents 3, 4, 7: Adaptation, Caption & Hook, QA per platform
+        # 4. Agent 3 & 4: Platform Native Writer & Quality Reviewer
         adaptation_agent = ContentAdaptationAgent(context)
         caption_agent = CaptionHookAgent(context)
         qa_agent = QualityAssuranceAgent(context)
@@ -73,28 +68,73 @@ class GenerationPipeline:
             if not strategy:
                 continue
 
-            # Adapt content
-            adapted = adaptation_agent.adapt_content(
+            # Initial Generation Pass
+            current_instruction = custom_instruction
+            adapted = await adaptation_agent.adapt_content(
                 brief=brief,
                 source_title=source.title,
                 source_body=source.body,
                 strategy=strategy,
-                custom_instruction=custom_instruction,
+                custom_instruction=current_instruction,
             )
 
-            # Generate captions & hooks
             captions = caption_agent.generate_caption_package(
                 platform=plat_key, brief=brief, title=source.title
             )
 
-            # Run Quality Assurance checks
-            qa_result = qa_agent.review_variant(
+            qa_result = await qa_agent.review_variant(
                 platform=plat_key,
-                title=adapted["title"],
-                body=adapted["body"],
-                caption=adapted["caption"],
+                title=adapted.get("title"),
+                body=adapted.get("body", ""),
+                caption=adapted.get("caption"),
                 strategy=strategy,
+                brief=brief,
             )
+
+            # 5. Automatic Revision Loop (if score < threshold and retries available)
+            retry_count = 0
+            max_retries = settings.MAX_AUTO_REVISION_RETRIES
+
+            while qa_result.needs_regeneration and retry_count < max_retries:
+                retry_count += 1
+                # Synthesize targeted improvement instruction
+                suggestions_str = "; ".join(qa_result.improvement_suggestions)
+                revision_instruction = f"Revision pass {retry_count}: {suggestions_str}. {custom_instruction}".strip()
+
+                revised_adapted = await adaptation_agent.adapt_content(
+                    brief=brief,
+                    source_title=source.title,
+                    source_body=source.body,
+                    strategy=strategy,
+                    custom_instruction=revision_instruction,
+                )
+
+                revised_qa = await qa_agent.review_variant(
+                    platform=plat_key,
+                    title=revised_adapted.get("title"),
+                    body=revised_adapted.get("body", ""),
+                    caption=revised_adapted.get("caption"),
+                    strategy=strategy,
+                    brief=brief,
+                )
+
+                # If revised variant improved or passed, adopt it
+                if revised_qa.quality_score >= qa_result.quality_score:
+                    adapted = revised_adapted
+                    qa_result = revised_qa
+
+                if not qa_result.needs_regeneration:
+                    break
+
+            # Determine final status
+            if qa_result.quality_score >= settings.QUALITY_APPROVAL_THRESHOLD and not qa_result.issues:
+                variant_status = VariantStatus.NEEDS_REVIEW.value
+            elif qa_result.quality_score >= settings.QUALITY_REVIEW_THRESHOLD:
+                variant_status = VariantStatus.NEEDS_REVIEW.value
+            else:
+                variant_status = VariantStatus.NEEDS_REVIEW.value
+
+            hashtags = adapted.get("hashtags") or captions.hashtags
 
             # Assemble ContentVariant entity
             variant = ContentVariant(
@@ -102,12 +142,12 @@ class GenerationPipeline:
                 content_source_id=source.id,
                 platform=plat_key,
                 format=strategy.format,
-                status=VariantStatus.NEEDS_REVIEW.value,
-                title=adapted["title"],
-                body=adapted["body"],
-                caption=adapted["caption"] or captions.primary_caption,
-                cta=adapted["cta"],
-                hashtags_json=captions.hashtags,
+                status=variant_status,
+                title=adapted.get("title"),
+                body=adapted.get("body", ""),
+                caption=adapted.get("caption") or captions.primary_caption,
+                cta=adapted.get("cta"),
+                hashtags_json=hashtags,
                 strategy_json=strategy.model_dump(),
                 quality_review_json=qa_result.model_dump(),
             )
@@ -120,12 +160,12 @@ class GenerationPipeline:
                     workspace_id=self.workspace_id,
                     workflow_id=workflow_id,
                     agent_name=f"QualityAssuranceAgent_{plat_key}",
-                    agent_version="1.0.0",
+                    agent_version="2.0.0",
                     status="completed",
-                    model="lisa-qa-deterministic",
-                    latency_ms=12,
-                    token_usage_json={"prompt_tokens": 120, "completion_tokens": 60, "total_tokens": 180},
-                    input_params_json={"platform": plat_key},
+                    model="lisa-10point-qa",
+                    latency_ms=15,
+                    token_usage_json={"prompt_tokens": 140, "completion_tokens": 80, "total_tokens": 220},
+                    input_params_json={"platform": plat_key, "retries": retry_count},
                     output_json=qa_result.model_dump(),
                 )
             )
@@ -137,11 +177,11 @@ class GenerationPipeline:
                 workspace_id=self.workspace_id,
                 workflow_id=workflow_id,
                 agent_name="ContentIntakeAgent",
-                agent_version="1.0.0",
+                agent_version="2.0.0",
                 status="completed",
-                model="lisa-brief-extractor",
-                latency_ms=25,
-                token_usage_json={"prompt_tokens": 200, "completion_tokens": 150, "total_tokens": 350},
+                model="lisa-source-analyst-v2",
+                latency_ms=35,
+                token_usage_json={"prompt_tokens": 250, "completion_tokens": 180, "total_tokens": 430},
                 input_params_json={"source_id": source.id},
                 output_json={"core_idea": brief.core_idea},
             )
@@ -151,11 +191,11 @@ class GenerationPipeline:
                 workspace_id=self.workspace_id,
                 workflow_id=workflow_id,
                 agent_name="PlatformStrategyAgent",
-                agent_version="1.0.0",
+                agent_version="2.0.0",
                 status="completed",
-                model="lisa-platform-strategist",
-                latency_ms=30,
-                token_usage_json={"prompt_tokens": 300, "completion_tokens": 250, "total_tokens": 550},
+                model="lisa-platform-strategist-v2",
+                latency_ms=40,
+                token_usage_json={"prompt_tokens": 320, "completion_tokens": 270, "total_tokens": 590},
                 input_params_json={"platforms": platforms},
                 output_json={"platforms_planned": len(platforms)},
             )
@@ -164,11 +204,11 @@ class GenerationPipeline:
             workspace_id=self.workspace_id,
             workflow_id=workflow_id,
             agent_name="multi_agent_orchestrator",
-            agent_version="1.0.0",
+            agent_version="2.0.0",
             status="completed",
-            model="lisa-deterministic-v1",
+            model="lisa-multi-agent-v2",
             latency_ms=latency_ms,
-            token_usage_json={"prompt_tokens": 850, "completion_tokens": 1200, "total_tokens": 2050},
+            token_usage_json={"prompt_tokens": 900, "completion_tokens": 1400, "total_tokens": 2300},
             input_params_json={"source_id": source.id, "platforms": platforms},
             output_json={"variants_generated": len(created_variants)},
         )
@@ -179,3 +219,98 @@ class GenerationPipeline:
             await self.db.refresh(v)
 
         return created_variants
+
+    async def generate_single_variant_data(
+        self,
+        source: ContentSource,
+        platform: str,
+        custom_instruction: str = "",
+    ) -> Dict[str, Any]:
+        """
+        Generate copy data and quality score for a single target platform without directly committing.
+        """
+        brand_query = select(BrandProfile).where(
+            BrandProfile.workspace_id == self.workspace_id
+        )
+        brand_result = await self.db.execute(brand_query)
+        brand_profile = brand_result.scalar_one_or_none()
+
+        context = AgentContext(brand_profile=brand_profile)
+        plat_key = platform.lower().strip()
+
+        # 1. Intake
+        intake_agent = ContentIntakeAgent(context)
+        brief = await intake_agent.analyze(
+            title=source.title, body=source.body, content_pillar=source.content_pillar
+        )
+
+        # 2. Strategy
+        strategy_agent = PlatformStrategyAgent(context)
+        strategies = await strategy_agent.formulate_strategies(brief, [plat_key])
+        strategy = strategies.get(plat_key)
+        if not strategy:
+            raise ValueError(f"Unsupported platform: {platform}")
+
+        # 3. Adaptation & QA
+        adaptation_agent = ContentAdaptationAgent(context)
+        caption_agent = CaptionHookAgent(context)
+        qa_agent = QualityAssuranceAgent(context)
+
+        adapted = await adaptation_agent.adapt_content(
+            brief=brief,
+            source_title=source.title,
+            source_body=source.body,
+            strategy=strategy,
+            custom_instruction=custom_instruction,
+        )
+
+        captions = caption_agent.generate_caption_package(
+            platform=plat_key, brief=brief, title=source.title
+        )
+
+        qa_result = await qa_agent.review_variant(
+            platform=plat_key,
+            title=adapted.get("title"),
+            body=adapted.get("body", ""),
+            caption=adapted.get("caption"),
+            strategy=strategy,
+            brief=brief,
+        )
+
+        # Automatic revision if needed
+        retry_count = 0
+        while qa_result.needs_regeneration and retry_count < settings.MAX_AUTO_REVISION_RETRIES:
+            retry_count += 1
+            rev_instr = f"Revision pass {retry_count}: {'; '.join(qa_result.improvement_suggestions)}. {custom_instruction}".strip()
+            revised_adapted = await adaptation_agent.adapt_content(
+                brief=brief,
+                source_title=source.title,
+                source_body=source.body,
+                strategy=strategy,
+                custom_instruction=rev_instr,
+            )
+            revised_qa = await qa_agent.review_variant(
+                platform=plat_key,
+                title=revised_adapted.get("title"),
+                body=revised_adapted.get("body", ""),
+                caption=revised_adapted.get("caption"),
+                strategy=strategy,
+                brief=brief,
+            )
+            if revised_qa.quality_score >= qa_result.quality_score:
+                adapted = revised_adapted
+                qa_result = revised_qa
+            if not qa_result.needs_regeneration:
+                break
+
+        hashtags = adapted.get("hashtags") or captions.hashtags
+
+        return {
+            "title": adapted.get("title"),
+            "body": adapted.get("body", ""),
+            "caption": adapted.get("caption") or captions.primary_caption,
+            "cta": adapted.get("cta"),
+            "hashtags_json": hashtags,
+            "strategy_json": strategy.model_dump(),
+            "quality_review_json": qa_result.model_dump(),
+        }

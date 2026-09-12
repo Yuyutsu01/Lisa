@@ -21,19 +21,26 @@ class Base(DeclarativeBase):
     pass
 
 
-# Connect arguments specific to SQLite for multithreading/connection handling
+# Connect arguments and pool configuration
 connect_args = {}
+engine_kwargs = {
+    "echo": (settings.ENVIRONMENT == "development"),
+    "pool_pre_ping": True,
+    "future": True,
+}
+
 if "sqlite" in settings.DATABASE_URL:
     connect_args = {"check_same_thread": False}
+    engine_kwargs["connect_args"] = connect_args
+else:
+    # PostgreSQL / Supabase connection pool tuning
+    engine_kwargs["pool_size"] = 10
+    engine_kwargs["max_overflow"] = 20
+    engine_kwargs["pool_recycle"] = 1800
+    engine_kwargs["pool_timeout"] = 30
 
-# Asynchronous engine with connection pre-ping
-engine = create_async_engine(
-    settings.DATABASE_URL,
-    echo=(settings.ENVIRONMENT == "development"),
-    connect_args=connect_args,
-    pool_pre_ping=True,
-    future=True,
-)
+# Asynchronous database engine
+engine = create_async_engine(settings.DATABASE_URL, **engine_kwargs)
 
 # Async session factory
 AsyncSessionLocal = async_sessionmaker(

@@ -178,29 +178,25 @@ async def regenerate_variant(
         )
 
     pipeline = GenerationPipeline(db=db, workspace_id=variant.workspace_id)
-    new_variants = await pipeline.execute(
+    variant_data = await pipeline.generate_single_variant_data(
         source=source,
-        target_platforms=[variant.platform],
+        platform=variant.platform,
         custom_instruction=regen_req.instruction or "Regenerate alternative angle",
     )
 
-    if new_variants:
-        new_v = new_variants[0]
-        # Update existing variant with newly generated content
-        variant.title = new_v.title
-        variant.body = new_v.body
-        variant.caption = new_v.caption
-        variant.cta = new_v.cta
-        variant.hashtags_json = new_v.hashtags_json
-        variant.strategy_json = new_v.strategy_json
-        variant.quality_review_json = new_v.quality_review_json
-        variant.status = VariantStatus.NEEDS_REVIEW.value
+    # Update existing variant with newly generated content
+    variant.title = variant_data.get("title")
+    variant.body = variant_data.get("body", "")
+    variant.caption = variant_data.get("caption")
+    variant.cta = variant_data.get("cta")
+    variant.hashtags_json = variant_data.get("hashtags_json", [])
+    variant.strategy_json = variant_data.get("strategy_json", {})
+    variant.quality_review_json = variant_data.get("quality_review_json", {})
+    variant.status = VariantStatus.NEEDS_REVIEW.value
 
-        # Remove duplicate temporary record
-        await db.delete(new_v)
-        db.add(variant)
-        await db.commit()
-        await db.refresh(variant)
+    db.add(variant)
+    await db.commit()
+    await db.refresh(variant)
 
     return variant
 

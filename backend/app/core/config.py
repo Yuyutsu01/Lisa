@@ -81,6 +81,21 @@ class Settings(BaseSettings):
     # Redis URL for background worker tasks
     REDIS_URL: str = "redis://localhost:6379/0"
 
+    # LLM Provider Configuration
+    # Supports Groq (Llama 3.3 70B), OpenAI (GPT-4o), Gemini, or Anthropic
+    GROQ_API_KEY: str = ""
+    GROQ_MODEL: str = "llama-3.3-70b-versatile"
+    OPENAI_API_KEY: str = ""
+    OPENAI_MODEL: str = "gpt-4o"
+    GEMINI_API_KEY: str = ""
+    ANTHROPIC_API_KEY: str = ""
+    LLM_TIMEOUT_SECONDS: int = 45
+
+    # Content Quality Scoring & Revision Loop
+    QUALITY_APPROVAL_THRESHOLD: float = 0.85
+    QUALITY_REVIEW_THRESHOLD: float = 0.70
+    MAX_AUTO_REVISION_RETRIES: int = 2
+
     model_config = SettingsConfigDict(
         env_file=(
             BACKEND_DIR / ".env",
