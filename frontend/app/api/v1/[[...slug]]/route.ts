@@ -158,41 +158,88 @@ export async function GET(req: NextRequest, context: RouteContext) {
 
   // 17. Analytics Overview: /workspaces/:id/analytics/overview
   if (slug[0] === "workspaces" && slug[2] === "analytics" && slug[3] === "overview") {
+    const wsId = slug[1];
+    const records = store.publishedRecords.get(wsId) || [];
+    const opps = store.opportunities.get(wsId) || [];
+
+    const total_posts_published = records.length;
+    let total_impressions = 0;
+    let total_engagements = 0;
+
+    const platformMap = new Map<string, { total_posts: number; impressions: number; engagements: number }>();
+
+    for (const r of records) {
+      const meta = r.metadata_json || {};
+      const imp = Number(meta.impressions) || 0;
+      const eng =
+        Number(meta.engagements) ||
+        (Number(meta.likes) || 0) +
+          (Number(meta.reactions) || 0) +
+          (Number(meta.comments) || 0) +
+          (Number(meta.retweets) || 0) +
+          (Number(meta.shares) || 0);
+
+      total_impressions += imp;
+      total_engagements += eng;
+
+      const plat = r.platform || "linkedin";
+      const existing = platformMap.get(plat) || { total_posts: 0, impressions: 0, engagements: 0 };
+      existing.total_posts += 1;
+      existing.impressions += imp;
+      existing.engagements += eng;
+      platformMap.set(plat, existing);
+    }
+
+    const total_reach = Math.round(total_impressions * 0.74);
+    const avg_engagement_rate = total_impressions > 0 ? total_engagements / total_impressions : 0;
+
+    const platform_breakdown = Array.from(platformMap.entries()).map(([platform, data]) => ({
+      platform,
+      total_posts: data.total_posts,
+      impressions: data.impressions,
+      engagements: data.engagements,
+      avg_engagement_rate: data.impressions > 0 ? data.engagements / data.impressions : 0,
+    }));
+
+    const top_performing_posts = [...records]
+      .sort((a, b) => {
+        const impA = Number(a.metadata_json?.impressions) || 0;
+        const impB = Number(b.metadata_json?.impressions) || 0;
+        return impB - impA;
+      })
+      .slice(0, 6)
+      .map((r) => {
+        const variant = store.variants.get(r.content_variant_id);
+        const source = variant ? store.sources.get(variant.content_source_id) : undefined;
+        const imp = Number(r.metadata_json?.impressions) || 0;
+        const eng =
+          Number(r.metadata_json?.engagements) ||
+          (Number(r.metadata_json?.likes) || 0) +
+            (Number(r.metadata_json?.reactions) || 0) +
+            (Number(r.metadata_json?.comments) || 0) +
+            (Number(r.metadata_json?.retweets) || 0) +
+            (Number(r.metadata_json?.shares) || 0);
+        return {
+          published_record_id: r.id,
+          platform: r.platform,
+          title: variant?.title || source?.title || `${r.platform.toUpperCase()} Broadcast`,
+          external_url: r.external_url,
+          impressions: imp,
+          engagements: eng,
+          engagement_rate: imp > 0 ? eng / imp : 0,
+          published_at: r.published_at,
+        };
+      });
+
     return NextResponse.json({
-      total_impressions: 1240500,
-      total_reach: 890200,
-      total_engagements: 84320,
-      avg_engagement_rate: 6.8,
-      total_posts_published: 24,
-      platform_breakdown: [
-        { platform: "linkedin", total_posts: 10, impressions: 480000, engagements: 36000, avg_engagement_rate: 7.5 },
-        { platform: "x", total_posts: 8, impressions: 590000, engagements: 38000, avg_engagement_rate: 6.4 },
-        { platform: "instagram", total_posts: 4, impressions: 110500, engagements: 7200, avg_engagement_rate: 6.5 },
-        { platform: "youtube", total_posts: 2, impressions: 60000, engagements: 3120, avg_engagement_rate: 5.2 },
-      ],
-      top_performing_posts: [
-        {
-          published_record_id: "pub_2",
-          platform: "x",
-          title: "Zero-Allocation Memory Buffers (10M Events Thread)",
-          external_url: "https://x.com/AcmeCloudTech/status/178291028301",
-          impressions: 184500,
-          engagements: 15498,
-          engagement_rate: 8.4,
-          published_at: new Date(Date.now() - 3600000 * 24 * 3).toISOString(),
-        },
-        {
-          published_record_id: "pub_1",
-          platform: "linkedin",
-          title: "How We Scaled Our Distributed Event Engine",
-          external_url: "https://www.linkedin.com/feed/update/urn:li:share:719823019283",
-          impressions: 42300,
-          engagements: 3172,
-          engagement_rate: 7.5,
-          published_at: new Date(Date.now() - 3600000 * 24 * 2).toISOString(),
-        },
-      ],
-      open_opportunities_count: (store.opportunities.get(slug[1]) || []).length,
+      total_impressions,
+      total_reach,
+      total_engagements,
+      avg_engagement_rate,
+      total_posts_published,
+      platform_breakdown,
+      top_performing_posts,
+      open_opportunities_count: opps.filter((o) => o.status === "open").length,
     });
   }
 
@@ -238,8 +285,8 @@ export async function GET(req: NextRequest, context: RouteContext) {
         linkedin: "direct_api_ready (Client ID configured)",
         x: "direct_api_ready",
         instagram: "manual_export_creator_studio_ready",
+        discord: "webhook_and_bot_ready",
         youtube: "direct_api_ready",
-        tiktok: "draft_mode_ready",
         threads: "direct_api_ready",
         email: "esp_webhook_ready",
         blog: "markdown_cms_ready",
@@ -529,15 +576,49 @@ export async function POST(req: NextRequest, context: RouteContext) {
     const v = store.variants.get(variantId);
     if (v) {
       v.status = "published";
+      const qualityScore = v.quality_review_json?.quality_score || 90;
+      const baseImp =
+        v.platform === "x"
+          ? 38000
+          : v.platform === "linkedin"
+          ? 22500
+          : v.platform === "instagram"
+          ? 14000
+          : v.platform === "discord"
+          ? 6500
+          : 9500;
+      const impressions = Math.round(baseImp * (0.85 + (qualityScore / 100) * 0.35) + Math.random() * 1500);
+      const engagementRate = 0.058 + (qualityScore / 100) * 0.03 + (Math.random() * 0.008 - 0.004);
+      const engagements = Math.round(impressions * engagementRate);
+      const reactions = Math.round(engagements * 0.72);
+      const comments = Math.round(engagements * 0.16);
+      const retweets = Math.round(engagements * 0.12);
+
       const record: PublishedRecord = {
         id: `pub_${Date.now()}`,
         workspace_id: wsId,
         content_variant_id: variantId,
         platform: v.platform,
         external_post_id: `ext_${Date.now()}`,
-        external_url: `https://${v.platform}.com/post/${Date.now()}`,
+        external_url: `https://${
+          v.platform === "x"
+            ? "x.com"
+            : v.platform === "linkedin"
+            ? "linkedin.com/feed/update"
+            : `${v.platform}.com`
+        }/post/${Date.now()}`,
         published_at: new Date().toISOString(),
-        metadata_json: { status: "live" },
+        metadata_json: {
+          status: "live",
+          impressions,
+          engagements,
+          reactions,
+          likes: reactions,
+          comments,
+          retweets,
+          shares: retweets,
+          engagement_rate: engagementRate,
+        },
       };
       const records = store.publishedRecords.get(wsId) || [];
       records.unshift(record);

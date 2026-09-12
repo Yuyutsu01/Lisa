@@ -44,7 +44,7 @@ function ContentStudioContent() {
     "linkedin",
     "x",
     "instagram",
-    "youtube",
+    "discord",
   ]);
   
   // Attachments and versions
@@ -62,8 +62,8 @@ function ContentStudioContent() {
     { id: "linkedin", label: "LinkedIn" },
     { id: "x", label: "X (Twitter)" },
     { id: "instagram", label: "Instagram" },
+    { id: "discord", label: "Discord Community" },
     { id: "youtube", label: "YouTube Shorts" },
-    { id: "tiktok", label: "TikTok" },
     { id: "threads", label: "Threads" },
     { id: "email", label: "Newsletter / Email" },
     { id: "blog", label: "Blog CMS" },

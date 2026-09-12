@@ -26,6 +26,49 @@ export function Navbar({ onWorkspaceChange, onToggleSidebar, sidebarOpen = true 
   const [currentWorkspace, setCurrentWorkspace] = useState<Workspace | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+
+  // System Notifications
+  const [notifications, setNotifications] = useState([
+    {
+      id: "notif_1",
+      title: "Content Adapted Successfully",
+      message: "Groq multi-agent engine generated 4 platform variants ready for review.",
+      category: "Content Engine",
+      time: "2m ago",
+      read: false,
+      link: "/content",
+    },
+    {
+      id: "notif_2",
+      title: "QA Brand Voice Score: 94%",
+      message: "10-Point Deterministic Quality Scorecard passed with high hook retention.",
+      category: "QA & Compliance",
+      time: "15m ago",
+      read: false,
+      link: "/content",
+    },
+    {
+      id: "notif_3",
+      title: "LinkedIn Post Dispatched",
+      message: "Direct API adapter published 'Zero-Allocation Buffers' teardown.",
+      category: "Publishing",
+      time: "1h ago",
+      read: true,
+      link: "/library",
+    },
+    {
+      id: "notif_4",
+      title: "Discord Webhook Connected",
+      message: "Discord community announcement channel is active and synchronized.",
+      category: "Integrations",
+      time: "3h ago",
+      read: true,
+      link: "/integrations",
+    },
+  ]);
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   useEffect(() => {
     async function loadData() {
@@ -144,14 +187,94 @@ export function Navbar({ onWorkspaceChange, onToggleSidebar, sidebarOpen = true 
 
       {/* Right Controls: Notifications & Profile */}
       <div className="flex items-center gap-3.5">
-        <button className="p-2.5 rounded-full text-[#a6a39b] hover:text-[#ede8df] hover:bg-white/[0.06] transition-colors relative">
-          <Bell className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#d4a373]" />
-        </button>
+        {/* Notifications Popover */}
+        <div className="relative">
+          <button
+            onClick={() => {
+              setNotificationsOpen(!notificationsOpen);
+              setUserMenuOpen(false);
+            }}
+            className="p-2.5 rounded-full text-[#a6a39b] hover:text-[#ede8df] hover:bg-white/[0.06] transition-colors relative cursor-pointer"
+            title="Notifications"
+          >
+            <Bell className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+            {unreadCount > 0 && (
+              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#d4a373] animate-pulse" />
+            )}
+          </button>
+
+          {notificationsOpen && (
+            <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 rounded-2xl bg-[#0e0e11] border border-white/10 shadow-2xl p-3.5 z-50 animate-fadeIn">
+              <div className="flex items-center justify-between border-b border-white/[0.08] pb-3 mb-2 px-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs sm:text-sm font-semibold text-[#ede8df]">Notifications</span>
+                  {unreadCount > 0 && (
+                    <span className="px-2 py-0.5 rounded-full bg-[#d4a373]/10 border border-[#d4a373]/20 text-[10px] font-mono text-[#d4a373]">
+                      {unreadCount} new
+                    </span>
+                  )}
+                </div>
+                {unreadCount > 0 && (
+                  <button
+                    onClick={() => {
+                      setNotifications(notifications.map((n) => ({ ...n, read: true })));
+                    }}
+                    className="text-[11px] text-[#85827b] hover:text-[#ede8df] transition-colors"
+                  >
+                    Mark all as read
+                  </button>
+                )}
+              </div>
+
+              <div className="space-y-2 max-h-72 overflow-y-auto scrollbar-none py-1">
+                {notifications.length > 0 ? (
+                  notifications.map((n) => (
+                    <div
+                      key={n.id}
+                      onClick={() => {
+                        setNotifications(
+                          notifications.map((item) =>
+                            item.id === n.id ? { ...item, read: true } : item
+                          )
+                        );
+                        if (n.link) {
+                          setNotificationsOpen(false);
+                          router.push(n.link);
+                        }
+                      }}
+                      className={`p-3 rounded-xl border transition-all cursor-pointer ${
+                        n.read
+                          ? "bg-white/[0.02] border-white/[0.04] text-[#8a8a93] hover:bg-white/[0.05]"
+                          : "bg-white/[0.06] border-white/10 text-[#ede8df] hover:bg-white/[0.09]"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-xs font-medium text-[#ede8df] leading-snug">{n.title}</p>
+                        {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-[#d4a373] shrink-0 mt-1" />}
+                      </div>
+                      <p className="text-[11px] text-[#8a8a93] mt-1 line-clamp-2">{n.message}</p>
+                      <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-white/[0.04] text-[10px] font-mono text-[#71717a]">
+                        <span className="uppercase text-[#d4a373] font-semibold">{n.category}</span>
+                        <span>{n.time}</span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="py-6 text-center text-xs text-[#71717a]">
+                    No new notifications
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
 
         <div className="relative">
           <button
-            onClick={() => setUserMenuOpen(!userMenuOpen)}
+            onClick={() => {
+              setUserMenuOpen(!userMenuOpen);
+              setNotificationsOpen(false);
+            }}
             className="flex items-center gap-2.5 p-1 rounded-full hover:bg-white/[0.05] transition-colors"
           >
             <div className="w-8 h-8 rounded-full bg-[#ede8df] text-[#08080a] font-bold flex items-center justify-center text-xs sm:text-sm shadow-sm">

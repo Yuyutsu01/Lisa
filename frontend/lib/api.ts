@@ -3,12 +3,12 @@
  * Connects Next.js frontend to FastAPI backend with JWT token authorization.
  */
 
-// Resolve API Base URL supporting relative proxy, custom env vars, or server-side internal URL
-const resolveApiBaseUrl = (): string => {
+// Resolve API Base URL supporting relative Next.js route, custom env vars, or server-side internal URL
+export const resolveApiBaseUrl = (): string => {
   if (typeof window !== "undefined") {
-    // In browser, relative /api/v1 goes through Next.js proxy rewrites
+    // In browser, prefer relative /api/v1 so Next.js catch-all route handles requests reliably
     const envUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
-    if (envUrl && envUrl.trim() !== "") {
+    if (envUrl && envUrl.trim() !== "" && !envUrl.includes("localhost:8000")) {
       const raw = envUrl.trim().replace(/\/+$/, "");
       return raw.endsWith("/api/v1") ? raw : `${raw}/api/v1`;
     }
@@ -16,12 +16,15 @@ const resolveApiBaseUrl = (): string => {
   }
 
   // Server-side
-  let serverUrl = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-  serverUrl = serverUrl.replace(/\/+$/, "");
-  return serverUrl.endsWith("/api/v1") ? serverUrl : `${serverUrl}/api/v1`;
+  let serverUrl = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL;
+  if (serverUrl && serverUrl.trim() !== "" && !serverUrl.includes("localhost:8000")) {
+    serverUrl = serverUrl.replace(/\/+$/, "");
+    return serverUrl.endsWith("/api/v1") ? serverUrl : `${serverUrl}/api/v1`;
+  }
+  return "/api/v1";
 };
 
-export const API_BASE_URL = resolveApiBaseUrl();
+export const API_BASE_URL = "/api/v1";
 
 // --- Domain Interfaces ---
 
@@ -391,7 +394,8 @@ export async function apiRequest<T>(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const url = `${API_BASE_URL}${endpoint}`;
+  const baseUrl = resolveApiBaseUrl();
+  const url = `${baseUrl}${endpoint}`;
   const timeoutMs = endpoint.includes("/generate") ? 75000 : 30000;
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
@@ -429,6 +433,23 @@ export async function apiRequest<T>(
     if (err.name === "AbortError") {
       throw new Error(`Request to ${endpoint} timed out after ${timeoutMs / 1000}s. Service may be waking up.`);
     }
+
+    // If fetch failed on an absolute custom URL, fallback to internal Next.js /api/v1 handler
+    if (url.startsWith("http") && retries > 0) {
+      try {
+        const fallbackRes = await fetch(`/api/v1${endpoint}`, {
+          ...options,
+          headers,
+        });
+        if (fallbackRes.ok) {
+          if (fallbackRes.status === 204) return {} as T;
+          return fallbackRes.json();
+        }
+      } catch {
+        // Continue to retry or throw
+      }
+    }
+
     if (retries > 0 && err.message?.includes("Failed to fetch")) {
       // Possible cold start initial connection drop - retry once after 2s
       await new Promise((res) => setTimeout(res, 2000));
@@ -522,7 +543,8 @@ export const mediaApi = {
       headers["Authorization"] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${API_BASE_URL}/workspaces/${workspaceId}/media/upload`, {
+    const baseUrl = resolveApiBaseUrl();
+    const response = await fetch(`${baseUrl}/workspaces/${workspaceId}/media/upload`, {
       method: "POST",
       headers,
       body: formData,

@@ -424,7 +424,7 @@ export class LisaStore {
       content_type: "article",
       language: "en",
       status: "ready_for_adaptation",
-      target_platforms_json: ["linkedin", "x", "instagram", "youtube", "tiktok"],
+      target_platforms_json: ["linkedin", "x", "instagram", "discord", "youtube"],
       content_pillar: "System Architecture & Engineering",
       campaign: "Q3 Engineering Authority",
       source_metadata_json: {},
@@ -453,7 +453,7 @@ export class LisaStore {
       "linkedin",
       "x",
       "instagram",
-      "youtube",
+      "discord",
     ]);
 
     // Initial Connections
@@ -489,13 +489,13 @@ export class LisaStore {
         created_at: now,
       },
       {
-        id: "conn_youtube_01",
+        id: "conn_discord_01",
         workspace_id: defaultWorkspace.id,
-        platform: "youtube",
-        external_account_id: "UC_acme_tech_labs",
-        account_name: "Acme Architecture Labs",
+        platform: "discord",
+        external_account_id: "discord_dev_guild_901",
+        account_name: "Engineering Community Discord (Webhook & Bot)",
         status: "connected",
-        scopes_json: ["youtube.upload", "youtube.readonly"],
+        scopes_json: ["bot", "incoming-webhook", "messages.read", "messages.write"],
         created_at: now,
       },
     ]);
@@ -529,10 +529,10 @@ export class LisaStore {
       {
         id: "opp_1",
         workspace_id: defaultWorkspace.id,
-        title: "Repurpose viral 'Zero-Allocation Buffers' thread into a YouTube Short breakdown",
+        title: "Repurpose viral 'Zero-Allocation Buffers' thread into a Discord Community deep-dive discussion",
         content_pillar: "System Architecture & Engineering",
-        suggested_platforms_json: ["youtube", "tiktok"],
-        reason: "X thread achieved a 8.4% engagement rate (top 5% of all historical tweets). Technical diagram format will translate with high viewer retention into 60s vertical video.",
+        suggested_platforms_json: ["discord", "youtube"],
+        reason: "X thread achieved a 8.4% engagement rate. Community discussion format will drive high server activity and engineer participation.",
         confidence: "High (94%)",
         source_evidence_json: {
           original_post_url: "https://x.com/AcmeCloudTech/status/178291028301",
@@ -710,6 +710,23 @@ export class LisaStore {
         targetLen: 420,
         angle: "Visual carousel layout with swipeable slides",
       },
+      discord: {
+        format: "Community Broadcast & Discussion",
+        getBody: () =>
+          `📢 **COMMUNITY ANNOUNCEMENT: ${src.title.toUpperCase()}**\n\n` +
+          `Hey @everyone! We just dropped a comprehensive engineering blueprint on **${src.title}**.\n\n` +
+          `### ⚡ Architectural Breakdown:\n` +
+          `• **Zero-Allocation Buffers**: Eliminated GC pauses under sustained tail-load.\n` +
+          `• **Lock-Free Concurrency**: Ring buffers replacing mutexes for sub-millisecond p99.\n` +
+          `• **Backpressure Resilience**: Upstream rate-limiting prevents memory exhaustion.\n` +
+          `• **Deterministic Replay**: Append-only logs for failover resilience.\n\n` +
+          `💬 **Discussion**: How is your team handling distributed streaming pipelines? Drop your questions below in #engineering-chat!`,
+        getCaption: () => `Discord Community Blueprint: ${src.title}`,
+        getCTA: "Join the technical discussion in #engineering-chat.",
+        hashtags: ["#DiscordCommunity", "#Architecture", "#DevOps"],
+        targetLen: 680,
+        angle: "Interactive technical community announcement",
+      },
       youtube: {
         format: "YouTube Shorts Script (60s)",
         getBody: () =>
@@ -721,24 +738,11 @@ export class LisaStore {
           `"Instead, we switched to zero-allocation circular buffers. Memory stays completely flat, and p99 latency dropped from 850ms to 1.2ms."\n\n` +
           `[00:45 - 00:60] OUTRO & CTA:\n` +
           `"Subscribe for real engineering benchmarks every Tuesday. Link in bio for the complete open-source repo."`,
-        getCaption: () => "How we scaled our distributed event engine to 10M events/sec in 60 seconds.",
+        getCaption: () => `How we scaled our distributed event engine to 10M events/sec in 60 seconds.`,
         getCTA: "Subscribe for weekly engineering breakdowns.",
         hashtags: ["#Shorts", "#Programming", "#Tech", "#Engineering"],
         targetLen: 580,
         angle: "Rapid 60-second retention-optimized video script with visual cue markers",
-      },
-      tiktok: {
-        format: "TikTok Script & Audio Hook",
-        getBody: () =>
-          `[HOOK] "Never scale your backend until you fix this one setting."\n\n` +
-          `Breakdown of why unbuffered I/O locks your workers.\n` +
-          `Show screen recording of thread contention dropping to 0.\n\n` +
-          `Drop a comment if you want the open-source GitHub link!`,
-        getCaption: () => "How we scaled to 10M events/sec with zero downtime.",
-        getCTA: "Follow for daily dev tips.",
-        hashtags: ["#devtok", "#tech", "#coding"],
-        targetLen: 300,
-        angle: "Viral short-form hook",
       },
       threads: {
         format: "Conversational Micro-Post",
@@ -808,7 +812,7 @@ export class LisaStore {
           hook_style: "Evidence-first high-contrast hook",
           target_length_chars: template.targetLen,
           cta_recommendation: template.getCTA,
-          media_required: plat === "instagram" || plat === "youtube",
+          media_required: plat === "instagram",
         },
         quality_review_json: {
           quality_score: Math.floor(90 + Math.random() * 8),
@@ -854,10 +858,17 @@ export class LisaStore {
   async generateVariantsForSource(
     sourceId: string,
     workspaceId: string,
-    platforms: string[] = ["linkedin", "x", "instagram", "youtube"]
+    platforms: string[] = ["linkedin", "x", "instagram", "discord"]
   ): Promise<ContentVariant[]> {
     const src = this.sources.get(sourceId);
     if (!src) return [];
+
+    // Clear any previous variants for this source to ensure each platform only appears once
+    for (const [id, existing] of this.variants.entries()) {
+      if (existing.content_source_id === sourceId && platforms.includes(existing.platform)) {
+        this.variants.delete(id);
+      }
+    }
 
     const bp = this.brandProfiles.get(workspaceId);
     const now = new Date().toISOString();
@@ -893,7 +904,7 @@ export class LisaStore {
           hook_style: "Groq High-Resonance Hook",
           target_length_chars: gen.target_length_chars,
           cta_recommendation: gen.cta,
-          media_required: plat === "instagram" || plat === "youtube",
+          media_required: plat === "instagram",
         },
         quality_review_json: {
           quality_score: gen.quality_score,

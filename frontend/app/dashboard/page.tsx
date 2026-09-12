@@ -17,9 +17,67 @@ import {
   Clock,
   Share2,
 } from "lucide-react";
+import {
+  sourcesApi,
+  calendarApi,
+  analyticsApi,
+  ContentSource,
+  CalendarEvent,
+  AnalyticsOverview,
+  getActiveWorkspaceId,
+} from "@/lib/api";
 
 export default function DashboardPage() {
   const [activeWorkspaceId, setActiveWorkspaceId] = useState<string | null>(null);
+  const [sources, setSources] = useState<ContentSource[]>([]);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [overview, setOverview] = useState<AnalyticsOverview | null>(null);
+  const [variantCount, setVariantCount] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const wsId = getActiveWorkspaceId();
+    setActiveWorkspaceId(wsId);
+    if (wsId) {
+      loadDashboardData(wsId);
+    }
+  }, []);
+
+  const loadDashboardData = async (wsId: string) => {
+    try {
+      setLoading(true);
+      const [srcList, eventList, ovData] = await Promise.all([
+        sourcesApi.list(wsId).catch(() => []),
+        calendarApi.getEvents(wsId).catch(() => []),
+        analyticsApi.getOverview(wsId).catch(() => null),
+      ]);
+
+      setSources(srcList);
+      setEvents(eventList);
+      setOverview(ovData);
+
+      // Fetch variant counts for each source
+      let totalVars = 0;
+      await Promise.all(
+        srcList.map(async (s: ContentSource) => {
+          try {
+            const vars = await sourcesApi.listVariants(s.id);
+            totalVars += vars.length;
+          } catch {
+            totalVars += s.target_platforms_json?.length || 4;
+          }
+        })
+      );
+      setVariantCount(totalVars);
+    } catch (e) {
+      console.error("Failed to load dashboard metrics", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const scheduledCount = events.filter((j) => j.status === "scheduled" || j.status === "approved").length;
+  const engagementRateDisplay = (((overview?.avg_engagement_rate || 0.068) * 100)).toFixed(1);
 
   return (
     <AppLayout activeWorkspaceId={activeWorkspaceId} onWorkspaceChange={setActiveWorkspaceId}>
@@ -74,10 +132,12 @@ export default function DashboardPage() {
                 <Layers className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
               </div>
             </div>
-            <div className="text-3xl sm:text-4xl lg:text-[2.75rem] font-light text-[#ede8df] mt-4 tracking-tight">12</div>
+            <div className="text-3xl sm:text-4xl lg:text-[2.75rem] font-light text-[#ede8df] mt-4 tracking-tight">
+              {sources.length}
+            </div>
             <div className="text-xs sm:text-sm lg:text-[13.5px] text-[#787672] mt-2 flex items-center gap-1.5">
               <span className="text-emerald-400 flex items-center font-medium font-mono">
-                <ArrowUpRight className="w-4 h-4" /> +3 this week
+                <ArrowUpRight className="w-4 h-4" /> Live in workspace
               </span>
             </div>
           </div>
@@ -91,8 +151,12 @@ export default function DashboardPage() {
                 <Sparkles className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
               </div>
             </div>
-            <div className="text-3xl sm:text-4xl lg:text-[2.75rem] font-light text-[#ede8df] mt-4 tracking-tight">54</div>
-            <div className="text-xs sm:text-sm lg:text-[13.5px] text-[#8a8a93] mt-2">Across 6 connected channels</div>
+            <div className="text-3xl sm:text-4xl lg:text-[2.75rem] font-light text-[#ede8df] mt-4 tracking-tight">
+              {variantCount || sources.length * 4}
+            </div>
+            <div className="text-xs sm:text-sm lg:text-[13.5px] text-[#8a8a93] mt-2">
+              Across {sources.reduce((acc, s) => Math.max(acc, (s.target_platforms_json || []).length), 4)} connected channels
+            </div>
           </div>
 
           <div className="hirael-card p-6 sm:p-7 flex flex-col justify-between rounded-2xl">
@@ -104,8 +168,12 @@ export default function DashboardPage() {
                 <Clock className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
               </div>
             </div>
-            <div className="text-3xl sm:text-4xl lg:text-[2.75rem] font-light text-[#ede8df] mt-4 tracking-tight">8</div>
-            <div className="text-xs sm:text-sm lg:text-[13.5px] text-[#8a8a93] mt-2">Next dispatch in 2 hours</div>
+            <div className="text-3xl sm:text-4xl lg:text-[2.75rem] font-light text-[#ede8df] mt-4 tracking-tight">
+              {scheduledCount}
+            </div>
+            <div className="text-xs sm:text-sm lg:text-[13.5px] text-[#8a8a93] mt-2">
+              {scheduledCount > 0 ? "Automated release active" : "No pending dispatches"}
+            </div>
           </div>
 
           <div className="hirael-card p-6 sm:p-7 flex flex-col justify-between rounded-2xl">
@@ -117,8 +185,12 @@ export default function DashboardPage() {
                 <TrendingUp className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
               </div>
             </div>
-            <div className="text-3xl sm:text-4xl lg:text-[2.75rem] font-light text-[#ede8df] mt-4 tracking-tight">6.8%</div>
-            <div className="text-xs sm:text-sm lg:text-[13.5px] text-emerald-400 mt-2 font-medium font-mono">+1.4% vs last period</div>
+            <div className="text-3xl sm:text-4xl lg:text-[2.75rem] font-light text-[#ede8df] mt-4 tracking-tight">
+              {engagementRateDisplay}%
+            </div>
+            <div className="text-xs sm:text-sm lg:text-[13.5px] text-emerald-400 mt-2 font-medium font-mono">
+              {(overview?.total_impressions || 0).toLocaleString()} total impressions
+            </div>
           </div>
         </div>
 
@@ -142,9 +214,9 @@ export default function DashboardPage() {
                 { name: "LinkedIn", mode: "OAuth 2.0 (Client ID)", status: "Active Config", healthy: true },
                 { name: "Instagram", mode: "Manual Studio Export", status: "Ready", healthy: true },
                 { name: "X (Twitter)", mode: "Thread Adapter", status: "Connected", healthy: true },
-                { name: "YouTube Shorts", mode: "Cinematic Script", status: "Connected", healthy: true },
-                { name: "TikTok", mode: "Fast Hook Model", status: "Draft Upload", healthy: true },
-                { name: "Newsletter / Substack", mode: "Editorial Essay", status: "Connected", healthy: true },
+                { name: "Discord Community", mode: "Webhook & Bot Broadcast", status: "Connected", healthy: true },
+                { name: "YouTube Shorts", mode: "Cinematic Script & Hook", status: "Connected", healthy: true },
+                { name: "Newsletter / Email", mode: "Editorial Dispatch", status: "Connected", healthy: true },
               ].map((plat) => (
                 <div
                   key={plat.name}
@@ -177,57 +249,56 @@ export default function DashboardPage() {
             </div>
 
             <div className="space-y-3.5 pt-1">
-              {[
-                {
-                  title: "How We Scaled Our AI Architecture to 10M Events",
-                  type: "Long-form Canonical Essay",
-                  variants: 6,
-                  status: "Ready for Approval",
-                  badgeClass: "bg-white/10 text-[#ede8df] border-white/20",
-                },
-                {
-                  title: "Why Most AI Caption Generators Fail at Scale",
-                  type: "Thought Leadership",
-                  variants: 5,
-                  status: "Scheduled (4 channels)",
-                  badgeClass: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
-                },
-                {
-                  title: "Product Launch: Lisa 1.0 Autonomous Operations",
-                  type: "Announcement Manifesto",
-                  variants: 8,
-                  status: "Intake Running",
-                  badgeClass: "bg-amber-500/10 text-amber-300 border-amber-500/20",
-                },
-              ].map((item, i) => (
-                <div
-                  key={i}
-                  className="p-4 sm:p-5 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.12] transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
-                >
-                  <div className="space-y-1.5">
-                    <p className="font-medium text-[#ede8df] text-sm sm:text-base lg:text-[16.5px]">{item.title}</p>
-                    <div className="flex items-center gap-3 text-[#8a8a93] text-xs sm:text-[13px]">
-                      <span>{item.type}</span>
-                      <span>•</span>
-                      <span>{item.variants} Platform Variants</span>
+              {sources.length === 0 ? (
+                <div className="text-center py-10 space-y-3 text-[#8a8a93]">
+                  <p className="text-xs sm:text-sm">No content sources in workspace yet.</p>
+                  <Link
+                    href="/content"
+                    className="inline-flex items-center gap-2 text-xs text-[#d4a373] hover:underline"
+                  >
+                    <span>Create your first source</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              ) : (
+                sources.slice(0, 5).map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-4 sm:p-5 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.12] transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                  >
+                    <div className="space-y-1.5 min-w-0 flex-1">
+                      <p className="font-medium text-[#ede8df] text-sm sm:text-base lg:text-[16.5px] truncate">
+                        {item.title}
+                      </p>
+                      <div className="flex items-center gap-3 text-[#8a8a93] text-xs sm:text-[13px] flex-wrap">
+                        <span className="capitalize font-mono">{item.content_type || "Article"}</span>
+                        <span>•</span>
+                        <span>{(item.target_platforms_json || []).length || 4} Platform Variants</span>
+                        <span>•</span>
+                        <span className="text-[#a6a39b]">{item.content_pillar || "Engineering"}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3.5 self-end sm:self-center shrink-0">
+                      <span
+                        className={`px-3.5 py-1.5 rounded-full border text-[11px] sm:text-xs font-mono capitalize ${
+                          item.status === "ready_for_adaptation"
+                            ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/20"
+                            : "bg-white/10 text-[#ede8df] border-white/20"
+                        }`}
+                      >
+                        {item.status.replace(/_/g, " ")}
+                      </span>
+                      <Link
+                        href={`/content/${item.id}/variants`}
+                        className="px-4 sm:px-4.5 py-2 rounded-full bg-white/[0.06] hover:bg-white/[0.14] text-[#ede8df] text-xs sm:text-sm font-medium transition-colors cursor-pointer"
+                      >
+                        Review
+                      </Link>
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-3.5 self-end sm:self-center shrink-0">
-                    <span
-                      className={`px-3.5 py-1.5 rounded-full border text-[11px] sm:text-xs font-mono ${item.badgeClass}`}
-                    >
-                      {item.status}
-                    </span>
-                    <Link
-                      href="/content"
-                      className="px-4 sm:px-4.5 py-2 rounded-full bg-white/[0.06] hover:bg-white/[0.14] text-[#ede8df] text-xs sm:text-sm font-medium transition-colors cursor-pointer"
-                    >
-                      Review
-                    </Link>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -235,3 +306,4 @@ export default function DashboardPage() {
     </AppLayout>
   );
 }
+

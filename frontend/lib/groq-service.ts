@@ -208,10 +208,10 @@ function getPlatformGuideline(platform: string): string {
       return "- Format: Punchy multi-tweet thread format (e.g. 1/4, 2/4, 3/4) with strong contrarian hook and no fluff.\n- Length: 400-800 characters across numbered tweets.";
     case "instagram":
       return "- Format: Aesthetic caption hook, slide breakdown (Slide 1, Slide 2, etc.), clear CTA to save/share, followed by spaced hashtags.\n- Note: Manual Creator Studio export mode.\n- Length: 500-900 characters.";
+    case "discord":
+      return "- Format: Rich Discord community announcement or developer forum post with bold markdown headers, emoji bullet points, code/architecture insight block, and an engaging community question.\n- Length: 500-900 characters.";
     case "youtube":
-      return "- Format: 60-second YouTube Short pacing script: Visual hook [0-5s], Core tension [5-25s], Tactical blueprint [25-50s], Outro CTA [50-60s].";
-    case "tiktok":
-      return "- Format: Rapid retention video script with visual scene cues [Scene 1], high-contrast audio hook, and quick takeaway.";
+      return "- Format: 60-second YouTube Short pacing script: Visual hook [0-5s], Core tension [5-25s], Tactical blueprint [25-50s], Outro CTA [50-60s].\n- Length: 500-800 characters.";
     case "threads":
       return "- Format: Conversational, casual yet intellectually dense take designed to start replies in Meta's open forum.";
     case "email":
@@ -249,13 +249,13 @@ function getFallbackContent(title: string, sourceBody: string, platform: string)
       angle: "Visual carousel walkthrough",
       len: 480,
     },
-    youtube: {
-      body: `🎬 [YOUTUBE SHORTS SCRIPT: 60 SECONDS]\n\n[00:00 - 00:06] Visual Hook: Zoom into failing server graph. "Here's how we stopped 10 million events from crashing our servers."\n\n[00:07 - 00:25] The Problem: Traditional databases commit synchronously, killing p99 latency.\n\n[00:26 - 00:45] The Fix: We implemented zero-allocation ring buffers in off-heap memory.\n\n[00:46 - 00:60] The Result: 3.4x throughput with flat memory graphs. Subscribe for deep-dive blueprints.`,
-      caption: `60s Shorts Script: ${title}`,
-      cta: "Subscribe for more distributed engineering blueprints.",
-      hashtags: ["#Shorts", "#Programming", "#Tech", "#Engineering"],
-      angle: "Rapid 60-second vertical video script",
-      len: 540,
+    discord: {
+      body: `📢 **COMMUNITY ANNOUNCEMENT: ${title.toUpperCase()}**\n\nHey @everyone! We just dropped a complete technical teardown on **${title}**.\n\n### ⚡ Key Takeaways:\n• **Zero-Allocation Buffers**: Eliminated GC pauses under sustained tail-load.\n• **Lock-Free Concurrency**: Ring buffers replacing mutexes for sub-millisecond p99.\n• **Backpressure Resilience**: Upstream rate-limiting prevents memory exhaustion.\n\n💬 **Discussion Prompt**: How are you managing distributed bottlenecks in your tech stack? Drop your benchmarks in #engineering-chat!`,
+      caption: `Discord Community Deep Dive: ${title}`,
+      cta: "Join the conversation in #engineering-chat!",
+      hashtags: ["#DiscordCommunity", "#DevOps", "#Architecture"],
+      angle: "Interactive developer community broadcast",
+      len: 620,
     },
   };
 

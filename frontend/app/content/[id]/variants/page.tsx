@@ -1,16 +1,19 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, use, useMemo } from "react";
 import Link from "next/link";
 import { AppLayout } from "@/components/AppLayout";
 import {
   sourcesApi,
   variantsApi,
   publishingApi,
+  brandApi,
   ContentSource,
   ContentVariant,
+  BrandProfile,
   getActiveWorkspaceId,
 } from "@/lib/api";
+import { calculateQAScorecard } from "@/lib/qa-scorecard";
 import {
   Sparkles,
   CheckCircle2,
@@ -24,10 +27,22 @@ import {
   Eye,
   Sliders,
   Check,
+  ShieldAlert,
 } from "lucide-react";
 import { InteractiveButton } from "@/components/InteractiveButton";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { AIGenerationStreaming } from "@/components/AIGenerationStreaming";
+
+const PLATFORM_LABELS: Record<string, string> = {
+  linkedin: "LinkedIn",
+  x: "X (Twitter)",
+  instagram: "Instagram",
+  discord: "Discord Community",
+  youtube: "YouTube Shorts",
+  threads: "Threads",
+  email: "Newsletter / Email",
+  blog: "Blog CMS",
+};
 
 export default function VariantReviewPage({
   params,
@@ -39,6 +54,7 @@ export default function VariantReviewPage({
 
   const [activeWorkspaceId, setActiveWorkspaceId] = useState<string | null>(null);
   const [source, setSource] = useState<ContentSource | null>(null);
+  const [brandProfile, setBrandProfile] = useState<BrandProfile | null>(null);
   const [variants, setVariants] = useState<ContentVariant[]>([]);
   const [selectedPlatform, setSelectedPlatform] = useState<string>("linkedin");
   const [loading, setLoading] = useState(true);
@@ -54,15 +70,35 @@ export default function VariantReviewPage({
   useEffect(() => {
     const wsId = getActiveWorkspaceId();
     setActiveWorkspaceId(wsId);
-    loadData();
+    loadData(wsId);
   }, [sourceId]);
 
-  const loadData = async () => {
+  const deduplicateVariants = (list: ContentVariant[]): ContentVariant[] => {
+    const map = new Map<string, ContentVariant>();
+    for (const v of list) {
+      const existing = map.get(v.platform);
+      if (!existing) {
+        map.set(v.platform, v);
+      } else {
+        // Prioritize published > approved > newest variant
+        if (v.status === "published" || (v.status === "approved" && existing.status !== "published")) {
+          map.set(v.platform, v);
+        }
+      }
+    }
+    return Array.from(map.values());
+  };
+
+  const loadData = async (wsId?: string | null) => {
     try {
       setLoading(true);
       setLoadError(null);
-      const src = await sourcesApi.get(sourceId);
+      const [src, bp] = await Promise.all([
+        sourcesApi.get(sourceId),
+        wsId ? brandApi.getProfile(wsId).catch(() => null) : Promise.resolve(null),
+      ]);
       setSource(src);
+      if (bp) setBrandProfile(bp);
 
       let vList = await sourcesApi.listVariants(sourceId);
       if (vList.length === 0) {
@@ -72,9 +108,10 @@ export default function VariantReviewPage({
         vList = genRes.variants;
       }
 
-      setVariants(vList);
-      if (vList.length > 0) {
-        setSelectedPlatform(vList[0].platform);
+      const cleanList = deduplicateVariants(vList);
+      setVariants(cleanList);
+      if (cleanList.length > 0) {
+        setSelectedPlatform(cleanList[0].platform);
       }
     } catch (err: unknown) {
       console.error("Failed to load variants", err);
@@ -86,7 +123,8 @@ export default function VariantReviewPage({
     }
   };
 
-  const currentVariant = variants.find((v) => v.platform === selectedPlatform) || variants[0];
+  const uniqueVariants = deduplicateVariants(variants);
+  const currentVariant = uniqueVariants.find((v) => v.platform === selectedPlatform) || uniqueVariants[0];
 
   const handleUpdateCurrentVariant = (fields: Partial<ContentVariant>) => {
     if (!currentVariant) return;
@@ -130,8 +168,11 @@ export default function VariantReviewPage({
     }
   };
 
+  // View mode: 'preview' (Native Feed) vs 'edit' (Full Editor)
+  const [viewMode, setViewMode] = useState<"preview" | "edit">("preview");
+  const [showCanonicalSource, setShowCanonicalSource] = useState(false);
   const [publishing, setPublishing] = useState(false);
-  const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
+  const [publishedUrls, setPublishedUrls] = useState<Record<string, string>>({});
 
   const handlePublishNow = async () => {
     if (!currentVariant || !activeWorkspaceId) return;
@@ -139,7 +180,9 @@ export default function VariantReviewPage({
       setPublishing(true);
       const data = await publishingApi.publishVariant(activeWorkspaceId, currentVariant.id);
       if (data.success) {
-        if (data.external_url) setPublishedUrl(data.external_url);
+        if (data.external_url) {
+          setPublishedUrls((prev) => ({ ...prev, [currentVariant.id]: data.external_url! }));
+        }
         setVariants(
           variants.map((v) =>
             v.id === currentVariant.id ? { ...v, status: "published" } : v
@@ -217,9 +260,15 @@ export default function VariantReviewPage({
     );
   }
 
-  const qualityScore = Math.round((currentVariant?.quality_review_json?.quality_score || 0.85) * 100);
-  const checkItems = currentVariant?.quality_review_json?.check_items || [];
-  const suggestions = currentVariant?.quality_review_json?.improvement_suggestions || [];
+  // Live deterministic 10-point QA Scorecard & Checklist calculation
+  const scorecard = useMemo(() => {
+    return calculateQAScorecard(currentVariant, source, brandProfile);
+  }, [currentVariant, source, brandProfile]);
+
+  const qualityScore = scorecard.quality_score;
+  const checkItems = scorecard.check_items;
+  const suggestions = scorecard.suggestions;
+  const criticalIssues = scorecard.issues;
 
   return (
     <AppLayout activeWorkspaceId={activeWorkspaceId} onWorkspaceChange={setActiveWorkspaceId}>
@@ -241,6 +290,16 @@ export default function VariantReviewPage({
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">
+            <InteractiveButton
+              onClick={() => setShowCanonicalSource(!showCanonicalSource)}
+              variant="secondary"
+              size="md"
+              leftIcon={<Eye className="w-4 h-4 text-[#d4a373]" />}
+              className="px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-medium"
+            >
+              {showCanonicalSource ? "Hide Canonical Input" : "Inspect Canonical Input"}
+            </InteractiveButton>
+
             <InteractiveButton
               onClick={handleSaveVariant}
               loading={savingVariant}
@@ -306,109 +365,245 @@ export default function VariantReviewPage({
           </div>
         </div>
 
-        {/* Live Published Banner */}
-        {publishedUrl && (
+        {/* Canonical Source Drawer (When expanded) */}
+        {showCanonicalSource && source && (
+          <ScrollReveal delay={0}>
+            <div className="p-6 sm:p-7 rounded-2xl sm:rounded-3xl bg-[#0a0a0d] border border-[#d4a373]/30 shadow-2xl space-y-4 relative">
+              <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+                <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#d4a373]">
+                  <Sparkles className="w-4 h-4" />
+                  <span>Original Canonical Source Input (What agents ingested)</span>
+                </div>
+                <button
+                  onClick={() => setShowCanonicalSource(false)}
+                  className="text-xs text-[#8a8a93] hover:text-[#ede8df]"
+                >
+                  ✕ Close
+                </button>
+              </div>
+              <h2 className="text-lg sm:text-xl font-medium text-[#ede8df]">{source.title}</h2>
+              <div className="p-4 rounded-xl bg-black/50 border border-white/[0.06] text-xs sm:text-sm text-[#a6a39b] leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto font-mono">
+                {source.body}
+              </div>
+              <div className="flex items-center gap-4 text-xs text-[#71717a] font-mono">
+                <span>Pillar: <strong className="text-[#ede8df]">{source.content_pillar || "General"}</strong></span>
+                <span>&bull;</span>
+                <span>Type: <strong className="text-[#ede8df]">{source.content_type || "Article"}</strong></span>
+                <span>&bull;</span>
+                <span>Length: <strong className="text-[#ede8df]">{source.body.length} chars</strong></span>
+              </div>
+            </div>
+          </ScrollReveal>
+        )}
+
+        {/* Live Published Banner (Only displayed when the currently selected variant is published) */}
+        {currentVariant?.status === "published" && (
           <div className="p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between gap-4 animate-fadeIn">
             <div className="flex items-center gap-2.5 text-emerald-300 text-xs sm:text-sm font-medium">
               <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-              <span>Post successfully dispatched to target platform adapter!</span>
+              <span>
+                <strong className="capitalize">{PLATFORM_LABELS[currentVariant.platform] || currentVariant.platform}</strong> post successfully dispatched to target platform adapter!
+              </span>
             </div>
-            <a
-              href={publishedUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="text-xs sm:text-sm font-semibold text-emerald-400 hover:underline flex items-center gap-1.5"
-            >
-              View Live Post &rarr;
-            </a>
+            {publishedUrls[currentVariant.id] && (
+              <a
+                href={publishedUrls[currentVariant.id]}
+                target="_blank"
+                rel="noreferrer"
+                className="text-xs sm:text-sm font-semibold text-emerald-400 hover:underline flex items-center gap-1.5"
+              >
+                View Live Post &rarr;
+              </a>
+            )}
           </div>
         )}
 
         {/* Platform Channel Tabs */}
-        <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
-          {variants.map((v) => {
-            const isSelected = selectedPlatform === v.platform;
-            const isApproved = v.status === "approved";
-            return (
-              <button
-                key={v.id}
-                onClick={() => setSelectedPlatform(v.platform)}
-                className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium flex items-center gap-2.5 shrink-0 border transition-all cursor-pointer ${
-                  isSelected
-                    ? "bg-[#ede8df] text-[#08080a] border-[#ede8df] shadow-sm font-semibold"
-                    : "bg-white/[0.04] border-white/10 text-[#8a8a93] hover:text-[#ede8df] hover:bg-white/[0.08]"
-                }`}
-              >
-                <span className="capitalize">{v.platform}</span>
-                <span
-                  className={`w-2 h-2 rounded-full ${
-                    isApproved ? "bg-emerald-500" : "bg-amber-400"
+        <div className="flex items-center justify-between gap-4 border-b border-white/[0.06] pb-3 flex-wrap">
+          <div className="flex items-center gap-2.5 overflow-x-auto pb-1 scrollbar-none">
+            {uniqueVariants.map((v) => {
+              const isSelected = selectedPlatform === v.platform;
+              const isApproved = v.status === "approved";
+              const isPublished = v.status === "published";
+              const platformName = PLATFORM_LABELS[v.platform] || v.platform;
+              return (
+                <button
+                  key={v.id}
+                  onClick={() => setSelectedPlatform(v.platform)}
+                  className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium flex items-center gap-2.5 shrink-0 border transition-all cursor-pointer ${
+                    isSelected
+                      ? "bg-[#ede8df] text-[#08080a] border-[#ede8df] shadow-sm font-semibold"
+                      : "bg-white/[0.04] border-white/10 text-[#8a8a93] hover:text-[#ede8df] hover:bg-white/[0.08]"
                   }`}
-                />
-              </button>
-            );
-          })}
+                >
+                  <span>{platformName}</span>
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      isPublished
+                        ? "bg-blue-400"
+                        : isApproved
+                        ? "bg-emerald-500"
+                        : "bg-amber-400"
+                    }`}
+                  />
+                </button>
+              );
+            })}
+          </div>
+
+          {/* View Mode Toggle: Preview vs Full Edit */}
+          <div className="flex items-center gap-1.5 bg-[#0a0a0d] p-1 rounded-full border border-white/[0.08]">
+            <button
+              onClick={() => setViewMode("preview")}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
+                viewMode === "preview"
+                  ? "bg-[#ede8df] text-[#09090b] font-semibold"
+                  : "text-[#85827b] hover:text-[#ede8df]"
+              }`}
+            >
+              Native Preview
+            </button>
+            <button
+              onClick={() => setViewMode("edit")}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
+                viewMode === "edit"
+                  ? "bg-[#ede8df] text-[#09090b] font-semibold"
+                  : "text-[#85827b] hover:text-[#ede8df]"
+              }`}
+            >
+              Full Editor
+            </button>
+          </div>
         </div>
 
         {currentVariant && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left & Middle (2 Cols): Live Feed Preview & Inline Copy Editor */}
+            {/* Left & Middle (2 Cols): Live Feed Preview & Full Copy Display */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Native Platform Feed Preview */}
               <ScrollReveal>
                 <div className="hirael-card p-6 sm:p-7 lg:p-8 space-y-6 rounded-2xl sm:rounded-3xl">
+                  {/* Card Header with Format Badge */}
                   <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
                     <div className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-[#ede8df] uppercase tracking-wider">
                       <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-[#d4a373]" />
-                      <span>Native {currentVariant.platform.toUpperCase()} Preview</span>
+                      <span>{(PLATFORM_LABELS[currentVariant.platform] || currentVariant.platform).toUpperCase()} Complete Adapted Content</span>
                     </div>
                     <span className="text-xs font-mono px-3 py-1 rounded-full bg-white/[0.05] border border-white/10 text-[#a6a39b]">
                       Format: {currentVariant.format}
                     </span>
                   </div>
 
-                  {/* Simulated Feed Post */}
-                  <div className="p-5 sm:p-6 rounded-2xl bg-black/60 border border-white/[0.08] space-y-4 font-sans">
-                    {/* Account Header */}
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-10 h-10 rounded-full bg-white/[0.08] border border-white/10 text-[#ede8df] font-bold flex items-center justify-center text-sm">
-                        L
+                  {/* Mode 1: Native Simulated Feed Reader (Full height, styled, no truncation) */}
+                  {viewMode === "preview" && (
+                    <div className="p-6 sm:p-7 rounded-2xl sm:rounded-3xl bg-black/60 border border-white/[0.08] space-y-5 font-sans">
+                      {/* Account Header */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3.5">
+                          <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-[#d4a373]/40 to-white/10 border border-white/10 text-[#ede8df] font-bold flex items-center justify-center text-sm">
+                            L
+                          </div>
+                          <div>
+                            <p className="text-sm sm:text-base font-semibold text-[#ede8df]">Lisa Operating System</p>
+                            <p className="text-xs text-[#71717a] font-mono">
+                              {PLATFORM_LABELS[currentVariant.platform] || currentVariant.platform} Native Post &bull; {currentVariant.format}
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-xs font-mono text-[#d4a373] bg-[#d4a373]/10 px-3 py-1 rounded-full border border-[#d4a373]/20">
+                          {currentVariant.body.length} Characters
+                        </span>
                       </div>
+
+                      {/* Title / Headline (If present) */}
+                      {currentVariant.title && (
+                        <h3 className="text-base sm:text-lg font-semibold text-[#ede8df] tracking-tight border-b border-white/[0.06] pb-3">
+                          {currentVariant.title}
+                        </h3>
+                      )}
+
+                      {/* Caption / Hook (If present) */}
+                      {currentVariant.caption && currentVariant.caption !== currentVariant.title && (
+                        <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs sm:text-sm text-[#d4a373] font-medium leading-relaxed">
+                          <span className="text-[10px] font-mono uppercase text-[#85827b] block mb-0.5">Hook Teaser:</span>
+                          {currentVariant.caption}
+                        </div>
+                      )}
+
+                      {/* Full Formatted Body Text (Multi-paragraph, complete height, no scroll cutoffs) */}
+                      <div className="text-xs sm:text-sm lg:text-[15px] text-[#ede8df] leading-relaxed whitespace-pre-wrap font-sans py-2 space-y-3">
+                        {currentVariant.body}
+                      </div>
+
+                      {/* Hashtags */}
+                      {currentVariant.hashtags_json && currentVariant.hashtags_json.length > 0 && (
+                        <div className="flex flex-wrap gap-2 pt-2 border-t border-white/[0.06]">
+                          {currentVariant.hashtags_json.map((tag, idx) => (
+                            <span key={idx} className="text-xs sm:text-[13px] text-[#d4a373] font-medium font-mono">
+                              #{tag.replace(/^#/, "")}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* CTA Footer Block */}
+                      {currentVariant.cta && (
+                        <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] text-xs sm:text-sm text-[#ede8df] font-medium flex items-center gap-3">
+                          <span className="w-2.5 h-2.5 rounded-full bg-[#d4a373] shrink-0" />
+                          <span><strong>Call to Action:</strong> {currentVariant.cta}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Mode 2: Full Interactive Copy Editor */}
+                  {viewMode === "edit" && (
+                    <div className="space-y-5">
                       <div>
-                        <p className="text-sm font-semibold text-[#ede8df]">Lisa Operating System</p>
-                        <p className="text-xs text-[#71717a]">
-                          {currentVariant.platform} Native Post &bull; Just now
-                        </p>
+                        <label className="block text-xs font-mono text-[#85827b] mb-2">Variant Title / Headline</label>
+                        <input
+                          type="text"
+                          value={currentVariant.title || ""}
+                          onChange={(e) => handleUpdateCurrentVariant({ title: e.target.value })}
+                          className="w-full px-4 py-2.5 sm:py-3 rounded-xl bg-black/40 border border-white/[0.08] text-xs sm:text-sm text-[#ede8df] outline-none focus:border-[#d4a373]/60"
+                          placeholder="Platform specific headline..."
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-mono text-[#85827b] mb-2">Caption / Hook</label>
+                        <input
+                          type="text"
+                          value={currentVariant.caption || ""}
+                          onChange={(e) => handleUpdateCurrentVariant({ caption: e.target.value })}
+                          className="w-full px-4 py-2.5 sm:py-3 rounded-xl bg-black/40 border border-white/[0.08] text-xs sm:text-sm text-[#ede8df] outline-none focus:border-[#d4a373]/60"
+                          placeholder="Short social hook..."
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-mono text-[#85827b] mb-2">
+                          Main Body Content ({currentVariant.body.length} chars)
+                        </label>
+                        <textarea
+                          rows={16}
+                          value={currentVariant.body}
+                          onChange={(e) => handleUpdateCurrentVariant({ body: e.target.value })}
+                          className="w-full p-4 rounded-xl bg-black/40 border border-white/[0.08] text-xs sm:text-sm lg:text-[14.5px] text-[#ede8df] outline-none leading-relaxed focus:border-[#d4a373]/60"
+                          placeholder="Complete adapted copy..."
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-mono text-[#85827b] mb-2">Call to Action (CTA)</label>
+                        <input
+                          type="text"
+                          value={currentVariant.cta || ""}
+                          onChange={(e) => handleUpdateCurrentVariant({ cta: e.target.value })}
+                          className="w-full px-4 py-2.5 sm:py-3 rounded-xl bg-black/40 border border-white/[0.08] text-xs sm:text-sm text-[#ede8df] outline-none focus:border-[#d4a373]/60"
+                        />
                       </div>
                     </div>
-
-                    {/* Body Textarea Editor */}
-                    <textarea
-                      rows={10}
-                      value={currentVariant.body}
-                      onChange={(e) => handleUpdateCurrentVariant({ body: e.target.value })}
-                      className="w-full bg-transparent text-xs sm:text-sm lg:text-[14.5px] text-[#ede8df] outline-none leading-relaxed resize-none border-b border-white/[0.06] pb-3 focus:border-[#d4a373]/50"
-                    />
-
-                    {/* Hashtags */}
-                    {currentVariant.hashtags_json && currentVariant.hashtags_json.length > 0 && (
-                      <div className="flex flex-wrap gap-2 pt-1">
-                        {currentVariant.hashtags_json.map((tag, idx) => (
-                          <span key={idx} className="text-xs sm:text-[13px] text-[#d4a373] font-medium">
-                            #{tag.replace(/^#/, "")}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* CTA Footer */}
-                    {currentVariant.cta && (
-                      <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-xs sm:text-sm text-[#a6a39b] font-medium flex items-center gap-2.5">
-                        <span className="w-2 h-2 rounded-full bg-[#d4a373]" />
-                        <span>{currentVariant.cta}</span>
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
               </ScrollReveal>
 
@@ -453,36 +648,49 @@ export default function VariantReviewPage({
               {/* QA Scorecard */}
               <ScrollReveal delay={150}>
                 <div className="hirael-card p-6 sm:p-7 rounded-2xl sm:rounded-3xl space-y-5">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-xs sm:text-sm font-semibold text-[#ede8df] uppercase tracking-wider flex items-center gap-2.5">
+                  <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+                    <div className="flex items-center gap-2.5">
                       <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
-                      <span>10-Point QA Scorecard</span>
-                    </h3>
-                    <span
-                      className={`px-3 py-1 rounded-full font-bold text-xs sm:text-sm ${
-                        qualityScore >= 85
-                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                          : qualityScore >= 70
-                          ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                          : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
-                      }`}
-                    >
-                      {qualityScore}%
-                    </span>
+                      <div>
+                        <h3 className="text-xs sm:text-sm font-semibold text-[#ede8df] uppercase tracking-wider">
+                          10-Point QA Scorecard
+                        </h3>
+                        <p className="text-[11px] text-[#71717a] font-mono">Live Deterministic Audit</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span
+                        className={`inline-block px-3 py-1 rounded-full font-bold text-xs sm:text-sm ${
+                          qualityScore >= 85
+                            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                            : qualityScore >= 70
+                            ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                            : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                        }`}
+                      >
+                        {qualityScore} / 100
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Scorecard Check Items */}
-                  <div className="space-y-2.5 pt-1">
-                    {checkItems.length > 0 ? (
-                      checkItems.map((item, idx) => (
-                        <div
-                          key={idx}
-                          className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs sm:text-sm space-y-1.5"
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-[#ede8df] font-medium">{item.name}</span>
+                  {/* Scorecard Check Items (All 10 points) */}
+                  <div className="space-y-2 pt-1 max-h-[420px] overflow-y-auto pr-1">
+                    {checkItems.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs space-y-1.5 hover:border-white/[0.12] transition-colors"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="text-[#ede8df] font-medium truncate">{item.name}</span>
+                            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/[0.04] text-[#8a8a93] uppercase shrink-0">
+                              {item.category}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5 shrink-0 font-mono">
+                            <span className="text-xs font-semibold text-[#ede8df]">{item.score}/10</span>
                             <span
-                              className={`text-xs font-mono font-semibold uppercase px-2.5 py-0.5 rounded ${
+                              className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded ${
                                 item.status === "pass"
                                   ? "bg-emerald-500/10 text-emerald-400"
                                   : item.status === "warning"
@@ -493,65 +701,51 @@ export default function VariantReviewPage({
                               {item.status}
                             </span>
                           </div>
-                          {item.reason && (
-                            <p className="text-xs text-[#8a8a93] leading-relaxed">{item.reason}</p>
-                          )}
                         </div>
-                      ))
-                    ) : (
-                      Object.entries(
-                        currentVariant.quality_review_json?.checks || {
-                          source_fidelity: "pass",
-                          brand_voice: "pass",
-                          platform_formatting: "pass",
-                          hook_strength: "pass",
-                        }
-                      ).map(([check, status]) => (
-                        <div
-                          key={check}
-                          className="flex items-center justify-between p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs sm:text-sm"
-                        >
-                          <span className="capitalize text-[#ede8df] font-medium">
-                            {check.replace("_", " ")}
-                          </span>
-                          <span
-                            className={`text-xs font-mono font-semibold uppercase px-2.5 py-0.5 rounded ${
-                              status === "pass"
-                                ? "bg-emerald-500/10 text-emerald-400"
-                                : "bg-rose-500/10 text-rose-400"
-                            }`}
-                          >
-                            {status}
-                          </span>
-                        </div>
-                      ))
-                    )}
+                        {item.reason && (
+                          <p className="text-[11.5px] text-[#8a8a93] leading-relaxed">{item.reason}</p>
+                        )}
+                      </div>
+                    ))}
                   </div>
+
+                  {/* Critical Issues */}
+                  {criticalIssues.length > 0 && (
+                    <div className="space-y-2 pt-2 border-t border-white/[0.06]">
+                      <p className="text-[11px] uppercase font-mono font-semibold text-rose-400 flex items-center gap-1.5">
+                        <ShieldAlert className="w-3.5 h-3.5" />
+                        <span>Compliance Issues ({criticalIssues.length})</span>
+                      </p>
+                      {criticalIssues.map((issue, i) => (
+                        <div
+                          key={i}
+                          className={`p-3 rounded-xl text-xs flex items-start gap-2.5 ${
+                            issue.severity === "critical"
+                              ? "bg-rose-500/10 border border-rose-500/20 text-rose-300"
+                              : "bg-amber-500/10 border border-amber-500/20 text-amber-300"
+                          }`}
+                        >
+                          <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                          <span className="leading-relaxed">{issue.message}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
                   {/* Actionable Suggestions */}
                   {suggestions.length > 0 && (
-                    <div className="p-3.5 rounded-xl bg-[#d4a373]/10 border border-[#d4a373]/20 text-[#ede8df] text-xs sm:text-sm space-y-1.5">
-                      <p className="font-semibold text-xs uppercase tracking-wider text-[#d4a373]">
-                        Recommendations:
+                    <div className="p-3.5 rounded-xl bg-[#d4a373]/10 border border-[#d4a373]/20 text-[#ede8df] text-xs space-y-1.5">
+                      <p className="font-semibold text-xs uppercase tracking-wider text-[#d4a373] flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>Actionable Improvements:</span>
                       </p>
-                      <ul className="list-disc list-inside space-y-1 text-xs text-[#8a8a93]">
+                      <ul className="list-disc list-inside space-y-1 text-[11.5px] text-[#ede8df]/80">
                         {suggestions.map((sug, i) => (
                           <li key={i}>{sug}</li>
                         ))}
                       </ul>
                     </div>
                   )}
-
-                  {/* Critical Issues */}
-                  {currentVariant.quality_review_json?.issues?.map((issue, i) => (
-                    <div
-                      key={i}
-                      className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs sm:text-sm flex items-start gap-2.5"
-                    >
-                      <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                      <span>{issue.message}</span>
-                    </div>
-                  ))}
                 </div>
               </ScrollReveal>
 

@@ -375,7 +375,7 @@ export default function LisaHomePage() {
 
               <p className="text-xs sm:text-sm lg:text-[16px] xl:text-[17px] leading-relaxed text-[#8a8a93] max-w-3xl lg:max-w-4xl mx-auto font-normal">
                 Rather than acting as a simple generic chat wrapper that writes captions,{" "}
-                <span className="lisa-warm-glow font-medium">Lisa</span> ingests canonical content sources, adapts them into platform-native variants (LinkedIn, X/Twitter, Instagram, YouTube Shorts, TikTok, Threads, Email Newsletters, and Blog CMS), validates them against brand guidelines, schedules them via an idempotent state machine, and analyzes cross-platform performance in a closed-loop feedback loop.
+                <span className="lisa-warm-glow font-medium">Lisa</span> ingests canonical content sources, adapts them into platform-native variants (LinkedIn, X/Twitter, Instagram, Discord Community, YouTube Shorts, Threads, Email Newsletters, and Blog CMS), validates them against brand guidelines, schedules them via an idempotent state machine, and analyzes cross-platform performance in a closed-loop feedback loop.
               </p>
             </div>
 
@@ -682,7 +682,7 @@ export default function LisaHomePage() {
                     </li>
                     <li className="flex items-start gap-2.5">
                       <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
-                      <span>X/Twitter, YouTube Shorts, Threads, CMS</span>
+                      <span>X/Twitter, Discord Community, Threads, CMS</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
@@ -885,7 +885,7 @@ export default function LisaHomePage() {
                     <li className="text-[#a6a39b]">LinkedIn</li>
                     <li className="text-[#a6a39b]">Instagram</li>
                     <li className="text-[#a6a39b]">X / Threads</li>
-                    <li className="text-[#a6a39b]">YouTube Shorts</li>
+                    <li className="text-[#a6a39b]">Discord Community</li>
                     <li className="text-[#a6a39b]">Substack & Email</li>
                   </ul>
                 </div>

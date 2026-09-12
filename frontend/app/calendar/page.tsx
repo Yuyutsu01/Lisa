@@ -67,10 +67,10 @@ export default function CalendarPage() {
         return "bg-white/[0.04] text-[#a6a39b] border-white/[0.08]";
       case "instagram":
         return "bg-pink-500/15 text-pink-300 border-pink-500/25";
+      case "discord":
+        return "bg-indigo-500/15 text-indigo-300 border-indigo-500/25";
       case "youtube":
         return "bg-red-500/15 text-red-300 border-red-500/25";
-      case "tiktok":
-        return "bg-emerald-500/15 text-emerald-300 border-emerald-500/25";
       case "threads":
         return "bg-white/[0.06] text-[#ede8df] border-white/10";
       default:
@@ -175,8 +175,8 @@ export default function CalendarPage() {
               <option value="linkedin">LinkedIn</option>
               <option value="x">X (Twitter)</option>
               <option value="instagram">Instagram</option>
+              <option value="discord">Discord Community</option>
               <option value="youtube">YouTube Shorts</option>
-              <option value="tiktok">TikTok</option>
             </select>
 
             <div className="flex items-center p-1.5 rounded-full bg-[#0a0a0d] border border-white/[0.08]">
