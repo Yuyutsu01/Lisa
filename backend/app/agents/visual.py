@@ -14,34 +14,109 @@ logger = logging.getLogger("uvicorn.error")
 
 
 
-def get_semantic_visual_fallback(text: str) -> str:
+# --- Curated Platform-Specific Topic Photography Matrix ---
+# Each topic maps to distinct, hand-curated photorealistic imagery customized for each platform's visual culture.
+
+PLATFORM_TOPIC_VISUALS = {
+    "distributed_systems": {
+        "keywords": [
+            "event", "distributed", "kafka", "queue", "engine", "server", "microservice",
+            "infrastructure", "throughput", "concurrency", "backend", "cluster", "database",
+            "postgres", "sql", "network", "datacenter", "latency", "scale", "cloud", "pipeline",
+            "pubsub", "streaming"
+        ],
+        "linkedin": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1200&auto=format&fit=crop",   # Enterprise symmetric server corridor
+        "instagram": "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=80&w=1200&auto=format&fit=crop",  # Vibrant glowing fiber optic patch cords with bokeh
+        "x": "https://images.unsplash.com/photo-1597852074816-d933c7d2b988?q=80&w=1200&auto=format&fit=crop",          # Server blade clusters with cyan telemetry LEDs
+        "discord": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1200&auto=format&fit=crop",    # Dark-mode cyberpunk server matrix
+        "youtube": "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop",    # Dynamic high-energy tech conduits
+    },
+    "ai_machine_learning": {
+        "keywords": [
+            "ai", "agent", "neural", "llm", "intelligence", "gpt", "model", "algorithm",
+            "prompt", "autonomous", "machine learning", "deep learning", "transformer",
+            "tensor", "gpu", "inference", "embedding", "vector", "robotics"
+        ],
+        "linkedin": "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop",   # Silicon wafer semiconductor macro
+        "instagram": "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=1200&auto=format&fit=crop",  # Glowing aesthetic neon neural brain
+        "x": "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1200&auto=format&fit=crop",          # Robotic hand assembling neural microchip
+        "discord": "https://images.unsplash.com/photo-1507413245164-6160d8298b31?q=80&w=1200&auto=format&fit=crop",    # Holographic deep learning grid in dark room
+        "youtube": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=1200&auto=format&fit=crop",    # Dynamic robotics lab in motion
+    },
+    "software_engineering": {
+        "keywords": [
+            "code", "developer", "software", "programming", "engineer", "api", "git",
+            "github", "typescript", "python", "deploy", "frontend", "fullstack", "react",
+            "syntax", "refactor", "framework", "component", "nextjs", "javascript"
+        ],
+        "linkedin": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200&auto=format&fit=crop",   # Executive developer workstation with laptop
+        "instagram": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200&auto=format&fit=crop",  # Aesthetic cozy developer desk with plant & ambient lamp
+        "x": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop",          # Razor-sharp dark-mode IDE code editor
+        "discord": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1200&auto=format&fit=crop",    # Cyberpunk RGB mechanical keyboard & dev terminal
+        "youtube": "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?q=80&w=1200&auto=format&fit=crop",    # High-intensity multi-screen code setup
+    },
+    "fintech_markets": {
+        "keywords": [
+            "finance", "trading", "revenue", "metric", "growth", "roi", "business",
+            "chart", "analytics", "saas", "fintech", "market", "stock", "crypto",
+            "bitcoin", "investment", "economy", "banking", "capital"
+        ],
+        "linkedin": "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=1200&auto=format&fit=crop",   # Corporate financial dashboard on glass display
+        "instagram": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=1200&auto=format&fit=crop",  # Aesthetic moody trading desk with candlestick charts
+        "x": "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?q=80&w=1200&auto=format&fit=crop",          # Clean real-time financial analytics screen
+        "discord": "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=1200&auto=format&fit=crop",    # Crypto blockchain digital ledger in dark mode
+        "youtube": "https://images.unsplash.com/photo-1535320903710-d993d3d77d29?q=80&w=1200&auto=format&fit=crop",    # High-energy financial chart trajectory
+    },
+    "cybersecurity": {
+        "keywords": [
+            "security", "audit", "compliance", "vulnerability", "auth", "crypto",
+            "firewall", "encryption", "cyber", "lock", "protect", "identity", "zero-trust"
+        ],
+        "linkedin": "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1200&auto=format&fit=crop",   # Clean biometric digital fortress circuit
+        "instagram": "https://images.unsplash.com/photo-1510511459019-5dda7724fd87?q=80&w=1200&auto=format&fit=crop",  # Aesthetic blue and magenta digital matrix
+        "x": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1200&auto=format&fit=crop",          # Terminal code matrix of cryptographic shield
+        "discord": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1200&auto=format&fit=crop",    # Hacker workstation with cyber telemetry
+        "youtube": "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1200&auto=format&fit=crop",    # Dynamic cyber security lock
+    },
+    "design_product": {
+        "keywords": [
+            "design", "ui", "ux", "product", "interface", "experience", "visual",
+            "brand", "figma", "prototype", "wireframe", "mobile", "app"
+        ],
+        "linkedin": "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=1200&auto=format&fit=crop",   # Clean architect design desk with blueprints
+        "instagram": "https://images.unsplash.com/photo-1581291518655-9523c932edcf?q=80&w=1200&auto=format&fit=crop",  # Pastel aesthetic mobile UI wireframes with stylus
+        "x": "https://images.unsplash.com/photo-1542744094-3a31f272c490?q=80&w=1200&auto=format&fit=crop",          # Retina Figma UI layout on Apple monitor
+        "discord": "https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=1200&auto=format&fit=crop",    # Graphic designer tablet in ambient RGB glow
+        "youtube": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop",    # Dynamic product interface showcase
+    },
+}
+
+
+def get_semantic_visual_fallback(text: str, platform: str = "linkedin") -> str:
     """
-    Keyword & Semantic Word Algorithm:
-    Analyzes domain words in text and maps to photorealistic topic-relevant photography.
-    Never returns abstract or irrelevant imagery.
+    Keyword & Semantic Word Algorithm with Platform Differentiation:
+    Analyzes domain words in text, determines the concrete topic, and returns
+    a photography visual specifically tailored to the visual culture of the target platform.
     """
     lower = text.lower()
-    if any(w in lower for w in ["event", "distributed", "kafka", "queue", "engine", "server", "microservice", "infrastructure", "throughput", "concurrency", "backend", "cluster", "database", "postgres", "sql", "network"]):
-        # Enterprise Datacenter / Server Infrastructure
-        return "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1200&auto=format&fit=crop"
-    elif any(w in lower for w in ["ai", "agent", "neural", "llm", "intelligence", "gpt", "model", "algorithm", "prompt", "autonomous", "machine learning", "deep learning", "transformer"]):
-        # AI Silicon Chip / Neural Network
-        return "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=1200&auto=format&fit=crop"
-    elif any(w in lower for w in ["code", "developer", "software", "programming", "engineer", "api", "git", "typescript", "python", "deploy", "frontend", "fullstack"]):
-        # Software Engineering Workstation
-        return "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200&auto=format&fit=crop"
-    elif any(w in lower for w in ["finance", "trading", "revenue", "metric", "growth", "scale", "roi", "business", "chart", "analytics", "saas", "fintech", "market"]):
-        # Financial Charts & Trading Analytics
-        return "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=1200&auto=format&fit=crop"
-    elif any(w in lower for w in ["security", "audit", "compliance", "vulnerability", "auth", "crypto", "firewall", "encryption", "cyber"]):
-        # Cybersecurity / Digital Defense
-        return "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1200&auto=format&fit=crop"
-    elif any(w in lower for w in ["design", "ui", "ux", "product", "interface", "experience", "visual", "brand", "figma"]):
-        # Product & UI/UX Design Studio
-        return "https://images.unsplash.com/photo-1581291518655-9523c932edcf?q=80&w=1200&auto=format&fit=crop"
-    else:
-        # Modern High-Tech Executive Architecture
-        return "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop"
+    plat = (platform or "linkedin").lower()
+    if plat not in ["linkedin", "instagram", "x", "discord", "youtube"]:
+        plat = "linkedin"
+
+    best_category = "distributed_systems"
+    max_score = -1
+
+    for cat_name, data in PLATFORM_TOPIC_VISUALS.items():
+        score = 0
+        for kw in data["keywords"]:
+            if kw in lower:
+                score += 2 if len(kw) > 4 else 1
+        if score > max_score:
+            max_score = score
+            best_category = cat_name
+
+    category = PLATFORM_TOPIC_VISUALS.get(best_category, PLATFORM_TOPIC_VISUALS["distributed_systems"])
+    return category.get(plat, category["linkedin"])
 
 
 class VisualMediaAgent:
@@ -69,25 +144,59 @@ class VisualMediaAgent:
             except Exception as e:
                 logger.warning("Failed to initialize Hugging Face InferenceClient: %s", e)
 
-    def extract_semantic_theme(self, text: str) -> str:
+    def extract_semantic_theme(self, text: str, platform: str = "linkedin") -> str:
         """
-        Deterministic semantic keyword extraction algorithm to identify the concrete domain topic.
+        Deterministic semantic keyword extraction algorithm to identify the concrete domain topic,
+        differentiated by target platform.
         """
         lower = text.lower()
+        plat = (platform or "linkedin").lower()
+
         if any(w in lower for w in ["event", "distributed", "kafka", "queue", "engine", "server", "microservice", "infrastructure", "throughput", "concurrency", "backend", "cluster", "database", "postgres", "sql"]):
-            return "high-tech enterprise datacenter server room, glowing fiber optic network cables connecting rack clusters, subtle neon indicator lights, cinematic tech photography, shallow depth of field"
+            if plat == "instagram":
+                return "aesthetic macro photography of glowing neon fiber optic cables connecting high-speed network ports, vibrant bokeh, studio lighting"
+            elif plat in ["x", "twitter"]:
+                return "dark mode technical server blade motherboard, glowing cyan status LEDs, razor-sharp hardware blueprint details"
+            elif plat == "discord":
+                return "cyberpunk dark-mode server rack corridor, ambient magenta and blue neon backlighting, high-tech hacker vibe"
+            elif plat == "youtube":
+                return "dynamic high-voltage glowing tech conduits, explosive blue data pulses, high-impact cinematic frame"
+            else:
+                return "high-tech enterprise datacenter server room, symmetric rack clusters, pristine cable management, subtle indicator lights, architectural commercial photography"
         elif any(w in lower for w in ["ai", "agent", "neural", "llm", "intelligence", "gpt", "model", "algorithm", "prompt", "autonomous"]):
-            return "futuristic glowing silicon microchip processor with intricate neural circuit traces, macro electronic photography, soft ambient lighting, clean hyper-detailed 8k resolution"
+            if plat == "instagram":
+                return "vibrant glowing neon neural brain model, artistic cyan and purple light flares, aesthetic macro studio shot"
+            elif plat in ["x", "twitter"]:
+                return "robotic humanoid precision fingers assembling advanced AI microchip processor, high-contrast schematic style"
+            elif plat == "discord":
+                return "holographic neural network grid floating above a dark developer workstation, cyber green neon ambient glow"
+            elif plat == "youtube":
+                return "dynamic AI robotics laboratory, gleaming titanium android hand reaching toward glowing energy core"
+            else:
+                return "futuristic silicon microchip processor with intricate neural circuit traces, macro electronic photography, soft ambient lighting, clean 8k resolution"
         elif any(w in lower for w in ["code", "developer", "software", "programming", "engineer", "api", "git", "typescript", "python", "deploy"]):
-            return "modern software engineer desk with syntax-highlighted code on ultra-wide curved monitor, mechanical keyboard, clean minimal aesthetics, warm ambient studio desk lamp"
+            if plat == "instagram":
+                return "aesthetic cozy developer desk with mechanical keyboard, green plant, warm ambient monitor backlighting, coffee mug, soft morning light"
+            elif plat in ["x", "twitter"]:
+                return "ultra-clean dark mode IDE code terminal on curved monitor, high-contrast syntax highlighting, minimal keyboard"
+            elif plat == "discord":
+                return "cyberpunk developer battle station with dual vertical monitors, custom mechanical keyboard, RGB ambient strip lighting"
+            elif plat == "youtube":
+                return "dynamic multi-screen software engineering station with animated code deployment graphs and high energy"
+            else:
+                return "modern software engineer desk with syntax-highlighted code on ultra-wide curved monitor, mechanical keyboard, clean minimal corporate office"
         elif any(w in lower for w in ["finance", "trading", "revenue", "metric", "growth", "scale", "roi", "business", "chart", "analytics", "saas"]):
-            return "sleek modern fintech trading desk with multi-monitor data visualization charts, crisp financial analytics graphs, dark mode aesthetics, sunlit glass corporate office"
-        elif any(w in lower for w in ["security", "audit", "compliance", "vulnerability", "auth", "crypto", "firewall"]):
-            return "cybersecurity digital fortress interface, glowing biometric lock motif, blue and emerald circuit traces, clean futuristic composition"
-        elif any(w in lower for w in ["design", "ui", "ux", "product", "interface", "experience", "visual", "brand"]):
-            return "minimalist product design studio workspace, architect wireframe sketches on glass desk, modern ergonomic stylus tablet, beautiful warm architectural lighting"
+            if plat == "instagram":
+                return "vibrant aesthetic multi-screen trading desk with green and gold candlestick charts, moody studio lighting"
+            elif plat in ["x", "twitter"]:
+                return "crisp high-resolution real-time market data analytics charts, heatmap matrix, clean modern dark mode"
+            else:
+                return "sleek modern fintech trading desk with multi-monitor data visualization charts, crisp financial analytics graphs, sunlit glass corporate office"
         else:
-            return "sleek architectural executive office overlooking city skyline, polished marble desk with minimalist laptop, golden hour sunbeams, editorial commercial photography"
+            if plat == "instagram":
+                return "minimalist creative studio workspace, Apple devices on warm wood desk, golden hour sunbeams, aesthetic lifestyle photography"
+            else:
+                return "sleek architectural executive office overlooking city skyline, polished marble desk with minimalist laptop, commercial editorial photography"
 
     async def generate_image_prompt(
         self,
@@ -100,27 +209,61 @@ class VisualMediaAgent:
     ) -> str:
         """
         Semantic Prompt Engine for FLUX.1.
-        Combines Groq LLM Art Direction with domain keyword entity extraction to ensure
-        the generated image is directly, tangibly relevant to the post topic.
+        Combines Groq LLM Art Direction with domain keyword entity extraction and platform-specific
+        aesthetic guidance to ensure the generated image is directly relevant to the topic AND
+        visually customized for the target platform (LinkedIn vs Instagram vs X vs Discord vs YouTube).
         """
         topic_title = title or (brief.core_idea if brief else "Enterprise Technology")
         topic_body = body[:500] if body else (brief.summary if brief else "")
         angle = strategy.angle if strategy else "Authoritative & insightful"
-        fallback_theme = self.extract_semantic_theme(f"{topic_title} {topic_body} {content_pillar}")
+        plat = (platform or "linkedin").lower()
+        fallback_theme = self.extract_semantic_theme(f"{topic_title} {topic_body} {content_pillar}", platform=plat)
+
+        platform_specs = {
+            "linkedin": (
+                "Target Platform: LinkedIn.\n"
+                "Aesthetic Style: Clean, authoritative, symmetric corporate enterprise photography. "
+                "Aspect ratio: 16:9 widescreen. Composition: Professional architectural symmetry, high-trust engineering realism, neutral balanced lighting."
+            ),
+            "instagram": (
+                "Target Platform: Instagram.\n"
+                "Aesthetic Style: High-contrast, vibrant, artistic visual storytelling. "
+                "Aspect ratio: 1:1 square. Composition: Dynamic studio lighting, neon/bokeh highlights, aesthetic shallow depth of field, bold creator/developer atmosphere."
+            ),
+            "x": (
+                "Target Platform: X (Twitter).\n"
+                "Aesthetic Style: High-contrast, sharp technical visual. "
+                "Aspect ratio: 16:9 landscape. Composition: Dark mode terminal, hardware schematic focus, razor-sharp technical details."
+            ),
+            "discord": (
+                "Target Platform: Discord Community.\n"
+                "Aesthetic Style: Cyberpunk dark-mode developer hub. "
+                "Aspect ratio: 16:9 banner. Composition: Ambient neon RGB glow, terminal matrix, energetic hacker workstation."
+            ),
+            "youtube": (
+                "Target Platform: YouTube Shorts.\n"
+                "Aesthetic Style: High-retention cinematic visual frame. "
+                "Aspect ratio: 9:16 vertical short. Composition: High visual velocity, dramatic focal subject, bold contrast."
+            ),
+        }
+        platform_spec = platform_specs.get(plat, platform_specs["linkedin"])
 
         system_prompt = (
             "You are an award-winning creative art director and prompt engineer for FLUX.1. "
             "Your job is to generate a tangible, photorealistic image description that is DEEPLY RELEVANT "
-            "to the specific technical or business topic of the post. Avoid abstract floating shapes; describe concrete physical subjects (e.g. servers, chips, workspaces, devices, trading desks, blueprints)."
+            "to the specific technical or business topic of the post, customized for the visual culture of the target platform.\n"
+            f"{platform_spec}\n"
+            "Avoid abstract floating shapes; describe concrete physical subjects (e.g. servers, chips, workspaces, devices, trading desks, blueprints)."
         )
         user_prompt = f"""Write an image generation prompt for FLUX.1.
 Topic / Headline: {topic_title}
 Post Content Summary: {topic_body}
+Target Platform: {plat.upper()}
 Audience Angle: {angle}
 
 Strict Rules:
 1. Ground the image in a CONCRETE, PHYSICAL SUBJECT directly representing the topic (e.g. if about distributed event systems, describe a server cluster or fiber optic conduits; if about coding, describe an engineer's workstation; if about AI, describe a neural chip or robotics).
-2. Detail the exact lighting, camera angle, texture, and aesthetic style.
+2. Follow the platform aesthetic style: {'1:1 square, vibrant artistic lighting' if plat == 'instagram' else '16:9 widescreen, clean authoritative enterprise realism' if plat == 'linkedin' else 'high-contrast dark mode technical'}.
 3. Absolutely NO letters, text, numbers, signs, watermarks, or logos in the image.
 4. Keep it to 2-3 vivid sentences.
 5. Return ONLY the raw prompt text, no quotes, no preamble.
@@ -138,9 +281,9 @@ Strict Rules:
         except Exception as e:
             logger.warning("LLM image prompt generation error: %s", e)
 
-        # High-relevance deterministic fallback:
+        # High-relevance platform-differentiated fallback:
         return (
-            f"Photorealistic scene illustrating {topic_title}: {fallback_theme}. "
+            f"Photorealistic scene illustrating {topic_title} for {plat.upper()}: {fallback_theme}. "
             f"Clean composition, high-end commercial aesthetic, 8k resolution, shot on 35mm lens."
         )
 

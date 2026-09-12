@@ -315,8 +315,8 @@ export default function VariantReviewPage({
     <AppLayout activeWorkspaceId={activeWorkspaceId} onWorkspaceChange={setActiveWorkspaceId}>
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Navigation Breadcrumb & Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 border-b border-white/[0.08] pb-6">
-          <div className="space-y-1.5">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-white/[0.08] pb-5">
+          <div className="space-y-1 shrink min-w-0">
             <Link
               href="/library"
               className="inline-flex items-center gap-2 text-xs sm:text-sm text-[#85827b] hover:text-[#ede8df] transition-colors"
@@ -324,19 +324,20 @@ export default function VariantReviewPage({
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Library</span>
             </Link>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal tracking-tight text-[#ede8df] flex items-center gap-2.5">
-              <Sparkles className="w-5 h-5 text-[#d4a373]" />
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-normal tracking-tight text-[#ede8df] flex items-center gap-2.5">
+              <Sparkles className="w-5 h-5 text-[#d4a373] shrink-0" />
               <span>Platform Variant Review &amp; Quality Control</span>
             </h1>
           </div>
 
-          <div className="flex items-center gap-3 flex-wrap">
+          {/* All Action Buttons Aligned in Single Horizontal Row */}
+          <div className="flex items-center gap-2 sm:gap-2.5 flex-nowrap overflow-x-auto max-w-full pb-1 shrink-0">
             <InteractiveButton
               onClick={() => setShowCanonicalSource(!showCanonicalSource)}
               variant="secondary"
-              size="md"
-              leftIcon={<Eye className="w-4 h-4 text-[#d4a373]" />}
-              className="px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-medium"
+              size="sm"
+              leftIcon={<Eye className="w-3.5 h-3.5 text-[#d4a373]" />}
+              className="whitespace-nowrap px-3.5 py-2 text-xs font-medium shrink-0"
             >
               {showCanonicalSource ? "Hide Canonical Input" : "Inspect Canonical Input"}
             </InteractiveButton>
@@ -346,22 +347,22 @@ export default function VariantReviewPage({
               loading={savingVariant}
               loadingText="Saving..."
               variant="secondary"
-              size="md"
-              leftIcon={<Save className="w-4 h-4" />}
-              className="px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold"
+              size="sm"
+              leftIcon={<Save className="w-3.5 h-3.5" />}
+              className="whitespace-nowrap px-3.5 py-2 text-xs font-semibold shrink-0"
             >
               Save Copy Edits
             </InteractiveButton>
 
             {currentVariant?.status === "published" ? (
-              <span className="py-2.5 px-5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-xs sm:text-sm font-semibold flex items-center gap-2">
-                <Check className="w-4 h-4 text-emerald-400" />
+              <span className="whitespace-nowrap py-2 px-3.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-xs font-semibold flex items-center gap-1.5 shrink-0">
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
                 Published
               </span>
             ) : currentVariant?.status === "approved" ? (
-              <div className="flex items-center gap-2.5">
-                <span className="py-2.5 px-4 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-xs sm:text-sm font-semibold flex items-center gap-2">
-                  <Check className="w-4 h-4 text-emerald-400" />
+              <>
+                <span className="whitespace-nowrap py-2 px-3.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-xs font-semibold flex items-center gap-1.5 shrink-0">
+                  <Check className="w-3.5 h-3.5 text-emerald-400" />
                   Approved
                 </span>
                 <InteractiveButton
@@ -369,39 +370,39 @@ export default function VariantReviewPage({
                   loading={publishing}
                   loadingText="Publishing..."
                   variant="primary"
-                  size="md"
+                  size="sm"
                   glow
                   shimmer
                   magnetic
-                  leftIcon={<Send className="w-4 h-4" />}
-                  className="px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold"
+                  leftIcon={<Send className="w-3.5 h-3.5" />}
+                  className="whitespace-nowrap px-4 py-2 text-xs font-semibold shrink-0"
                 >
                   Publish Now
                 </InteractiveButton>
-              </div>
+              </>
             ) : (
-              <div className="flex items-center gap-2.5">
+              <>
                 <InteractiveButton
                   onClick={handleReject}
                   variant="ghost"
-                  size="md"
-                  leftIcon={<ThumbsDown className="w-4 h-4" />}
-                  className="text-xs sm:text-sm text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 px-4 py-2.5 sm:py-3"
+                  size="sm"
+                  leftIcon={<ThumbsDown className="w-3.5 h-3.5" />}
+                  className="whitespace-nowrap text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 px-3 py-2 shrink-0"
                 >
                   Reject
                 </InteractiveButton>
                 <InteractiveButton
                   onClick={handleApprove}
                   variant="primary"
-                  size="md"
+                  size="sm"
                   glow
                   magnetic
-                  leftIcon={<ThumbsUp className="w-4 h-4" />}
-                  className="px-6 py-2.5 sm:py-3 text-xs sm:text-sm bg-emerald-500 hover:bg-emerald-400 text-black font-semibold"
+                  leftIcon={<ThumbsUp className="w-3.5 h-3.5" />}
+                  className="whitespace-nowrap px-4 py-2 text-xs bg-emerald-500 hover:bg-emerald-400 text-black font-semibold shrink-0"
                 >
                   Approve Variant
                 </InteractiveButton>
-              </div>
+              </>
             )}
           </div>
         </div>

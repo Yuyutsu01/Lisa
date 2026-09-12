@@ -318,7 +318,7 @@ async def generate_variant_image(
 
     media_url = visual_agent.generate_photo(prompt, variant_id=variant_id)
     if not media_url:
-        media_url = get_semantic_visual_fallback(f"{title} {body}")
+        media_url = get_semantic_visual_fallback(f"{title} {body}", platform=platform)
 
     if variant:
         variant.media_url = media_url

@@ -299,7 +299,7 @@ export async function GET(req: NextRequest, context: RouteContext) {
 
 interface TopicCategory {
   keywords: string[];
-  images: string[];
+  platforms: Record<string, string[]>;
 }
 
 const TOPIC_CATEGORIES: Record<string, TopicCategory> = {
@@ -310,14 +310,28 @@ const TOPIC_CATEGORIES: Record<string, TopicCategory> = {
       "postgres", "sql", "network", "datacenter", "latency", "scale", "cloud", "pipeline",
       "architecture", "pubsub", "broker", "log", "streaming"
     ],
-    images: [
-      // Enterprise datacenter server rack corridor with glowing lights
-      "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1200&auto=format&fit=crop",
-      // High-speed fiber optic patch panel cabling
-      "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=80&w=1200&auto=format&fit=crop",
-      // Server blade clusters with cyan telemetry LEDs
-      "https://images.unsplash.com/photo-1597852074816-d933c7d2b988?q=80&w=1200&auto=format&fit=crop",
-    ],
+    platforms: {
+      linkedin: [
+        // Enterprise symmetric datacenter server racks, authoritative corporate tech
+        "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1200&auto=format&fit=crop",
+      ],
+      instagram: [
+        // Aesthetic vibrant glowing fiber optic cables with bokeh highlights
+        "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=80&w=1200&auto=format&fit=crop",
+      ],
+      x: [
+        // Sharp dark mode technical server blade motherboard with cyan LEDs
+        "https://images.unsplash.com/photo-1597852074816-d933c7d2b988?q=80&w=1200&auto=format&fit=crop",
+      ],
+      discord: [
+        // Cyberpunk dark-mode server rack matrix in ambient blue/magenta
+        "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1200&auto=format&fit=crop",
+      ],
+      youtube: [
+        // High-energy dynamic tech conduits with data flow
+        "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop",
+      ],
+    },
   },
   ai_machine_learning: {
     keywords: [
@@ -325,14 +339,28 @@ const TOPIC_CATEGORIES: Record<string, TopicCategory> = {
       "prompt", "autonomous", "machine learning", "deep learning", "transformer",
       "tensor", "gpu", "inference", "embedding", "vector", "robotics", "cognition"
     ],
-    images: [
-      // Glowing AI neural microchip circuit board
-      "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=1200&auto=format&fit=crop",
-      // Robotic hand interfacing with AI tech
-      "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1200&auto=format&fit=crop",
-      // Advanced silicon wafer semiconductor macro
-      "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop",
-    ],
+    platforms: {
+      linkedin: [
+        // Silicon wafer semiconductor macro on clean circuit board
+        "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop",
+      ],
+      instagram: [
+        // Glowing aesthetic neon AI neural network brain
+        "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=1200&auto=format&fit=crop",
+      ],
+      x: [
+        // Robotic humanoid precision fingers assembling neural microchip
+        "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1200&auto=format&fit=crop",
+      ],
+      discord: [
+        // Holographic deep learning grid in dark ambient laboratory
+        "https://images.unsplash.com/photo-1507413245164-6160d8298b31?q=80&w=1200&auto=format&fit=crop",
+      ],
+      youtube: [
+        // Dynamic futuristic titanium android hand reaching toward energy core
+        "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=1200&auto=format&fit=crop",
+      ],
+    },
   },
   software_engineering: {
     keywords: [
@@ -340,14 +368,28 @@ const TOPIC_CATEGORIES: Record<string, TopicCategory> = {
       "github", "typescript", "python", "deploy", "frontend", "fullstack", "react",
       "bug", "syntax", "refactor", "framework", "component", "nextjs", "javascript"
     ],
-    images: [
-      // Software engineer desk with code on screen
-      "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200&auto=format&fit=crop",
-      // Clean IDE code editor on dark curved monitor
-      "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop",
-      // Modern developer workstation with mechanical keyboard
-      "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200&auto=format&fit=crop",
-    ],
+    platforms: {
+      linkedin: [
+        // Professional software engineer workstation with laptop in clean office
+        "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200&auto=format&fit=crop",
+      ],
+      instagram: [
+        // Aesthetic cozy developer desk with mechanical keyboard, plant, ambient warm monitor light
+        "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200&auto=format&fit=crop",
+      ],
+      x: [
+        // Razor-sharp dark-mode IDE code editor on high-resolution monitor
+        "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop",
+      ],
+      discord: [
+        // Cyberpunk mechanical keyboard with custom keycaps and dual vertical code monitors
+        "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1200&auto=format&fit=crop",
+      ],
+      youtube: [
+        // High-intensity multi-screen code battle station
+        "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?q=80&w=1200&auto=format&fit=crop",
+      ],
+    },
   },
   fintech_markets: {
     keywords: [
@@ -355,55 +397,118 @@ const TOPIC_CATEGORIES: Record<string, TopicCategory> = {
       "chart", "analytics", "saas", "fintech", "market", "stock", "crypto",
       "bitcoin", "investment", "economy", "banking", "capital", "conversion"
     ],
-    images: [
-      // Financial candlestick charts and trading monitors
-      "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=1200&auto=format&fit=crop",
-      // Data analytics dashboard with graphs
-      "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?q=80&w=1200&auto=format&fit=crop",
-      // Wall Street trading floor atmosphere
-      "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=1200&auto=format&fit=crop",
-    ],
+    platforms: {
+      linkedin: [
+        // Corporate financial dashboard and investment analysis on glass boardroom display
+        "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=1200&auto=format&fit=crop",
+      ],
+      instagram: [
+        // Vibrant aesthetic multi-screen trading desk with candlestick charts in moody lighting
+        "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=1200&auto=format&fit=crop",
+      ],
+      x: [
+        // Real-time market data analytics dashboard and heatmap matrix
+        "https://images.unsplash.com/photo-1642543492481-44e81e3914a7?q=80&w=1200&auto=format&fit=crop",
+      ],
+      discord: [
+        // Crypto blockchain digital ledger terminal in dark mode
+        "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=1200&auto=format&fit=crop",
+      ],
+      youtube: [
+        // Fast-paced market trading graphs with bold trendline indicators
+        "https://images.unsplash.com/photo-1535320903710-d993d3d77d29?q=80&w=1200&auto=format&fit=crop",
+      ],
+    },
   },
   cybersecurity: {
     keywords: [
       "security", "audit", "compliance", "vulnerability", "auth", "crypto",
       "firewall", "encryption", "cyber", "lock", "protect", "identity", "zero-trust", "hack"
     ],
-    images: [
-      // Glowing cybersecurity circuit lock
-      "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1200&auto=format&fit=crop",
-      // Digital security terminal matrix
-      "https://images.unsplash.com/photo-1510511459019-5dda7724fd87?q=80&w=1200&auto=format&fit=crop",
-    ],
+    platforms: {
+      linkedin: [
+        // Glowing biometric digital fortress circuit
+        "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1200&auto=format&fit=crop",
+      ],
+      instagram: [
+        // Aesthetic blue and magenta digital matrix security display
+        "https://images.unsplash.com/photo-1510511459019-5dda7724fd87?q=80&w=1200&auto=format&fit=crop",
+      ],
+      x: [
+        // Terminal code matrix of cryptographic shield
+        "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1200&auto=format&fit=crop",
+      ],
+      discord: [
+        // Hacker workstation with cyber telemetry in RGB ambience
+        "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1200&auto=format&fit=crop",
+      ],
+      youtube: [
+        // Dynamic cyber security padlock animation card
+        "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1200&auto=format&fit=crop",
+      ],
+    },
   },
   design_product: {
     keywords: [
       "design", "ui", "ux", "product", "interface", "experience", "visual",
       "brand", "figma", "prototype", "wireframe", "mobile", "app", "creative"
     ],
-    images: [
-      // Product design mobile UI prototype workspace
-      "https://images.unsplash.com/photo-1581291518655-9523c932edcf?q=80&w=1200&auto=format&fit=crop",
-      // Designer desk with sketches and tablet
-      "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=1200&auto=format&fit=crop",
-    ],
+    platforms: {
+      linkedin: [
+        // Clean architect design desk with wireframe blueprints
+        "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=1200&auto=format&fit=crop",
+      ],
+      instagram: [
+        // Pastel aesthetic mobile UI wireframe prototypes with stylus
+        "https://images.unsplash.com/photo-1581291518655-9523c932edcf?q=80&w=1200&auto=format&fit=crop",
+      ],
+      x: [
+        // Retina Figma UI layout on Apple monitor
+        "https://images.unsplash.com/photo-1542744094-3a31f272c490?q=80&w=1200&auto=format&fit=crop",
+      ],
+      discord: [
+        // Graphic designer tablet in ambient RGB glow
+        "https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=1200&auto=format&fit=crop",
+      ],
+      youtube: [
+        // Dynamic product interface showcase
+        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop",
+      ],
+    },
   },
   executive_leadership: {
     keywords: [
       "leadership", "management", "strategy", "vision", "startup", "founder",
       "culture", "team", "organization", "hiring", "talent", "roadmap"
     ],
-    images: [
-      // Executive boardroom with glass architecture
-      "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop",
-      // City skyline skyscraper corporate architecture
-      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop",
-    ],
+    platforms: {
+      linkedin: [
+        // Executive boardroom with glass architecture overlooking skyline
+        "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop",
+      ],
+      instagram: [
+        // Minimalist creative office desk with warm natural lighting and laptop
+        "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop",
+      ],
+      x: [
+        // Modern skyscraper corporate architecture
+        "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop",
+      ],
+      discord: [
+        // High-tech team headquarters in dark mode
+        "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop",
+      ],
+      youtube: [
+        // Dynamic executive strategy roadmap presentation
+        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop",
+      ],
+    },
   },
 };
 
-function matchSemanticTopicImage(text: string, id: string = ""): string {
+function matchSemanticTopicImage(text: string, platform: string = "linkedin", id: string = ""): string {
   const lower = text.toLowerCase();
+  const plat = (platform || "linkedin").toLowerCase();
   let bestCategory = "distributed_systems";
   let maxScore = -1;
 
@@ -421,13 +526,18 @@ function matchSemanticTopicImage(text: string, id: string = ""): string {
   }
 
   const category = TOPIC_CATEGORIES[bestCategory] || TOPIC_CATEGORIES.distributed_systems;
+  const platformImages =
+    category.platforms[plat] ||
+    category.platforms.linkedin ||
+    Object.values(category.platforms)[0];
+
   let hash = 0;
   for (let i = 0; i < id.length; i++) {
     hash = (hash << 5) - hash + id.charCodeAt(i);
     hash |= 0;
   }
-  const idx = Math.abs(hash) % category.images.length;
-  return category.images[idx];
+  const idx = Math.abs(hash) % platformImages.length;
+  return platformImages[idx];
 }
 
 export async function POST(req: NextRequest, context: RouteContext) {
@@ -703,7 +813,7 @@ export async function POST(req: NextRequest, context: RouteContext) {
     }
 
     // Semantic Search & Word Algorithm for deterministic, topic-relevant photorealism
-    v.media_url = matchSemanticTopicImage(`${payload.title} ${payload.body}`, variantId);
+    v.media_url = matchSemanticTopicImage(`${payload.title} ${payload.body}`, payload.platform, variantId);
     v.updated_at = new Date().toISOString();
     return NextResponse.json(v);
   }
