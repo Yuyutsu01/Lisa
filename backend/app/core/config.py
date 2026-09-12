@@ -91,6 +91,11 @@ class Settings(BaseSettings):
     ANTHROPIC_API_KEY: str = ""
     LLM_TIMEOUT_SECONDS: int = 45
 
+    # Hugging Face Media & Image Generation
+    HF_TOKEN: str = ""
+    HF_IMAGE_MODEL: str = "black-forest-labs/FLUX.1-Krea-dev"
+    HF_PROVIDER: str = "fal-ai"
+
     # Content Quality Scoring & Revision Loop
     QUALITY_APPROVAL_THRESHOLD: float = 0.85
     QUALITY_REVIEW_THRESHOLD: float = 0.70

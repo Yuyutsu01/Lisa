@@ -57,6 +57,10 @@ class ContentVariant(Base):
     # Strategy & Quality Assurance
     strategy_json = Column(JSON, default=dict, nullable=False)
     quality_review_json = Column(JSON, default=dict, nullable=False)  # score, checks, warnings
+
+    # Visual & Media Assets
+    media_url = Column(String(500), nullable=True)
+    video_storyboard_json = Column(JSON, default=dict, nullable=True)
     
     # Human Approval Trail
     approved_by = Column(String(36), ForeignKey("users.id"), nullable=True)

@@ -19,6 +19,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from app.db.session import Base
+from app.models.media import ContentSourceAsset
 
 
 class SourceStatus(str, enum.Enum):

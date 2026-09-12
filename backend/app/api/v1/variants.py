@@ -20,6 +20,8 @@ from app.schemas.variant import (
     ContentVariantUpdate,
     ContentVariantRegenerateRequest,
     ContentVariantApproval,
+    GenerateImageRequest,
+    GenerateVideoRequest,
 )
 from app.agents.pipeline import GenerationPipeline
 from app.api.deps import get_current_user
@@ -192,6 +194,10 @@ async def regenerate_variant(
     variant.hashtags_json = variant_data.get("hashtags_json", [])
     variant.strategy_json = variant_data.get("strategy_json", {})
     variant.quality_review_json = variant_data.get("quality_review_json", {})
+    if variant_data.get("media_url"):
+        variant.media_url = variant_data.get("media_url")
+    if variant_data.get("video_storyboard_json"):
+        variant.video_storyboard_json = variant_data.get("video_storyboard_json")
     variant.status = VariantStatus.NEEDS_REVIEW.value
 
     db.add(variant)
@@ -253,6 +259,100 @@ async def reject_variant(
     variant.status = VariantStatus.REJECTED.value
     variant.rejection_reason = approval.rejection_reason or "Changes requested"
 
+    db.add(variant)
+    await db.commit()
+    await db.refresh(variant)
+
+    return variant
+
+
+@router.post("/variants/{variant_id}/generate-image", response_model=ContentVariantResponse)
+async def generate_variant_image(
+    variant_id: str,
+    req: GenerateImageRequest = GenerateImageRequest(),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Generate or regenerate a FLUX.1 visual photo for this specific variant.
+    """
+    query = select(ContentVariant).where(ContentVariant.id == variant_id)
+    result = await db.execute(query)
+    variant = result.scalar_one_or_none()
+    if not variant:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Variant not found"
+        )
+
+    from app.agents.visual import VisualMediaAgent
+    from app.agents.base import AgentContext
+    from app.agents.intake import ContentIntakeAgent
+    from app.agents.strategy import PlatformStrategyAgent
+
+    visual_agent = VisualMediaAgent()
+    if req.custom_prompt:
+        prompt = req.custom_prompt
+    else:
+        source_res = await db.execute(
+            select(ContentSource).where(ContentSource.id == variant.content_source_id)
+        )
+        source = source_res.scalar_one_or_none()
+        context = AgentContext()
+        intake = ContentIntakeAgent(context)
+        title = source.title if source else (variant.title or "Post")
+        body = source.body if source else variant.body
+        brief = await intake.analyze(title=title, body=body)
+        strat_agent = PlatformStrategyAgent(context)
+        strats = await strat_agent.formulate_strategies(brief, [variant.platform])
+        strat = strats.get(variant.platform)
+        prompt = await visual_agent.generate_image_prompt(brief, variant.platform, strat)
+
+    media_url = visual_agent.generate_photo(prompt, variant_id=variant.id)
+    if media_url:
+        variant.media_url = media_url
+        db.add(variant)
+        await db.commit()
+        await db.refresh(variant)
+
+    return variant
+
+
+@router.post("/variants/{variant_id}/generate-video", response_model=ContentVariantResponse)
+async def generate_variant_video_storyboard(
+    variant_id: str,
+    req: GenerateVideoRequest = GenerateVideoRequest(),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Generate or regenerate a 9:16 vertical short video storyboard specification for this variant.
+    """
+    query = select(ContentVariant).where(ContentVariant.id == variant_id)
+    result = await db.execute(query)
+    variant = result.scalar_one_or_none()
+    if not variant:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Variant not found"
+        )
+
+    from app.agents.visual import VisualMediaAgent
+    from app.agents.base import AgentContext
+    from app.agents.intake import ContentIntakeAgent
+
+    source_res = await db.execute(
+        select(ContentSource).where(ContentSource.id == variant.content_source_id)
+    )
+    source = source_res.scalar_one_or_none()
+    context = AgentContext()
+    intake = ContentIntakeAgent(context)
+    title = source.title if source else (variant.title or "Post")
+    body = source.body if source else variant.body
+    brief = await intake.analyze(title=title, body=body)
+
+    visual_agent = VisualMediaAgent()
+    spec = await visual_agent.generate_video_short_spec(brief, title)
+
+    variant.video_storyboard_json = spec
     db.add(variant)
     await db.commit()
     await db.refresh(variant)

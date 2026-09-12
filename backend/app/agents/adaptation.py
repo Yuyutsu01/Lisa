@@ -50,6 +50,9 @@ CANONICAL SOURCE BRIEF:
 
 STRICT PLATFORM RULES:
 {rules_text}
+- Write engaging, authentic copy with an irresistible opening hook.
+- Use natural, tasteful emojis (e.g. 💡, 🚀, 📌, 🎯, 👉, 🔥) to format bullet points and highlight key takeaways.
+- Include 3 to 6 targeted, relevant hashtags in the "hashtags" array and include them naturally at the bottom of the body/caption.
 - Never use AI clichés like 'In today's fast-paced world', 'Unlock your potential', or 'Game-changer'.
 - Ground all copy strictly in verified facts from the source. Do NOT fabricate numbers or case studies.
 
@@ -57,10 +60,10 @@ Return valid JSON with these keys:
 {{
   "title": "Title or headline if relevant (or null for X/Threads)",
   "hook": "The opening 1-2 sentence scroll-stopping hook",
-  "body": "The complete platform-native post body copy",
+  "body": "The complete platform-native post body copy with emojis and proper line breaks",
   "caption": "Caption text if separate (e.g. for Instagram/YouTube), or null",
   "cta": "Contextual, non-salesy call to action question or prompt",
-  "hashtags": ["relevantTag1", "relevantTag2"]
+  "hashtags": ["relevantTag1", "relevantTag2", "relevantTag3"]
 }}
 """
         raw_llm = await call_llm(

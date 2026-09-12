@@ -183,6 +183,17 @@ export interface ContentVariant {
   caption?: string;
   cta?: string;
   hashtags_json: string[];
+  media_url?: string;
+  video_storyboard_json?: {
+    hook_first_3_seconds?: string;
+    soundtrack_mood?: string;
+    text_overlays?: string[];
+    scenes?: {
+      timestamp: string;
+      visual_prompt: string;
+      voiceover: string;
+    }[];
+  };
   strategy_json: {
     platform?: string;
     format?: string;
@@ -620,6 +631,16 @@ export const variantsApi = {
     apiRequest<PublishingJob>(`/variants/${variantId}/schedule`, {
       method: "POST",
       body: JSON.stringify(data),
+    }),
+  generateImage: (variantId: string, customPrompt?: string) =>
+    apiRequest<ContentVariant>(`/variants/${variantId}/generate-image`, {
+      method: "POST",
+      body: JSON.stringify({ custom_prompt: customPrompt }),
+    }),
+  generateVideoStoryboard: (variantId: string, customInstruction?: string) =>
+    apiRequest<ContentVariant>(`/variants/${variantId}/generate-video`, {
+      method: "POST",
+      body: JSON.stringify({ custom_instruction: customInstruction }),
     }),
 };
 

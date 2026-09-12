@@ -27,6 +27,9 @@ import {
   Eye,
   Sliders,
   Check,
+  Image as ImageIcon,
+  Film,
+  Music,
 } from "lucide-react";
 
 export default function VariantReviewPage({
@@ -380,6 +383,59 @@ export default function VariantReviewPage({
                     onChange={(e) => handleUpdateCurrentVariant({ body: e.target.value })}
                     className="w-full bg-transparent text-xs text-slate-200 outline-none leading-relaxed resize-none border-b border-slate-900 pb-2 focus:border-indigo-500/50"
                   />
+
+                  {/* Generated Photo / Poster (FLUX.1 via Hugging Face) */}
+                  {currentVariant.media_url && (
+                    <div className="relative rounded-xl overflow-hidden border border-slate-800 bg-slate-900 group my-2">
+                      <img
+                        src={currentVariant.media_url}
+                        alt="AI Generated Visual"
+                        className="w-full h-auto max-h-80 object-cover rounded-xl"
+                      />
+                      <div className="absolute top-2 right-2 px-2 py-1 rounded bg-black/75 backdrop-blur text-[10px] font-mono text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 shadow-lg">
+                        <ImageIcon className="w-3 h-3 text-emerald-400" />
+                        <span>FLUX.1 • fal-ai</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Video Short Storyboard & Scene Breakdown */}
+                  {currentVariant.video_storyboard_json?.scenes && (
+                    <div className="p-4 rounded-xl bg-slate-900/90 border border-violet-500/30 space-y-3 my-2">
+                      <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                        <div className="flex items-center gap-2 text-xs font-semibold text-violet-300">
+                          <Film className="w-4 h-4 text-violet-400" />
+                          <span>9:16 Video Short Storyboard & Audio Script</span>
+                        </div>
+                        {currentVariant.video_storyboard_json.soundtrack_mood && (
+                          <span className="text-[10px] text-slate-400 flex items-center gap-1">
+                            <Music className="w-3 h-3 text-violet-400" />
+                            {currentVariant.video_storyboard_json.soundtrack_mood}
+                          </span>
+                        )}
+                      </div>
+
+                      {currentVariant.video_storyboard_json.hook_first_3_seconds && (
+                        <div className="p-2.5 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-violet-200">
+                          <span className="font-bold text-violet-400 mr-1.5">⚡ Hook (0-3s):</span>
+                          {currentVariant.video_storyboard_json.hook_first_3_seconds}
+                        </div>
+                      )}
+
+                      <div className="space-y-2 pt-1">
+                        {currentVariant.video_storyboard_json.scenes.map((scene: any, sIdx: number) => (
+                          <div key={sIdx} className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-[11px] space-y-1">
+                            <div className="flex items-center justify-between text-indigo-400 font-mono font-semibold">
+                              <span>Scene {sIdx + 1}</span>
+                              <span>{scene.timestamp}</span>
+                            </div>
+                            <p className="text-slate-300"><strong className="text-slate-400">Visual:</strong> {scene.visual_prompt}</p>
+                            <p className="text-slate-200 italic"><strong className="text-slate-400 not-italic">Voiceover:</strong> "{scene.voiceover}"</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Hashtags */}
                   {currentVariant.hashtags_json?.length > 0 && (
