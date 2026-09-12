@@ -518,21 +518,35 @@ class PlatformAdapter(Protocol):
 ### 11.2 Platform Capabilities & Publishing Modes
 | Platform | Supported Formats | Publishing Modes | Notes |
 |---|---|---|---|
-| **Instagram** | Single image, Carousel, Reels | Mode A (Direct), Mode B (Draft) | Requires Instagram Graph API & Professional account |
-| **TikTok** | Video, Photo post | Mode A (Direct), Mode B (Draft / Upload) | Direct post requires Creator Info API & audit clearance |
-| **YouTube** | Videos, Shorts | Mode A (Direct / Scheduled) | Requires OAuth & Quota management |
-| **X (Twitter)** | Text posts, Images, Video, Threads | Mode A (Direct) | Two-stage media upload + tweet creation |
-| **LinkedIn** | Text posts, Images, Document/Carousels | Mode A (Direct) | Personal profile or Company Page APIs |
-| **Threads** | Text, Single Image/Video | Mode A (Direct) | Official Meta Threads Publishing API |
-| **Facebook** | Pages text, image, video posts | Mode A (Direct) | Meta Graph API for Pages |
-| **Pinterest** | Pins, Idea Pins | Mode A (Direct) | Requires Pinterest Business API |
-| **Email** | Newsletter HTML/Markdown | Mode A (Direct / ESP API) | Resend, SendGrid, Mailchimp |
-| **Blog / CMS** | Long-form Markdown/HTML | Mode A (Direct REST) | WordPress REST API, Ghost, Webflow |
+| **LinkedIn** | Text posts, Images, Document/Carousels, Articles | Mode A (Direct) | Personal profile or Company Page APIs |
+| **X (Twitter)** | Text posts, Images, Video, Multi-Tweet Threads | Mode A (Direct) | Two-stage media upload + tweet thread creation |
+| **Instagram** | Single image, Carousel, Reels | Mode A (Direct), Mode B (Draft), Mode C (Creator Studio) | Requires Instagram Graph API or Creator Studio export |
+| **Discord** | Community Announcements, Forum Posts, Channel Threads | Mode A (Direct Webhook/Bot) | Webhook and Bot broadcast APIs |
+| **YouTube** | Shorts, Long-form Videos, Community Posts | Mode A (Direct / Scheduled) | Requires OAuth & Quota management |
+| **Threads** | Text, Single Image/Video, Micro-posts | Mode A (Direct) | Official Meta Threads Publishing API |
+| **Email** | Newsletter HTML/Markdown, Weekly Dispatches | Mode A (Direct / ESP API) | Resend, SendGrid, Beehiiv, Mailchimp |
+| **Blog / CMS** | Long-form Markdown/HTML, Canonical Guides | Mode A (Direct REST) | WordPress REST API, Ghost, Webflow, Medium |
 
 #### Publishing Modes:
 - **Mode A (Direct Publish):** API publishes directly to feed upon approval.
 - **Mode B (Upload / Draft):** Uploads media/draft to platform inbox for manual user finalization.
 - **Mode C (Export / Manual Handoff):** Packages copy, hashtags, and media derivatives for copy-paste.
+
+### 11.3 Platform Voice Profiles & Dynamic Prompt Registry
+Rather than hardcoding platform transformation instructions as static strings, Lisa stores them in a `platform_voice_profiles` table (or workspace overrides in `brand_profiles.style_rules_json`). This allows workspaces to adjust tone, emoji density, and banned patterns per platform without code deployments.
+
+#### Schema (`platform_voice_profiles`):
+| Column | Type | Description |
+|---|---|---|
+| `id` | UUID | Primary key |
+| `workspace_id` | UUID (nullable) | Optional workspace override; null for system defaults |
+| `platform` | VARCHAR(50) | `linkedin`, `x`, `instagram`, `discord`, `youtube`, `threads`, `email`, `blog` |
+| `name` | VARCHAR(100) | Human-readable platform title |
+| `prompt_template` | TEXT | System prompt block with `{content_brief}` and `{brand_profile}` context slots |
+| `emoji_density` | VARCHAR(20) | `none`, `minimal`, `moderate`, `liberal` |
+| `hashtag_range` | JSON / INT[2] | Min and max recommended hashtag count |
+| `target_length_chars` | JSON / INT[2] | Optimal character range |
+| `banned_patterns_json` | JSONB | Array of platform-specific anti-patterns to enforce |
 
 ---
 

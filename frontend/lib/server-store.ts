@@ -3,7 +3,12 @@
  * Provides resilient fallback and local execution without requiring an external PostgreSQL/Redis instance.
  */
 
-import { generatePlatformVariantWithGroq, regenerateVariantWithGroq } from "./groq-service";
+import {
+  generatePlatformVariantWithGroq,
+  regenerateVariantWithGroq,
+  PlatformVoiceProfile,
+  DEFAULT_PLATFORM_VOICE_PROFILES,
+} from "./groq-service";
 
 export interface User {
   id: string;
@@ -290,6 +295,7 @@ export class LisaStore {
   opportunities: Map<string, ContentOpportunity[]> = new Map(); // workspace_id -> opportunities
   agentRuns: Map<string, AgentRun[]> = new Map(); // workspace_id -> runs
   auditLogs: Map<string, AuditLog[]> = new Map(); // workspace_id -> logs
+  platformVoiceProfiles: Map<string, Map<string, PlatformVoiceProfile>> = new Map(); // workspace_id -> (platform -> voice profile)
 
   constructor() {
     this.seedDefaults();
@@ -390,6 +396,12 @@ export class LisaStore {
       visual_rules_json: { aspect_ratio: "16:9", palette: "slate-indigo" },
       disclosure_rules_json: {},
     });
+
+    // Seed Standard Platform Voice Profiles
+    this.platformVoiceProfiles.set(
+      defaultWorkspace.id,
+      new Map(Object.entries(DEFAULT_PLATFORM_VOICE_PROFILES))
+    );
 
     // Knowledge Docs
     this.knowledgeDocs.set(defaultWorkspace.id, [
