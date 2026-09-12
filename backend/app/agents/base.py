@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import re
@@ -123,38 +124,53 @@ async def call_llm(
     """
     # 1. Check Groq API Key
     if settings.GROQ_API_KEY:
-        try:
-            async with httpx.AsyncClient(timeout=settings.LLM_TIMEOUT_SECONDS) as client:
-                payload: Dict[str, Any] = {
-                    "model": settings.GROQ_MODEL,
-                    "messages": [
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_prompt},
-                    ],
-                    "temperature": temperature,
-                }
-                if json_mode:
-                    payload["response_format"] = {"type": "json_object"}
+        candidate_models = [settings.GROQ_MODEL]
+        for fallback_m in ["qwen/qwen3.8-27b", "openai/gpt-oss-20b"]:
+            if fallback_m not in candidate_models:
+                candidate_models.append(fallback_m)
 
-                response = await client.post(
-                    "https://api.groq.com/openai/v1/chat/completions",
-                    headers={
-                        "Authorization": f"Bearer {settings.GROQ_API_KEY}",
-                        "Content-Type": "application/json",
-                    },
-                    json=payload,
-                )
-                if response.status_code == 200:
-                    data = response.json()
-                    return data["choices"][0]["message"]["content"]
-                else:
-                    logger.warning(
-                        "Groq API error: status=%s body=%s",
-                        response.status_code,
-                        response.text,
+        for model_name in candidate_models:
+            try:
+                async with httpx.AsyncClient(timeout=settings.LLM_TIMEOUT_SECONDS) as client:
+                    payload: Dict[str, Any] = {
+                        "model": model_name,
+                        "messages": [
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": user_prompt},
+                        ],
+                        "temperature": float(temperature),
+                    }
+                    if json_mode:
+                        payload["response_format"] = {"type": "json_object"}
+
+                    response = await client.post(
+                        "https://api.groq.com/openai/v1/chat/completions",
+                        headers={
+                            "Authorization": f"Bearer {settings.GROQ_API_KEY}",
+                            "Content-Type": "application/json",
+                        },
+                        json=payload,
                     )
-        except Exception as e:
-            logger.warning("Groq API call failed, falling back: %s", e)
+                    if response.status_code == 200:
+                        data = response.json()
+                        return data["choices"][0]["message"]["content"]
+                    elif response.status_code == 429:
+                        logger.warning(
+                            "Groq model %s hit rate limit (429), pausing and trying fallback model...",
+                            model_name,
+                        )
+                        await asyncio.sleep(1.5)
+                        continue
+                    else:
+                        logger.warning(
+                            "Groq API error on model %s: status=%s body=%s",
+                            model_name,
+                            response.status_code,
+                            response.text[:120],
+                        )
+            except Exception as e:
+                logger.warning("Groq API call failed for model %s: %s", model_name, e)
+                await asyncio.sleep(1)
 
     # 2. Check OpenAI API Key
     if settings.OPENAI_API_KEY:

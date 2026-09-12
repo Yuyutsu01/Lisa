@@ -22,16 +22,19 @@ class VisualMediaAgent:
 
     def __init__(self):
         self.hf_token = getattr(settings, "HF_TOKEN", "") or os.getenv("HF_TOKEN", "")
-        self.model = getattr(settings, "HF_IMAGE_MODEL", "black-forest-labs/FLUX.1-Krea-dev")
-        self.provider = getattr(settings, "HF_PROVIDER", "fal-ai")
+        self.model = getattr(settings, "HF_IMAGE_MODEL", "black-forest-labs/FLUX.1-schnell") or "black-forest-labs/FLUX.1-schnell"
+        self.provider = getattr(settings, "HF_PROVIDER", "")
         self.client = None
 
         if self.hf_token:
             try:
-                self.client = InferenceClient(
-                    provider=self.provider,
-                    api_key=self.hf_token,
-                )
+                if self.provider:
+                    self.client = InferenceClient(
+                        provider=self.provider,
+                        api_key=self.hf_token,
+                    )
+                else:
+                    self.client = InferenceClient(api_key=self.hf_token)
             except Exception as e:
                 logger.warning("Failed to initialize Hugging Face InferenceClient: %s", e)
 
