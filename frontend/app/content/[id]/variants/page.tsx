@@ -207,6 +207,16 @@ export default function VariantReviewPage({
   const [publishing, setPublishing] = useState(false);
   const [publishedUrls, setPublishedUrls] = useState<Record<string, string>>({});
 
+  // Live deterministic 10-point QA Scorecard & Checklist calculation
+  const scorecard = useMemo(() => {
+    return calculateQAScorecard(currentVariant, source, brandProfile);
+  }, [currentVariant, source, brandProfile]);
+
+  const qualityScore = scorecard.quality_score;
+  const checkItems = scorecard.check_items;
+  const suggestions = scorecard.suggestions;
+  const criticalIssues = scorecard.issues;
+
   const handlePublishNow = async () => {
     if (!currentVariant || !activeWorkspaceId) return;
     try {
@@ -292,16 +302,6 @@ export default function VariantReviewPage({
       </AppLayout>
     );
   }
-
-  // Live deterministic 10-point QA Scorecard & Checklist calculation
-  const scorecard = useMemo(() => {
-    return calculateQAScorecard(currentVariant, source, brandProfile);
-  }, [currentVariant, source, brandProfile]);
-
-  const qualityScore = scorecard.quality_score;
-  const checkItems = scorecard.check_items;
-  const suggestions = scorecard.suggestions;
-  const criticalIssues = scorecard.issues;
 
   return (
     <AppLayout activeWorkspaceId={activeWorkspaceId} onWorkspaceChange={setActiveWorkspaceId}>
