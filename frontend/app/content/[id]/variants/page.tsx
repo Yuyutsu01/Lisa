@@ -38,7 +38,6 @@ const PLATFORM_LABELS: Record<string, string> = {
   x: "X (Twitter)",
   instagram: "Instagram",
   discord: "Discord Community",
-  youtube: "YouTube Shorts",
   threads: "Threads",
   email: "Newsletter / Email",
   blog: "Blog CMS",
@@ -331,7 +330,7 @@ export default function VariantReviewPage({
                 <InteractiveButton
                   onClick={handlePublishNow}
                   loading={publishing}
-                  loadingText={currentVariant.platform === "youtube" ? "Exporting Script..." : "Publishing..."}
+                  loadingText="Publishing..."
                   variant="primary"
                   size="md"
                   glow
@@ -340,7 +339,7 @@ export default function VariantReviewPage({
                   leftIcon={<Send className="w-4 h-4" />}
                   className="px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold"
                 >
-                  {currentVariant.platform === "youtube" ? "Export Production Script" : "Publish Now"}
+                  Publish Now
                 </InteractiveButton>
               </div>
             ) : (

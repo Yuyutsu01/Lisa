@@ -33,7 +33,7 @@ async def test_end_to_end_variant_generation_and_approval_flow(client: AsyncClie
         json={
             "title": "5 Production Lessons from Building Microservices",
             "body": "Lesson 1: Always implement timeouts.\nLesson 2: Idempotency is non-negotiable.\nLesson 3: Monitor queue latency.",
-            "target_platforms_json": ["linkedin", "x", "instagram", "youtube"],
+            "target_platforms_json": ["linkedin", "x", "instagram", "threads"],
             "content_pillar": "System Design",
             "status": "draft",
         },

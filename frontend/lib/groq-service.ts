@@ -208,45 +208,6 @@ Content brief: {content_brief}
 Brand voice rules: {brand_profile}`,
   },
 
-  youtube: {
-    platform: "youtube",
-    name: "YouTube (Shorts caption / video description)",
-    emoji_density: "minimal",
-    hashtag_range: [3, 5],
-    target_length_chars: [250, 1200],
-    banned_patterns: [
-      "Clickbait that doesn't match the actual content",
-      "keyword stuffing that reads unnaturally",
-    ],
-    prompt_template: `You are writing YouTube content adapted from the source below. Determine 
-whether this is a Shorts caption or a long-form video description from the 
-platform strategy input, and follow the matching rules.
-
-IF SHORTS CAPTION:
-- VOICE: High-energy, curiosity-driven, spoken-language rhythm — this pairs 
-  with video, not a replacement for it.
-- Hook must work as a caption overlay in the first 1-2 seconds equivalent.
-- EMOJIS: Light, used for emphasis and pacing only.
-
-IF VIDEO DESCRIPTION (long-form):
-- VOICE: Clear and benefit-driven. SEO matters — lead with searchable keywords 
-  from the content brief in the first 1-2 sentences.
-- Include a short summary, then structured sections (what's covered, timestamps 
-  if applicable, relevant links).
-- EMOJIS: Minimal — this is closer to search copy than social copy.
-
-HASHTAGS: 3-5 relevant tags at the end of description; none needed in Shorts caption.
-
-BANNED PATTERNS: Clickbait that doesn't match the actual content, keyword 
-stuffing that reads unnaturally.
-
-Adapt the content and facts as given — do not invent statistics, results, or claims.
-
-Content brief: {content_brief}
-Brand voice rules: {brand_profile}
-Format (shorts_caption | video_description): {platform_strategy.format}`,
-  },
-
   threads: {
     platform: "threads",
     name: "Threads",
@@ -447,7 +408,7 @@ export async function generatePlatformVariantWithGroq(
   let baseSystemPrompt = profile.prompt_template
     .replace("{content_brief}", contentBriefText)
     .replace("{brand_profile}", brandProfileText)
-    .replace("{platform_strategy.format}", platformFormatOverride || (platform === "youtube" ? "shorts_caption" : "native"));
+    .replace("{platform_strategy.format}", platformFormatOverride || "native");
 
   // Append strict JSON response formatting schema
   const systemPrompt = `${baseSystemPrompt}
@@ -583,14 +544,6 @@ function getFallbackContent(title: string, sourceBody: string, platform: string)
       hashtags: [],
       angle: "Interactive developer community broadcast",
       len: 620,
-    },
-    youtube: {
-      body: `[00:00 - 00:05] HOOK (On Camera):\n"Here is how a single memory leak can crash a 10-million event pipeline—and the 1 fix you must know."\n\n[00:05 - 00:20] THE PROBLEM (B-Roll of CPU spikes):\n"Most engineers think scaling streaming data means spinning up 50 more Kubernetes pods. But pod count won't save you from garbage collection pauses."\n\n[00:20 - 00:45] THE SOLUTION (Diagram Overlay):\n"Instead, we switched to zero-allocation circular buffers. Memory stays completely flat, and p99 latency dropped from 850ms to 1.2ms."\n\n[00:45 - 00:60] OUTRO & CTA:\n"Subscribe for real engineering benchmarks every Tuesday. Link in bio for the complete open-source repo."`,
-      caption: `How we scaled our distributed event engine to 10M events/sec in 60 seconds.`,
-      cta: "Subscribe for weekly engineering breakdowns.",
-      hashtags: ["#Shorts", "#Programming", "#Tech", "#Engineering"],
-      angle: "Rapid 60-second video script with visual cues",
-      len: 580,
     },
     threads: {
       body: `The biggest misconception about distributed systems:\n\n"We just need Kafka and Redis."\n\nTools don't solve architecture. Backpressure and deterministic replay do. What's your take?`,

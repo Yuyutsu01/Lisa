@@ -63,7 +63,6 @@ function ContentStudioContent() {
     { id: "x", label: "X (Twitter)" },
     { id: "instagram", label: "Instagram" },
     { id: "discord", label: "Discord Community" },
-    { id: "youtube", label: "YouTube Shorts" },
     { id: "threads", label: "Threads" },
     { id: "email", label: "Newsletter / Email" },
     { id: "blog", label: "Blog CMS" },

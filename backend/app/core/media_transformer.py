@@ -29,13 +29,6 @@ DERIVATIVE_PRESETS: Dict[str, Dict[str, Any]] = {
         "height": 1080,
         "aspect_ratio": "1:1",
     },
-    "youtube_thumbnail": {
-        "platform": "youtube",
-        "format": "thumbnail",
-        "width": 1280,
-        "height": 720,
-        "aspect_ratio": "16:9",
-    },
     "tiktok_vertical": {
         "platform": "tiktok",
         "format": "story_vertical",

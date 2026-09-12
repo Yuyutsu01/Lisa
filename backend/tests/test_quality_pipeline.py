@@ -39,12 +39,12 @@ async def test_platform_strategy_writing_rules():
     brief = await agent.analyze("Async Task Orchestration", "How to manage background jobs with backoff.")
 
     strat_agent = PlatformStrategyAgent(context)
-    strategies = await strat_agent.formulate_strategies(brief, ["linkedin", "x", "instagram", "youtube"])
+    strategies = await strat_agent.formulate_strategies(brief, ["linkedin", "x", "instagram", "threads"])
 
     assert "linkedin" in strategies
     assert "x" in strategies
     assert "instagram" in strategies
-    assert "youtube" in strategies
+    assert "threads" in strategies
 
     assert len(strategies["linkedin"].writing_rules) > 0
     assert strategies["x"].target_length_chars == 280

@@ -437,7 +437,7 @@ export class LisaStore {
       content_type: "article",
       language: "en",
       status: "ready_for_adaptation",
-      target_platforms_json: ["linkedin", "x", "instagram", "discord", "youtube"],
+      target_platforms_json: ["linkedin", "x", "instagram", "discord", "threads"],
       content_pillar: "System Architecture & Engineering",
       campaign: "Q3 Engineering Authority",
       source_metadata_json: {},
@@ -546,7 +546,7 @@ export class LisaStore {
         workspace_id: defaultWorkspace.id,
         title: "Repurpose viral 'Zero-Allocation Buffers' thread into a Discord Community deep-dive discussion",
         content_pillar: "System Architecture & Engineering",
-        suggested_platforms_json: ["discord", "youtube"],
+        suggested_platforms_json: ["discord", "threads"],
         reason: "X thread achieved a 8.4% engagement rate. Community discussion format will drive high server activity and engineer participation.",
         confidence: "High (94%)",
         source_evidence_json: {
@@ -657,7 +657,7 @@ export class LisaStore {
   seedInitialVariants(
     sourceId: string,
     workspaceId: string,
-    platforms: string[] = ["linkedin", "x", "instagram", "youtube"]
+    platforms: string[] = ["linkedin", "x", "instagram", "discord"]
   ): ContentVariant[] {
     const src = this.sources.get(sourceId);
     if (!src) return [];
@@ -741,23 +741,6 @@ export class LisaStore {
         hashtags: ["#DiscordCommunity", "#Architecture", "#DevOps"],
         targetLen: 680,
         angle: "Interactive technical community announcement",
-      },
-      youtube: {
-        format: "YouTube Shorts Script (60s)",
-        getBody: () =>
-          `[00:00 - 00:05] HOOK (On Camera):\n` +
-          `"Here is how a single memory leak can crash a 10-million event pipeline—and the 1 fix you must know."\n\n` +
-          `[00:05 - 00:20] THE PROBLEM (B-Roll of CPU spikes):\n` +
-          `"Most engineers think scaling streaming data means spinning up 50 more Kubernetes pods. But pod count won't save you from garbage collection pauses."\n\n` +
-          `[00:20 - 00:45] THE SOLUTION (Diagram Overlay):\n` +
-          `"Instead, we switched to zero-allocation circular buffers. Memory stays completely flat, and p99 latency dropped from 850ms to 1.2ms."\n\n` +
-          `[00:45 - 00:60] OUTRO & CTA:\n` +
-          `"Subscribe for real engineering benchmarks every Tuesday. Link in bio for the complete open-source repo."`,
-        getCaption: () => `How we scaled our distributed event engine to 10M events/sec in 60 seconds.`,
-        getCTA: "Subscribe for weekly engineering breakdowns.",
-        hashtags: ["#Shorts", "#Programming", "#Tech", "#Engineering"],
-        targetLen: 580,
-        angle: "Rapid 60-second retention-optimized video script with visual cue markers",
       },
       threads: {
         format: "Conversational Micro-Post",

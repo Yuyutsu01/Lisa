@@ -26,7 +26,7 @@ async def test_agent_intake_and_strategy():
     assert "Architecture" in brief.content_pillars
 
     strategy_agent = PlatformStrategyAgent(context)
-    strategies = await strategy_agent.formulate_strategies(brief, ["linkedin", "x", "instagram", "youtube"])
+    strategies = await strategy_agent.formulate_strategies(brief, ["linkedin", "x", "instagram", "threads"])
 
     assert "linkedin" in strategies
     assert "x" in strategies

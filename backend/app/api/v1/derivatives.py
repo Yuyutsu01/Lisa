@@ -1,7 +1,7 @@
 """
 Media Derivative API Endpoints for Lisa.
 
-Generates and lists platform-optimized cropped derivatives (Instagram portrait, YouTube thumbnail, etc.).
+Generates and lists platform-optimized cropped derivatives (Instagram portrait, LinkedIn banner, etc.).
 """
 
 from typing import List

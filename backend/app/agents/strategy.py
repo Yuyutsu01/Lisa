@@ -56,19 +56,6 @@ PLATFORM_DEFAULTS: Dict[str, Dict[str, Any]] = {
             "3-5 targeted hashtags.",
         ],
     },
-    "youtube": {
-        "format": "short_video",
-        "angle": "Immediate 3-second retention hook + structured 45s walkthrough",
-        "hook_style": "Problem statement with immediate payoff promise",
-        "target_length_chars": 700,
-        "cta": "Subscribe for more tactical engineering breakdowns",
-        "media_required": True,
-        "writing_rules": [
-            "Include timestamped script sections: [HOOK 0:00-0:05], [BODY 0:05-0:35], [CTA 0:35-0:45].",
-            "Include 2-3 clickable YouTube title options.",
-            "Include a concise video description.",
-        ],
-    },
     "tiktok": {
         "format": "short_video",
         "angle": "Conversational problem interrupt + rapid proof + single takeaway",

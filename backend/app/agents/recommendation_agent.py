@@ -45,13 +45,13 @@ class ContentRecommendationAgent(BaseAgent):
             title = post.get("title", "High Performing Asset")
             eng_rate = post.get("engagement_rate", 0.0)
 
-            # Rule: If high performing on LinkedIn, repurpose to X thread & TikTok / Shorts script
+            # Rule: If high performing on LinkedIn, repurpose to X thread & TikTok script
             if plat == "linkedin":
                 recommendations.append({
                     "title": f"Repurpose '{title}' into X Thread & Video Hook",
                     "content_pillar": post.get("content_pillar", "Thought Leadership"),
-                    "suggested_platforms": ["x", "tiktok", "youtube"],
-                    "reason": f"LinkedIn post achieved high engagement ({(eng_rate * 100):.1f}%). Deconstruct key arguments into a fast-paced X thread and short-form video breakdown.",
+                    "suggested_platforms": ["x", "tiktok", "instagram"],
+                    "reason": f"LinkedIn post achieved high engagement ({(eng_rate * 100):.1f}%). Deconstruct key arguments into a fast-paced X thread and visual carousel.",
                     "confidence": "high",
                     "source_evidence": {
                         "published_record_id": post.get("published_record_id"),
@@ -76,8 +76,8 @@ class ContentRecommendationAgent(BaseAgent):
                 recommendations.append({
                     "title": f"Cross-Distribute Visual Hook '{title}'",
                     "content_pillar": post.get("content_pillar", "Visual Storytelling"),
-                    "suggested_platforms": ["instagram", "youtube", "threads"],
-                    "reason": f"High visual retention detected on {plat.capitalize()}. Adapt aspect ratios for Instagram Portrait & YouTube Shorts.",
+                    "suggested_platforms": ["instagram", "x", "threads"],
+                    "reason": f"High visual retention detected on {plat.capitalize()}. Adapt layout for Instagram Carousel & Threads visual post.",
                     "confidence": "medium",
                     "source_evidence": {
                         "published_record_id": post.get("published_record_id"),

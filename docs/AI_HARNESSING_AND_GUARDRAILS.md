@@ -106,7 +106,7 @@ flowchart TD
 - **Problem**: Systems that fake success status or invent mock live URLs compromise data integrity and user trust.
 - **Enforcement Mechanisms**:
   1. **Provenance Tagging**: Every record and performance metric carries a mandatory `metrics_source` / `data_provenance` tag (`"platform_api"`, `"simulated"`, `"unavailable"`).
-  2. **Mode C (Export/Manual Handoff)**: Platforms without verified automated video publishing APIs (e.g. YouTube Shorts) transition jobs and variants to status `exported` (`publishing_mode="export"`). No mock URLs (`youtube.com/shorts/mock_...`) or phantom `PublishedRecord` rows are written.
+  2. **Mode C (Export/Manual Handoff)**: Unsupported or manual export workflows transition jobs and variants to status `exported` (`publishing_mode="export"`). No mock live URLs (`mock_...`) or phantom `PublishedRecord` rows are written.
   3. **Analytics Isolation**: The Analytics Agent and Recommendation Agent filter out non-`platform_api` metrics, ensuring simulated data never pollutes optimization algorithms.
 
 ---

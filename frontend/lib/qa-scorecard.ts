@@ -109,7 +109,6 @@ const PLATFORM_LIMITS: Record<
   x: { maxChars: 280, optimalMin: 120, optimalMax: 280, recommendedHashtags: [1, 3], requiresThreadIfOver: 280 },
   instagram: { maxChars: 2200, optimalMin: 300, optimalMax: 1200, recommendedHashtags: [3, 8] },
   discord: { maxChars: 2000, optimalMin: 200, optimalMax: 1500, recommendedHashtags: [0, 3] },
-  youtube: { maxChars: 1500, optimalMin: 250, optimalMax: 900, recommendedHashtags: [2, 5] },
   threads: { maxChars: 500, optimalMin: 80, optimalMax: 480, recommendedHashtags: [0, 2] },
   email: { maxChars: 10000, optimalMin: 350, optimalMax: 3500, recommendedHashtags: [0, 0] },
   blog: { maxChars: 25000, optimalMin: 600, optimalMax: 8000, recommendedHashtags: [0, 2] },
@@ -354,12 +353,6 @@ export function calculateQAScorecard(
   } else {
     syntaxScore = 10;
     syntaxReason = `Compliant native length (${charLength} chars, optimal range ${limits.optimalMin}-${limits.optimalMax}).`;
-  }
-
-  // Check specific platform formatting cues
-  if (platform === "youtube" && !body.includes("[") && !body.includes("00:")) {
-    syntaxScore = Math.max(5, syntaxScore - 2);
-    suggestions.push("Add video timestamp cue markers (e.g. [00:00 - 00:05] HOOK) for YouTube Shorts teleprompter pacing.");
   }
 
   checkItems.push({

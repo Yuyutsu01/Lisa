@@ -13,7 +13,7 @@
 
 ## 1. Product Overview
 
-**Lisa** is an enterprise-grade, multi-tenant AI content operations operating system (OS). Rather than acting as a simple generic chat wrapper that writes captions, Lisa is an orchestrated pipeline where **specialized AI agents** collaborate with deterministic software safeguards to ingest canonical content sources, adapt them into platform-native variants (LinkedIn, X/Twitter, Instagram, YouTube Shorts, Discord, Threads, Email Newsletters, and Blog CMS), validate them against brand guidelines and policy gates, schedule them via an idempotent state machine, and analyze cross-platform performance in a **closed-loop feedback loop**.
+**Lisa** is an enterprise-grade, multi-tenant AI content operations operating system (OS). Rather than acting as a simple generic chat wrapper that writes captions, Lisa is an orchestrated pipeline where **specialized AI agents** collaborate with deterministic software safeguards to ingest canonical content sources, adapt them into platform-native variants (LinkedIn, X/Twitter, Instagram, Discord, Threads, Email Newsletters, and Blog CMS), validate them against brand guidelines and policy gates, schedule them via an idempotent state machine, and analyze cross-platform performance in a **closed-loop feedback loop**.
 
 ### Core Product Principles
 * **AI Proposes Structured Variants:** Specialized agents analyze sources and formulate platform-native angles and formatting.
@@ -68,7 +68,6 @@ flowchart TB
         Adapter_LI["LinkedIn Adapter (Mode A: Direct API)"]
         Adapter_X["X / Twitter Adapter (Mode A: Direct API)"]
         Adapter_IG["Instagram Adapter (Mode A: Direct API)"]
-        Adapter_YT["YouTube Shorts Adapter (Mode C: Script Export)"]
         Adapter_DC["Discord Adapter (Webhook Dispatch)"]
         Adapter_TH["Threads Adapter (Mode A: Direct API)"]
         Adapter_EM["Email / Newsletter Adapter"]
@@ -97,7 +96,7 @@ flowchart TB
 
     %% Publishing Flow
     FactGrounding --> HITLGate --> PubService
-    PubService --> Adapter_LI & Adapter_X & Adapter_IG & Adapter_YT & Adapter_DC & Adapter_TH & Adapter_EM & Adapter_BL
+    PubService --> Adapter_LI & Adapter_X & Adapter_IG & Adapter_DC & Adapter_TH & Adapter_EM & Adapter_BL
 
     %% Persistence connections
     GatewayLayer & AgentPipeline & PublishingOrchestrator --> DB
@@ -128,7 +127,7 @@ Lisa enforces 8 comprehensive layers of AI harnessing, safety, and operational r
 6. **Token Budget & Cost Ceilings:**
    - Per-job token ceilings (15k tokens) and per-workspace sliding-window rate limiters prevent runaway revision loops. Exceeding ceilings raises `BudgetExceededError` and sets status `budget_exceeded`.
 7. **Fabricated-Success & Provenance Invariant:**
-   - Video formats without rendered binary uploads use **Mode C (Export/Manual Handoff)** with status `exported`—never writing fake live URLs (`youtube.com/shorts/mock_...`) or phantom feed records.
+   - Adapters strictly enforce real platform state—never writing fake live URLs (`mock_...`) or phantom feed records without verified remote API verification.
    - All performance metrics carry explicit `metrics_source` tags (`platform_api`, `simulated`, `unavailable`).
 8. **Circuit Breakers & Fallback Markers:**
    - Explicit timeouts (30s API / 75s generation) with bounded transient retries.
@@ -159,7 +158,6 @@ Lisa enforces 8 comprehensive layers of AI harnessing, safety, and operational r
 | **LinkedIn** | Long-form Post / Article | **Mode A (Direct API)** | Enforces professional tone, whitespace pacing, max 3 hashtags |
 | **X (Twitter)** | Single Tweet / Multi-Tweet Thread | **Mode A (Direct API)** | Enforces 280-char boundaries and sequential thread formatting (1/N) |
 | **Instagram** | Carousel / Image Caption | **Mode A (Direct API)** | Validates 4:5 / 1:1 image aspect ratios, blocks comment-gating bait |
-| **YouTube Shorts** | Script & Teleprompter Package | **Mode C (Manual Export)** | Exports cue markers (`[00:00 - 00:05] HOOK`) with status `exported` |
 | **Discord** | Rich Embed Announcement | **Direct Webhook Dispatch** | Tags metrics as `unavailable` to prevent synthetic impression hallucination |
 | **Threads** | Conversational Micro-Post | **Mode A (Direct API)** | 500-char limits, conversational hook styling |
 | **Email Newsletters** | Structured Markdown Dispatch | **Direct SMTP / API** | Validates subject line, preview snippet, and body depth |

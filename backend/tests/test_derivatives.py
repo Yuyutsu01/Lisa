@@ -18,7 +18,7 @@ def create_test_image_bytes(width: int = 800, height: int = 600) -> bytes:
 @pytest.mark.asyncio
 async def test_generate_media_derivatives(client: AsyncClient):
     """
-    Test generating Instagram portrait, YouTube thumbnail, and square cropped derivatives.
+    Test generating Instagram portrait, LinkedIn banner, and square cropped derivatives.
     """
     res = await client.post(
         "/api/v1/auth/register",
@@ -42,19 +42,19 @@ async def test_generate_media_derivatives(client: AsyncClient):
     deriv_res = await client.post(
         f"/api/v1/media/{asset_id}/derivatives",
         headers=headers,
-        json={"presets": ["instagram_portrait", "youtube_thumbnail", "instagram_square"]},
+        json={"presets": ["instagram_portrait", "linkedin_banner", "instagram_square"]},
     )
     assert deriv_res.status_code == 201
     derivatives = deriv_res.json()
     assert len(derivatives) == 3
 
     insta_deriv = next(d for d in derivatives if d["platform"] == "instagram" and d["format"] == "feed_portrait")
-    yt_deriv = next(d for d in derivatives if d["platform"] == "youtube")
+    li_deriv = next(d for d in derivatives if d["platform"] == "linkedin")
 
     assert insta_deriv["width"] == 1080
     assert insta_deriv["height"] == 1350
-    assert yt_deriv["width"] == 1280
-    assert yt_deriv["height"] == 720
+    assert li_deriv["width"] == 1200
+    assert li_deriv["height"] == 628
     assert insta_deriv["url"].startswith("/uploads/")
 
     # 3. List derivatives endpoint

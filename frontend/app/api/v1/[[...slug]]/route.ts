@@ -286,7 +286,6 @@ export async function GET(req: NextRequest, context: RouteContext) {
         x: "direct_api_ready",
         instagram: "manual_export_creator_studio_ready",
         discord: "webhook_and_bot_ready",
-        youtube: "direct_api_ready",
         threads: "direct_api_ready",
         email: "esp_webhook_ready",
         blog: "markdown_cms_ready",
@@ -578,13 +577,13 @@ export async function POST(req: NextRequest, context: RouteContext) {
       return NextResponse.json({ detail: "Variant not found" }, { status: 404 });
     }
 
-    // Platform-specific Mode C (Export/Manual Handoff) for YouTube and manual formats
-    if (v.platform === "youtube" || v.format === "short_video" || v.format === "video") {
+    // Platform-specific Mode C (Export/Manual Handoff) for manual formats
+    if (v.format === "short_video" || v.format === "video" || v.format === "manual_export") {
       v.status = "exported";
       v.updated_at = new Date().toISOString();
 
       const exportPackage = {
-        title: v.title || "YouTube Shorts Adaptation",
+        title: v.title || "Production Adaptation",
         script: v.body,
         caption: v.caption || "",
         tags: v.hashtags_json || [],
@@ -598,7 +597,7 @@ export async function POST(req: NextRequest, context: RouteContext) {
         publishing_mode: "export",
         external_url: undefined,
         external_post_id: undefined,
-        message: "YouTube script exported successfully for manual creator upload.",
+        message: "Production script exported successfully for manual creator upload.",
         raw_response: {
           status: "exported",
           mode: "export_teleprompter_script",

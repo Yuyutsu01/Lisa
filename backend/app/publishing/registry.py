@@ -9,17 +9,16 @@ from app.publishing.base import PlatformAdapter
 from app.publishing.linkedin import LinkedInAdapter
 from app.publishing.x import XAdapter
 from app.publishing.instagram import InstagramAdapter
-from app.publishing.youtube import YouTubeAdapter
 from app.publishing.tiktok import TikTokAdapter
 from app.publishing.other_adapters import ThreadsAdapter, EmailAdapter, BlogAdapter
 
 
 class AdapterRegistry:
+    # Supported platform adapters registry excluding decommissioned platforms
     _adapters: Dict[str, PlatformAdapter] = {
         "linkedin": LinkedInAdapter(),
         "x": XAdapter(),
         "instagram": InstagramAdapter(),
-        "youtube": YouTubeAdapter(),
         "tiktok": TikTokAdapter(),
         "threads": ThreadsAdapter(),
         "email": EmailAdapter(),

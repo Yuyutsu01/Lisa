@@ -215,7 +215,7 @@ export default function DashboardPage() {
                 { name: "Instagram", mode: "Manual Studio Export", status: "Ready", healthy: true },
                 { name: "X (Twitter)", mode: "Thread Adapter", status: "Connected", healthy: true },
                 { name: "Discord Community", mode: "Webhook & Bot Broadcast", status: "Connected", healthy: true },
-                { name: "YouTube Shorts", mode: "Cinematic Script & Hook", status: "Connected", healthy: true },
+                { name: "Threads", mode: "Conversational Micro-Post", status: "Connected", healthy: true },
                 { name: "Newsletter / Email", mode: "Editorial Dispatch", status: "Connected", healthy: true },
               ].map((plat) => (
                 <div

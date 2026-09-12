@@ -65,14 +65,6 @@ const PLATFORM_PRESETS = [
     desc: "Webhook & Bot integration for instant broadcast and community discussion prompts.",
   },
   {
-    key: "youtube",
-    name: "YouTube Shorts",
-    icon: Video,
-    color: "text-red-400 bg-red-500/10 border-red-500/20",
-    formats: ["Shorts (9:16)", "Community Post", "Long-form Video (16:9)"],
-    desc: "Publish vertical video scripts, timestamps, and community updates directly.",
-  },
-  {
     key: "threads",
     name: "Threads",
     icon: Radio,

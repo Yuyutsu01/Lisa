@@ -41,7 +41,6 @@ PLATFORM STRATEGY
 CONTENT ADAPTATION
       ├── Instagram version
       ├── TikTok version
-      ├── YouTube version
       ├── X version
       ├── LinkedIn version
       ├── Threads version
@@ -121,7 +120,7 @@ The platform abstracts operational complexity while keeping the human in complet
 
 ### Persona A: Solo Creator
 - **Needs:** Create content once, distribute to multiple platforms, maintain consistent voice, save time, understand what performs.
-- **Example:** Tech creator posting educational content on LinkedIn, X, Instagram, YouTube Shorts, and a blog.
+- **Example:** Tech creator posting educational content on LinkedIn, X, Instagram, Discord, and a blog.
 
 ### Persona B: Founder / Personal Brand
 - **Needs:** Turn thoughts, product updates, and lessons into content; maintain consistent messaging; build authority; schedule in advance.
@@ -353,10 +352,10 @@ Database / Queue / External API
         "crop_strategy": "center_subject"
       },
       {
-        "platform": "youtube",
-        "format": "thumbnail",
-        "aspect_ratio": "16:9",
-        "crop_strategy": "subject_left_text_right"
+        "platform": "linkedin",
+        "format": "feed_landscape",
+        "aspect_ratio": "1.91:1",
+        "crop_strategy": "center_landscape"
       }
     ]
   }
@@ -522,7 +521,6 @@ class PlatformAdapter(Protocol):
 | **X (Twitter)** | Text posts, Images, Video, Multi-Tweet Threads | Mode A (Direct) | Two-stage media upload + tweet thread creation |
 | **Instagram** | Single image, Carousel, Reels | Mode A (Direct), Mode B (Draft), Mode C (Creator Studio) | Requires Instagram Graph API or Creator Studio export |
 | **Discord** | Community Announcements, Forum Posts, Channel Threads | Mode A (Direct Webhook/Bot) | Webhook and Bot broadcast APIs |
-| **YouTube** | Shorts, Long-form Videos, Community Posts | Mode A (Direct / Scheduled) | Requires OAuth & Quota management |
 | **Threads** | Text, Single Image/Video, Micro-posts | Mode A (Direct) | Official Meta Threads Publishing API |
 | **Email** | Newsletter HTML/Markdown, Weekly Dispatches | Mode A (Direct / ESP API) | Resend, SendGrid, Beehiiv, Mailchimp |
 | **Blog / CMS** | Long-form Markdown/HTML, Canonical Guides | Mode A (Direct REST) | WordPress REST API, Ghost, Webflow, Medium |
@@ -540,7 +538,7 @@ Rather than hardcoding platform transformation instructions as static strings, L
 |---|---|---|
 | `id` | UUID | Primary key |
 | `workspace_id` | UUID (nullable) | Optional workspace override; null for system defaults |
-| `platform` | VARCHAR(50) | `linkedin`, `x`, `instagram`, `discord`, `youtube`, `threads`, `email`, `blog` |
+| `platform` | VARCHAR(50) | `linkedin`, `x`, `instagram`, `discord`, `threads`, `email`, `blog` |
 | `name` | VARCHAR(100) | Human-readable platform title |
 | `prompt_template` | TEXT | System prompt block with `{content_brief}` and `{brand_profile}` context slots |
 | `emoji_density` | VARCHAR(20) | `none`, `minimal`, `moderate`, `liberal` |
@@ -903,7 +901,7 @@ Lisa/
 - **Phase 4:** Platform Strategy & Variant Adaptation (Strategy, Adaptation, and Platform rules). `[COMPLETED]`
 - **Phase 5:** 10-Point QA Scorecard & Auto-Revision Loop (Objective 10 metrics, cliché banning, retry loop). `[COMPLETED]`
 - **Phase 6:** Review UI & Content Calendar (Scorecard badge review, inline editing, calendar scheduling). `[COMPLETED]`
-- **Phase 7:** Publishing Engine & Integrations (OAuth state machine, LinkedIn, X, Instagram, YouTube, TikTok). `[COMPLETED]`
+- **Phase 7:** Publishing Engine & Integrations (OAuth state machine, LinkedIn, X, Instagram, TikTok, Threads). `[COMPLETED]`
 - **Phase 8:** Latency & Cold-Start Optimization (Proxy rewrites, DB connection pooling, request retries). `[COMPLETED]`
 - **Phase 9:** Analytics Normalization & Performance Engine (Metric sync, cross-platform graphs). `[COMPLETED]`
 - **Phase 10:** Intelligence & Content Recommendations (Analytics Agent & Opportunity engine). `[COMPLETED]`

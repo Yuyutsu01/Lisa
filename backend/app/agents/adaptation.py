@@ -69,7 +69,7 @@ Return valid JSON with these keys:
   "title": "Title or headline if relevant (or null for X/Threads)",
   "hook": "The opening 1-2 sentence scroll-stopping hook",
   "body": "The complete platform-native post body copy",
-  "caption": "Caption text if separate (e.g. for Instagram/YouTube), or null",
+  "caption": "Caption text if separate (e.g. for Instagram), or null",
   "cta": "Contextual, non-salesy call to action question or prompt",
   "hashtags": ["relevantTag1", "relevantTag2"]
 }}
@@ -99,7 +99,7 @@ Return valid JSON with these keys:
             return self._write_x(brief, source_title, strategy, custom_instruction)
         elif platform == "instagram":
             return self._write_instagram(brief, source_title, strategy, custom_instruction)
-        elif platform in ["youtube", "tiktok"]:
+        elif platform == "tiktok":
             return self._write_video(brief, source_title, strategy, platform, custom_instruction)
         elif platform == "email":
             return self._write_email(brief, source_title, strategy, custom_instruction)

@@ -55,7 +55,7 @@ class ContentSource(Base):
     injection_risk_details = Column(JSON, default=dict, nullable=False)
 
     # Platform targeting and categorization
-    target_platforms_json = Column(JSON, default=list, nullable=False)  # ["linkedin", "x", "instagram", "youtube", "email"]
+    target_platforms_json = Column(JSON, default=list, nullable=False)  # ["linkedin", "x", "instagram", "discord", "threads", "email", "blog"]
     content_pillar = Column(String(100), default="", nullable=False)
     campaign = Column(String(100), default="", nullable=False)
     source_metadata_json = Column(JSON, default=dict, nullable=False)
