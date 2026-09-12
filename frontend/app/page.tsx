@@ -200,17 +200,17 @@ export default function LisaHomePage() {
         />
 
         {/* 11. Sticky Navbar Transformation (Transitions from transparent/ambient to compact, darker, blurred) */}
-        <div className="sticky top-3 sm:top-4 w-full px-4 sm:px-8 flex items-center justify-center z-40 pointer-events-none transition-all duration-300">
+        <div className="sticky top-3 sm:top-4 lg:top-6 w-full px-4 sm:px-8 flex items-center justify-center z-40 pointer-events-none transition-all duration-300">
           <nav
-            className={`inline-flex items-center gap-1 sm:gap-1.5 px-3 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-[13px] text-[#a6a39b] shadow-2xl pointer-events-auto transition-all duration-300 ${
+            className={`inline-flex items-center gap-1 sm:gap-1.5 lg:gap-2 px-3 sm:px-5 lg:px-7 py-1.5 sm:py-2 lg:py-3 rounded-full text-xs sm:text-[13px] lg:text-[14.5px] text-[#a6a39b] shadow-2xl pointer-events-auto transition-all duration-300 ${
               isScrolled
-                ? "bg-[#0c0c0e]/95 backdrop-blur-2xl border border-white/15 shadow-black/80 py-1.5 scale-95"
+                ? "bg-[#0c0c0e]/95 backdrop-blur-2xl border border-white/15 shadow-black/80 py-1.5 lg:py-2.5 scale-95"
                 : "hirael-glass-nav border border-white/10"
             }`}
           >
             <button
               onClick={() => scrollToSection("hero")}
-              className={`px-3 sm:px-3.5 py-1.5 rounded-full transition-all duration-150 active:scale-95 cursor-pointer font-medium ${
+              className={`px-3 sm:px-3.5 lg:px-4.5 py-1.5 lg:py-2 rounded-full transition-all duration-150 active:scale-95 cursor-pointer font-medium ${
                 activeSection === "hero"
                   ? "bg-white/[0.14] text-[#ede8df] shadow-sm"
                   : "hover:text-[#ede8df] hover:bg-white/[0.06]"
@@ -220,7 +220,7 @@ export default function LisaHomePage() {
             </button>
             <button
               onClick={() => scrollToSection("our-story")}
-              className={`px-3 sm:px-3.5 py-1.5 rounded-full transition-all duration-150 active:scale-95 cursor-pointer font-medium ${
+              className={`px-3 sm:px-3.5 lg:px-4.5 py-1.5 lg:py-2 rounded-full transition-all duration-150 active:scale-95 cursor-pointer font-medium ${
                 activeSection === "our-story"
                   ? "bg-white/[0.14] text-[#ede8df] shadow-sm"
                   : "hover:text-[#ede8df] hover:bg-white/[0.06]"
@@ -230,7 +230,7 @@ export default function LisaHomePage() {
             </button>
             <button
               onClick={() => scrollToSection("programs")}
-              className={`px-3 sm:px-3.5 py-1.5 rounded-full transition-all duration-150 active:scale-95 cursor-pointer font-medium ${
+              className={`px-3 sm:px-3.5 lg:px-4.5 py-1.5 lg:py-2 rounded-full transition-all duration-150 active:scale-95 cursor-pointer font-medium ${
                 activeSection === "programs"
                   ? "bg-white/[0.14] text-[#ede8df] shadow-sm"
                   : "hover:text-[#ede8df] hover:bg-white/[0.06]"
@@ -240,7 +240,7 @@ export default function LisaHomePage() {
             </button>
             <button
               onClick={() => scrollToSection("enquiries")}
-              className={`px-3 sm:px-3.5 py-1.5 rounded-full transition-all duration-150 active:scale-95 cursor-pointer font-medium ${
+              className={`px-3 sm:px-3.5 lg:px-4.5 py-1.5 lg:py-2 rounded-full transition-all duration-150 active:scale-95 cursor-pointer font-medium ${
                 activeSection === "enquiries"
                   ? "bg-white/[0.14] text-[#ede8df] shadow-sm"
                   : "hover:text-[#ede8df] hover:bg-white/[0.06]"
@@ -250,15 +250,15 @@ export default function LisaHomePage() {
             </button>
 
             {/* Direct Gateway to Content Studio OS with Magnetic Glow */}
-            <div className="h-4 w-[1px] bg-white/10 mx-1" />
+            <div className="h-4 lg:h-5 w-[1px] bg-white/10 mx-1 lg:mx-2" />
             <InteractiveButton
               onClick={handleEnterOS}
               variant="secondary"
               size="sm"
               magnetic
               glow
-              leftIcon={<Sparkles className="w-3 h-3 text-[#d4a373]" />}
-              className="font-semibold text-xs py-1 px-3.5"
+              leftIcon={<Sparkles className="w-3 h-3 lg:w-4 lg:h-4 text-[#d4a373]" />}
+              className="font-semibold text-xs lg:text-[14px] py-1 lg:py-2 px-3.5 lg:px-5"
             >
               Enter OS
             </InteractiveButton>
