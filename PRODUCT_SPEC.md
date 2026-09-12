@@ -13,7 +13,9 @@
 ## 1. Executive Summary
 
 ### 1.1 Problem Statement
+
 Content creators, founders, agencies, and marketing teams repeatedly perform the same distribution work:
+
 1. Create an original post.
 2. Rewrite it for every platform.
 3. Create different captions and hooks.
@@ -26,6 +28,7 @@ Content creators, founders, agencies, and marketing teams repeatedly perform the
 This process is repetitive, fragmented, and difficult to scale. Existing AI writing tools generate text drafts but lack a complete, reliable distribution and feedback loop.
 
 ### 1.2 Proposed Solution
+
 The system accepts a single **Content Source** and produces a collection of platform-specific **Content Variants** through an orchestrated pipeline:
 
 ```text
@@ -70,8 +73,10 @@ NEXT CONTENT RECOMMENDATIONS
 ```
 
 ### 1.3 Product Vision
+
 A creator should be able to say:
-> *"Here is my original content. Turn it into a week's worth of platform-native content, prepare everything, and publish the approved versions according to my schedule."*
+
+> _"Here is my original content. Turn it into a week's worth of platform-native content, prepare everything, and publish the approved versions according to my schedule."_
 
 The platform abstracts operational complexity while keeping the human in complete control of brand identity and final publication.
 
@@ -80,29 +85,31 @@ The platform abstracts operational complexity while keeping the human in complet
 ## 2. Product Scope
 
 ### 2.1 In Scope
-| Capability | Description |
-|---|---|
-| **Workspace Management** | Users, teams, workspaces, roles & permissions |
-| **Brand Management** | Brand voice, target audience, visual identity, rules, knowledge base |
-| **Content Ingestion** | Text, images, videos, documents, URLs |
-| **Original Content Editor** | Create, edit, and version source content |
-| **AI Content Adaptation** | Generate platform-specific native versions |
-| **Media Transformation** | Resize, crop, transcode, thumbnail generation, safe zones |
-| **Caption & Hook Generation** | Platform-specific captions, hooks, CTAs, hashtags |
-| **Content Calendar** | Plan, schedule, reschedule, and visualize content across channels |
-| **Approval Workflow** | Review, edit, approve, reject, regenerate |
-| **Publishing Integrations** | Connect supported social platforms via OAuth / API |
-| **Publishing Execution** | Publish immediately or schedule with idempotency & retries |
-| **Publishing Status** | Track queued, processing, published, failed states |
-| **Analytics Collection** | Ingest and normalize platform performance metrics |
-| **Performance Intelligence** | Compare variants, identify patterns, calculate true engagement |
-| **AI Recommendations** | Suggest future content topics and formats based on historical data |
-| **Asset Library** | Store and reuse media, derivatives, and content |
-| **Audit Logs** | Track sensitive actions, publish events, and workspace changes |
-| **Notifications** | Alerts for publishing failures, approvals, token expirations |
-| **API & Webhook Architecture** | Extensible integrations and event-driven architecture |
+
+| Capability                     | Description                                                          |
+| ------------------------------ | -------------------------------------------------------------------- |
+| **Workspace Management**       | Users, teams, workspaces, roles & permissions                        |
+| **Brand Management**           | Brand voice, target audience, visual identity, rules, knowledge base |
+| **Content Ingestion**          | Text, images, videos, documents, URLs                                |
+| **Original Content Editor**    | Create, edit, and version source content                             |
+| **AI Content Adaptation**      | Generate platform-specific native versions                           |
+| **Media Transformation**       | Resize, crop, transcode, thumbnail generation, safe zones            |
+| **Caption & Hook Generation**  | Platform-specific captions, hooks, CTAs, hashtags                    |
+| **Content Calendar**           | Plan, schedule, reschedule, and visualize content across channels    |
+| **Approval Workflow**          | Review, edit, approve, reject, regenerate                            |
+| **Publishing Integrations**    | Connect supported social platforms via OAuth / API                   |
+| **Publishing Execution**       | Publish immediately or schedule with idempotency & retries           |
+| **Publishing Status**          | Track queued, processing, published, failed states                   |
+| **Analytics Collection**       | Ingest and normalize platform performance metrics                    |
+| **Performance Intelligence**   | Compare variants, identify patterns, calculate true engagement       |
+| **AI Recommendations**         | Suggest future content topics and formats based on historical data   |
+| **Asset Library**              | Store and reuse media, derivatives, and content                      |
+| **Audit Logs**                 | Track sensitive actions, publish events, and workspace changes       |
+| **Notifications**              | Alerts for publishing failures, approvals, token expirations         |
+| **API & Webhook Architecture** | Extensible integrations and event-driven architecture                |
 
 ### 2.2 Out of Scope for Initial Release
+
 - Fully autonomous posting without user authorization.
 - Automatic replies to comments or DMs.
 - Paid advertising campaign execution.
@@ -120,16 +127,20 @@ The platform abstracts operational complexity while keeping the human in complet
 ## 3. Target Users & Personas
 
 ### Persona A: Solo Creator
+
 - **Needs:** Create content once, distribute to multiple platforms, maintain consistent voice, save time, understand what performs.
 - **Example:** Tech creator posting educational content on LinkedIn, X, Instagram, YouTube Shorts, and a blog.
 
 ### Persona B: Founder / Personal Brand
+
 - **Needs:** Turn thoughts, product updates, and lessons into content; maintain consistent messaging; build authority; schedule in advance.
 
 ### Persona C: Marketing Team
+
 - **Needs:** Collaborate on content, adhere to strict brand guidelines, enforce multi-stage approval, track campaign ROI.
 
 ### Persona D: Agency
+
 - **Needs:** Multiple clients and workspaces, separate brand settings, client approval workflows, multi-account publishing, consolidated reporting.
 
 ---
@@ -137,6 +148,7 @@ The platform abstracts operational complexity while keeping the human in complet
 ## 4. Product Goals & Success Metrics
 
 ### 4.1 Product Goals
+
 1. Reduce the time required to distribute one content idea across multiple platforms.
 2. Produce platform-native content rather than crude copy-paste transformations.
 3. Make publishing reliable, idempotent, and observable.
@@ -145,18 +157,19 @@ The platform abstracts operational complexity while keeping the human in complet
 6. Build an extensible agent architecture rather than a collection of hardcoded prompts.
 
 ### 4.2 Success Metrics
-| Metric | Initial Target |
-|---|---|
-| **Time to generate 5 platform variants** | < 2 minutes under normal load |
-| **Successful generation jobs** | ≥ 98% (excluding provider outages) |
-| **Publishing job observability** | 100% of jobs have status + error state |
-| **Duplicate publishing prevention** | 100% via idempotency controls |
-| **Scheduled job execution** | ≥ 99% within configured execution window |
-| **Asset processing success** | ≥ 98% for supported formats |
-| **User approval traceability** | 100% of published variants linked to approval state |
-| **Analytics sync visibility** | Last sync timestamp for every connected account |
-| **API p95 latency for standard reads** | < 500 ms target |
-| **Critical job retry handling** | Automatic retry with bounded backoff |
+
+| Metric                                   | Initial Target                                      |
+| ---------------------------------------- | --------------------------------------------------- |
+| **Time to generate 5 platform variants** | < 2 minutes under normal load                       |
+| **Successful generation jobs**           | ≥ 98% (excluding provider outages)                  |
+| **Publishing job observability**         | 100% of jobs have status + error state              |
+| **Duplicate publishing prevention**      | 100% via idempotency controls                       |
+| **Scheduled job execution**              | ≥ 99% within configured execution window            |
+| **Asset processing success**             | ≥ 98% for supported formats                         |
+| **User approval traceability**           | 100% of published variants linked to approval state |
+| **Analytics sync visibility**            | Last sync timestamp for every connected account     |
+| **API p95 latency for standard reads**   | < 500 ms target                                     |
+| **Critical job retry handling**          | Automatic retry with bounded backoff                |
 
 ---
 
@@ -192,6 +205,7 @@ graph TD
 ## 6. Functional Requirements
 
 ### 6.1 Authentication and Workspace Management
+
 - **FR-AUTH-001 (User Registration):** Support email/password, OAuth providers, email verification.
 - **FR-AUTH-002 (Authentication):** Support secure login/logout, session management, password reset, token refresh, account deactivation.
 - **FR-AUTH-003 (Workspaces):** Support workspace creation, renaming, member invites, removals, switching, and settings management.
@@ -210,27 +224,29 @@ graph TD
 ## 7. Brand Intelligence System
 
 ### 7.1 Brand Profile Fields
-| Field | Description |
-|---|---|
-| **Brand Name** | Name of creator or organization |
-| **Description** | What the brand does |
-| **Industry** | Industry / category |
-| **Target Audience** | Audience personas and pain points |
-| **Brand Mission** | Core purpose and values |
-| **Tone** | Professional, casual, technical, witty, etc. |
-| **Writing Style** | Sentence length, vocabulary, structure |
-| **Preferred Language** | English, Hindi, Hinglish, Spanish, etc. |
-| **Forbidden Phrases** | Prohibited words/phrases to strictly avoid |
-| **Preferred Phrases** | Reusable signature phrases / slogans |
-| **CTA Style** | Soft, direct, educational, promotional |
-| **Emoji Policy** | None, limited, expressive |
-| **Hashtag Policy** | Required, optional, prohibited |
-| **Content Pillars** | Core topics the brand consistently covers |
-| **Competitors / References** | Reference brands for stylistic cues |
-| **Visual Guidelines** | Hex colors, typography, composition guidelines |
-| **Disclosure Rules** | Sponsored, AI-generated, affiliate disclosures |
+
+| Field                        | Description                                    |
+| ---------------------------- | ---------------------------------------------- |
+| **Brand Name**               | Name of creator or organization                |
+| **Description**              | What the brand does                            |
+| **Industry**                 | Industry / category                            |
+| **Target Audience**          | Audience personas and pain points              |
+| **Brand Mission**            | Core purpose and values                        |
+| **Tone**                     | Professional, casual, technical, witty, etc.   |
+| **Writing Style**            | Sentence length, vocabulary, structure         |
+| **Preferred Language**       | English, Hindi, Hinglish, Spanish, etc.        |
+| **Forbidden Phrases**        | Prohibited words/phrases to strictly avoid     |
+| **Preferred Phrases**        | Reusable signature phrases / slogans           |
+| **CTA Style**                | Soft, direct, educational, promotional         |
+| **Emoji Policy**             | None, limited, expressive                      |
+| **Hashtag Policy**           | Required, optional, prohibited                 |
+| **Content Pillars**          | Core topics the brand consistently covers      |
+| **Competitors / References** | Reference brands for stylistic cues            |
+| **Visual Guidelines**        | Hex colors, typography, composition guidelines |
+| **Disclosure Rules**         | Sponsored, AI-generated, affiliate disclosures |
 
 ### 7.2 Brand Knowledge Base
+
 - **FR-BRAND-001:** Users can upload brand reference docs (PDFs, Markdown, text, previous posts, FAQs).
 - **FR-BRAND-002:** System extracts, chunks, and indexes text in a vector database.
 - **FR-BRAND-003:** AI generation retrieves relevant brand context using RAG.
@@ -242,11 +258,13 @@ graph TD
 ## 8. Content Ingestion & Source Creation
 
 ### 8.1 Supported Source Types
+
 - **Text:** Plain text, rich text, Markdown, long-form articles, notes, product announcements.
 - **Media:** Images, videos, audio (with transcription), multi-image assets.
 - **External Sources:** Public URLs (article scraping), uploaded documents, imported drafts, RSS feeds (later phase).
 
 ### 8.2 Source Creation Requirements
+
 - **FR-SOURCE-001:** Create content source manually via rich-text editor.
 - **FR-SOURCE-002:** Upload source files and documents.
 - **FR-SOURCE-003:** Attach one or more media assets.
@@ -282,8 +300,10 @@ Database / Queue / External API
 ### 9.2 Specialized Agent Roster
 
 #### Agent 1: Content Intake Agent
+
 - **Purpose:** Analyze original source and extract a canonical brief.
 - **Output Schema:**
+
 ```json
 {
   "content_brief": {
@@ -301,8 +321,10 @@ Database / Queue / External API
 ```
 
 #### Agent 2: Platform Strategy Agent
+
 - **Purpose:** Determine platform-specific angle, format, hook style, length, and media recommendations.
 - **Output Schema:**
+
 ```json
 {
   "platform_strategies": [
@@ -319,12 +341,15 @@ Database / Queue / External API
 ```
 
 #### Agent 3: Content Adaptation Agent
+
 - **Purpose:** Rewrite source into platform-native copy adhering to brand rules and platform constraints.
 - **Rule:** Adapt the content, not the facts. Do not invent statistics, customer results, or claims.
 
 #### Agent 4: Caption & Hook Agent
+
 - **Purpose:** Generate platform-specific hooks, captions, hashtags, and disclosures.
 - **Output Schema:**
+
 ```json
 {
   "caption_package": {
@@ -339,8 +364,10 @@ Database / Queue / External API
 ```
 
 #### Agent 5: Media Direction Agent
+
 - **Purpose:** Determine optimal aspect ratio, crop strategy, and framing for each platform.
 - **Output Schema:**
+
 ```json
 {
   "media_plan": {
@@ -364,9 +391,11 @@ Database / Queue / External API
 ```
 
 #### Agent 6: Media Processing Service / Worker (Deterministic)
+
 - **Purpose:** Execute resizing, cropping, transcoding, thumbnail extraction, and preview generation using FFmpeg / Sharp / Pillow.
 
 #### Agent 7: Quality Assurance Agent (QualityEvaluator)
+
 - **Purpose:** Automated compliance, brand voice, source fidelity, grammar, originality, platform formatting, hook strength, and safety review using an objective 10-point scorecard.
 - **10-Point Scorecard Criteria:**
   1. `source_fidelity`: Verifies claims, facts, and takeaways match the source without hallucinations.
@@ -376,39 +405,95 @@ Database / Queue / External API
   5. `hook_strength`: Assesses first 2-3 lines for stopping power, curiosity, or value proposition.
   6. `specificity`: Penalizes vague generalizations, rewarding concrete facts and metrics.
   7. `usefulness`: Ensures actionable, educational, or entertaining reader takeaway.
-  8. `originality`: Detects and bans generic clichés (e.g., *"In today's fast-paced world"*).
+  8. `originality`: Detects and bans generic clichés (e.g., _"In today's fast-paced world"_).
   9. `cta_quality`: Evaluates natural alignment and clarity of the call-to-action.
   10. `policy_compliance`: Validates safety, spam filter avoidance, and platform policy adherence.
 - **Output Schema (`QualityCheckResult`):**
+
 ```json
 {
   "quality_score": 0.92,
   "passed": true,
   "requires_human_review": false,
   "checks": [
-    { "name": "source_fidelity", "status": "pass", "score": 0.95, "reason": "Accurately reflects core thesis and statistics." },
-    { "name": "brand_voice", "status": "pass", "score": 0.90, "reason": "Matches confident, authoritative brand tone." },
-    { "name": "grammar_syntax", "status": "pass", "score": 0.98, "reason": "Flawless sentence structure." },
-    { "name": "platform_formatting", "status": "pass", "score": 0.92, "reason": "Optimal line breaks and whitespace." },
-    { "name": "hook_strength", "status": "pass", "score": 0.94, "reason": "Strong curiosity-driven opening." },
-    { "name": "specificity", "status": "pass", "score": 0.88, "reason": "Includes concrete action items." },
-    { "name": "usefulness", "status": "pass", "score": 0.92, "reason": "Clear tactical takeaways provided." },
-    { "name": "originality", "status": "pass", "score": 0.90, "reason": "Zero generic clichés detected." },
-    { "name": "cta_quality", "status": "pass", "score": 0.88, "reason": "Engaging conversational closing." },
-    { "name": "policy_compliance", "status": "pass", "score": 1.00, "reason": "Fully compliant with platform safety guidelines." }
+    {
+      "name": "source_fidelity",
+      "status": "pass",
+      "score": 0.95,
+      "reason": "Accurately reflects core thesis and statistics."
+    },
+    {
+      "name": "brand_voice",
+      "status": "pass",
+      "score": 0.9,
+      "reason": "Matches confident, authoritative brand tone."
+    },
+    {
+      "name": "grammar_syntax",
+      "status": "pass",
+      "score": 0.98,
+      "reason": "Flawless sentence structure."
+    },
+    {
+      "name": "platform_formatting",
+      "status": "pass",
+      "score": 0.92,
+      "reason": "Optimal line breaks and whitespace."
+    },
+    {
+      "name": "hook_strength",
+      "status": "pass",
+      "score": 0.94,
+      "reason": "Strong curiosity-driven opening."
+    },
+    {
+      "name": "specificity",
+      "status": "pass",
+      "score": 0.88,
+      "reason": "Includes concrete action items."
+    },
+    {
+      "name": "usefulness",
+      "status": "pass",
+      "score": 0.92,
+      "reason": "Clear tactical takeaways provided."
+    },
+    {
+      "name": "originality",
+      "status": "pass",
+      "score": 0.9,
+      "reason": "Zero generic clichés detected."
+    },
+    {
+      "name": "cta_quality",
+      "status": "pass",
+      "score": 0.88,
+      "reason": "Engaging conversational closing."
+    },
+    {
+      "name": "policy_compliance",
+      "status": "pass",
+      "score": 1.0,
+      "reason": "Fully compliant with platform safety guidelines."
+    }
   ],
   "issues": [],
-  "suggestions": ["Consider adding a quick question at the end to boost reply comments."],
+  "suggestions": [
+    "Consider adding a quick question at the end to boost reply comments."
+  ],
   "revision_count": 0
 }
 ```
 
 #### Agent 8: Publishing Orchestrator
+
 - **Purpose:** Coordinate validation, schedule execution, token verification, and platform adapter dispatch.
 
 #### Agent 9: Analytics Agent
+
 - **Purpose:** Ingest raw metrics, normalize them across channels, and extract actionable patterns.
 - **Output Schema:**
+
 ```json
 {
   "insights": [
@@ -427,8 +512,10 @@ Database / Queue / External API
 ```
 
 #### Agent 10: Content Recommendation Agent
+
 - **Purpose:** Generate future content topic and format recommendations based on historical performance evidence.
 - **Output Schema:**
+
 ```json
 {
   "recommendations": [
@@ -449,6 +536,7 @@ Database / Queue / External API
 ## 10. Agent Orchestration & Workflow State Machine
 
 ### 10.1 Workflow Architecture
+
 ```mermaid
 flowchart TD
     A[User Submits Source] --> B[Create Generation Job]
@@ -470,6 +558,7 @@ flowchart TD
 ```
 
 ### 10.2 Workflow State Lifecycle
+
 ```text
 CREATED
   → INTAKE_RUNNING (SourceAnalyst brief extraction)
@@ -495,6 +584,7 @@ Terminal / Failure states:
 ## 11. Platform Integration & Publishing Matrix
 
 ### 11.1 Platform Adapter Interface
+
 ```python
 from typing import Protocol, Dict, Any
 
@@ -516,20 +606,22 @@ class PlatformAdapter(Protocol):
 ```
 
 ### 11.2 Platform Capabilities & Publishing Modes
-| Platform | Supported Formats | Publishing Modes | Notes |
-|---|---|---|---|
-| **Instagram** | Single image, Carousel, Reels | Mode A (Direct), Mode B (Draft) | Requires Instagram Graph API & Professional account |
-| **TikTok** | Video, Photo post | Mode A (Direct), Mode B (Draft / Upload) | Direct post requires Creator Info API & audit clearance |
-| **YouTube** | Videos, Shorts | Mode A (Direct / Scheduled) | Requires OAuth & Quota management |
-| **X (Twitter)** | Text posts, Images, Video, Threads | Mode A (Direct) | Two-stage media upload + tweet creation |
-| **LinkedIn** | Text posts, Images, Document/Carousels | Mode A (Direct) | Personal profile or Company Page APIs |
-| **Threads** | Text, Single Image/Video | Mode A (Direct) | Official Meta Threads Publishing API |
-| **Facebook** | Pages text, image, video posts | Mode A (Direct) | Meta Graph API for Pages |
-| **Pinterest** | Pins, Idea Pins | Mode A (Direct) | Requires Pinterest Business API |
-| **Email** | Newsletter HTML/Markdown | Mode A (Direct / ESP API) | Resend, SendGrid, Mailchimp |
-| **Blog / CMS** | Long-form Markdown/HTML | Mode A (Direct REST) | WordPress REST API, Ghost, Webflow |
+
+| Platform        | Supported Formats                      | Publishing Modes                         | Notes                                                   |
+| --------------- | -------------------------------------- | ---------------------------------------- | ------------------------------------------------------- |
+| **Instagram**   | Single image, Carousel, Reels          | Mode A (Direct), Mode B (Draft)          | Requires Instagram Graph API & Professional account     |
+| **TikTok**      | Video, Photo post                      | Mode A (Direct), Mode B (Draft / Upload) | Direct post requires Creator Info API & audit clearance |
+| **YouTube**     | Videos, Shorts                         | Mode A (Direct / Scheduled)              | Requires OAuth & Quota management                       |
+| **X (Twitter)** | Text posts, Images, Video, Threads     | Mode A (Direct)                          | Two-stage media upload + tweet creation                 |
+| **LinkedIn**    | Text posts, Images, Document/Carousels | Mode A (Direct)                          | Personal profile or Company Page APIs                   |
+| **Threads**     | Text, Single Image/Video               | Mode A (Direct)                          | Official Meta Threads Publishing API                    |
+| **Facebook**    | Pages text, image, video posts         | Mode A (Direct)                          | Meta Graph API for Pages                                |
+| **Pinterest**   | Pins, Idea Pins                        | Mode A (Direct)                          | Requires Pinterest Business API                         |
+| **Email**       | Newsletter HTML/Markdown               | Mode A (Direct / ESP API)                | Resend, SendGrid, Mailchimp                             |
+| **Blog / CMS**  | Long-form Markdown/HTML                | Mode A (Direct REST)                     | WordPress REST API, Ghost, Webflow                      |
 
 #### Publishing Modes:
+
 - **Mode A (Direct Publish):** API publishes directly to feed upon approval.
 - **Mode B (Upload / Draft):** Uploads media/draft to platform inbox for manual user finalization.
 - **Mode C (Export / Manual Handoff):** Packages copy, hashtags, and media derivatives for copy-paste.
@@ -539,6 +631,7 @@ class PlatformAdapter(Protocol):
 ## 12. Publishing Engine & Reliability
 
 ### 12.1 Publishing State Machine
+
 ```mermaid
 stateDiagram-v2
     [*] --> Draft
@@ -555,6 +648,7 @@ stateDiagram-v2
 ```
 
 ### 12.2 Reliability & Idempotency Rules
+
 - **Idempotency Key:** Every publishing request derives a deterministic UUID (`hash(variant_id + account_id + scheduled_time)`).
 - **Two-Phase Commit / Asynchronous Status Check:** Never mark a job as `Published` purely on HTTP 200 if the platform API processes media asynchronously.
 - **Bounded Exponential Backoff:** Transient network/5xx errors retry up to 3 times (10s, 60s, 300s). 4xx client/auth errors fail fast with actionable UI messages.
@@ -565,6 +659,7 @@ stateDiagram-v2
 ## 13. Media Processing Pipeline
 
 ### 13.1 Derivative Schema
+
 ```json
 {
   "asset_id": "asset_123",
@@ -580,6 +675,7 @@ stateDiagram-v2
 ```
 
 ### 13.2 Pipeline Capabilities
+
 - Image resizing, smart cropping, format conversion (JPEG, PNG, WebP).
 - Video transcoding, aspect ratio conversion (9:16, 1:1, 16:9), duration validation, frame extraction (thumbnails).
 - Safe-zone validation to ensure UI overlays on TikTok/Reels do not obscure subtitles.
@@ -599,23 +695,27 @@ stateDiagram-v2
 ## 15. Content Review & Human-in-the-Loop (HITL)
 
 ### 15.1 Approval Modes
+
 - **Manual Approval (Default):** Every variant requires explicit review and approval.
 - **Batch Approval:** Review and approve multiple generated variants simultaneously.
 - **Trusted Automation (Optional):** Workspace rule allowing auto-publishing for specific low-risk channels or templates.
 - **Export Only:** Prepare variants for manual export without OAuth connections.
 
 ### 15.2 Granular Regeneration Controls
+
 Users can trigger single-element regenerations without restarting the entire pipeline:
-- *"Make hook more controversial"*
-- *"Shorten caption to under 280 characters"*
-- *"Swap CTA to link in bio"*
-- *"Regenerate hashtags only"*
+
+- _"Make hook more controversial"_
+- _"Shorten caption to under 280 characters"_
+- _"Swap CTA to link in bio"_
+- _"Regenerate hashtags only"_
 
 ---
 
 ## 16. Analytics & Feedback Loop
 
 ### 16.1 Metric Normalization Model
+
 ```json
 {
   "metric_name": "engagement_rate",
@@ -635,6 +735,7 @@ Users can trigger single-element regenerations without restarting the entire pip
 ```
 
 ### 16.2 Continuous Learning Loop
+
 1. Periodic background workers sync metrics from connected platform APIs.
 2. Analytics Agent aggregates performance by pillar, format, length, and hook style.
 3. Recommendation Agent surfaces evidence-backed proposals for next week's content calendar.
@@ -644,6 +745,7 @@ Users can trigger single-element regenerations without restarting the entire pip
 ## 17. Database Schema & Data Models
 
 ### 17.1 Core Tables
+
 ```text
 users
   ├── id (UUID, PK)
@@ -776,6 +878,7 @@ audit_logs
 Base path: `/api/v1`
 
 ### 18.1 Content Sources
+
 - `POST   /workspaces/{workspace_id}/sources` - Create new source
 - `GET    /workspaces/{workspace_id}/sources` - List sources (paginated)
 - `GET    /sources/{source_id}` - Retrieve source details
@@ -784,6 +887,7 @@ Base path: `/api/v1`
 - `POST   /sources/{source_id}/generate` - Trigger AI generation workflow
 
 ### 18.2 Content Variants
+
 - `GET    /sources/{source_id}/variants` - List generated variants
 - `GET    /variants/{variant_id}` - Get variant details
 - `PATCH  /variants/{variant_id}` - Update variant copy / metadata
@@ -792,6 +896,7 @@ Base path: `/api/v1`
 - `POST   /variants/{variant_id}/reject` - Reject variant with reason
 
 ### 18.3 Publishing & Scheduling
+
 - `POST   /variants/{variant_id}/publish` - Publish immediately
 - `POST   /variants/{variant_id}/schedule` - Schedule for target date/time
 - `GET    /workspaces/{workspace_id}/publishing-jobs` - List jobs
@@ -800,12 +905,14 @@ Base path: `/api/v1`
 - `POST   /publishing-jobs/{job_id}/cancel` - Cancel scheduled job
 
 ### 18.4 Platform Connections
+
 - `GET    /workspaces/{workspace_id}/connections` - List connected accounts
 - `POST   /connections/{platform}/authorize` - Start OAuth flow
 - `GET    /connections/{platform}/callback` - OAuth callback receiver
 - `DELETE /connections/{connection_id}` - Revoke & disconnect account
 
 ### 18.5 Async Job Status Polling / WebSockets
+
 - `GET    /jobs/{job_id}` - Poll background generation / media status
 - `WS     /ws/workspaces/{workspace_id}` - Real-time event updates
 
@@ -814,6 +921,7 @@ Base path: `/api/v1`
 ## 19. Event-Driven Architecture
 
 ### 19.1 Core Domain Events
+
 ```text
 source.created | source.updated
 generation.requested | generation.started | generation.completed | generation.failed
@@ -834,9 +942,9 @@ insight.generated | recommendation.generated
 - **Network Resilience & Cold Starts (NFR-NET):** Exponential backoff retry for hosting cold starts (502/503/504), client-side abort controllers (30s API / 75s generation timeout), and Next.js proxy rewrites for production deployments.
 - **Performance (NFR-PERF):** API p95 read latency < 250ms; generation job acceptance < 1s; end-to-end multi-variant generation < 30s with Groq LLM inference.
 - **Model Routing & Fallback (NFR-LLM):** Model tiering with deterministic offline fallback:
-  - *High-Speed Inference (Groq LLaMA 3.3 70B / Qwen):* Fast multi-variant generation and real-time QA evaluation.
-  - *Advanced Model (OpenAI GPT-4o / Claude 3.5 Sonnet):* Complex domain synthesis and deep brand voice analysis.
-  - *Deterministic Rule Engine:* Zero-downtime offline fallback for brief extraction, platform rules, and 10-point scorecard evaluation.
+  - _High-Speed Inference (Groq LLaMA 3.3 70B / Qwen):_ Fast multi-variant generation and real-time QA evaluation.
+  - _Advanced Model (OpenAI GPT-4o / Claude 3.5 Sonnet):_ Complex domain synthesis and deep brand voice analysis.
+  - _Deterministic Rule Engine:_ Zero-downtime offline fallback for brief extraction, platform rules, and 10-point scorecard evaluation.
 
 ---
 

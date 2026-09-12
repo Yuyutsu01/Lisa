@@ -26,8 +26,10 @@ import {
   Send,
   Eye,
   Sliders,
-  Check,
   ShieldAlert,
+  Image as ImageIcon,
+  Film,
+  Music,
 } from "lucide-react";
 import { InteractiveButton } from "@/components/InteractiveButton";
 import { ScrollReveal } from "@/components/ScrollReveal";
@@ -64,6 +66,8 @@ export default function VariantReviewPage({
   // Regeneration state
   const [regenInstruction, setRegenInstruction] = useState("");
   const [regenerating, setRegenerating] = useState(false);
+  const [generatingImage, setGeneratingImage] = useState(false);
+  const [generatingVideo, setGeneratingVideo] = useState(false);
 
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -165,6 +169,34 @@ export default function VariantReviewPage({
       console.error("Regeneration failed", err);
     } finally {
       setRegenerating(false);
+    }
+  };
+
+  const handleGenerateImage = async () => {
+    if (!currentVariant) return;
+    try {
+      setGeneratingImage(true);
+      const updated = await variantsApi.generateImage(currentVariant.id);
+      setVariants(variants.map((v) => (v.id === updated.id ? updated : v)));
+    } catch (err) {
+      console.error("Visual generation failed", err);
+      alert(err instanceof Error ? err.message : "Failed to generate visual.");
+    } finally {
+      setGeneratingImage(false);
+    }
+  };
+
+  const handleGenerateVideo = async () => {
+    if (!currentVariant) return;
+    try {
+      setGeneratingVideo(true);
+      const updated = await variantsApi.generateVideoStoryboard(currentVariant.id);
+      setVariants(variants.map((v) => (v.id === updated.id ? updated : v)));
+    } catch (err) {
+      console.error("Video storyboard generation failed", err);
+      alert(err instanceof Error ? err.message : "Failed to generate video storyboard.");
+    } finally {
+      setGeneratingVideo(false);
     }
   };
 
@@ -451,28 +483,55 @@ export default function VariantReviewPage({
             })}
           </div>
 
-          {/* View Mode Toggle: Preview vs Full Edit */}
-          <div className="flex items-center gap-1.5 bg-[#0a0a0d] p-1 rounded-full border border-white/[0.08]">
-            <button
-              onClick={() => setViewMode("preview")}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
-                viewMode === "preview"
-                  ? "bg-[#ede8df] text-[#09090b] font-semibold"
-                  : "text-[#85827b] hover:text-[#ede8df]"
-              }`}
+          <div className="flex items-center gap-2.5 flex-wrap">
+            {/* View Mode Toggle: Preview vs Full Edit */}
+            <div className="flex items-center gap-1.5 bg-[#0a0a0d] p-1 rounded-full border border-white/[0.08]">
+              <button
+                onClick={() => setViewMode("preview")}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
+                  viewMode === "preview"
+                    ? "bg-[#ede8df] text-[#09090b] font-semibold"
+                    : "text-[#85827b] hover:text-[#ede8df]"
+                }`}
+              >
+                Native Preview
+              </button>
+              <button
+                onClick={() => setViewMode("edit")}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
+                  viewMode === "edit"
+                    ? "bg-[#ede8df] text-[#09090b] font-semibold"
+                    : "text-[#85827b] hover:text-[#ede8df]"
+                }`}
+              >
+                Full Editor
+              </button>
+            </div>
+
+            {/* AI Media Studio Actions */}
+            <InteractiveButton
+              onClick={handleGenerateImage}
+              loading={generatingImage}
+              loadingText="FLUX.1 Rendering..."
+              variant="secondary"
+              size="sm"
+              leftIcon={<ImageIcon className="w-3.5 h-3.5 text-[#d4a373]" />}
+              className="text-xs px-3.5 py-1.5 border-white/[0.08] hover:border-[#d4a373]/40"
             >
-              Native Preview
-            </button>
-            <button
-              onClick={() => setViewMode("edit")}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
-                viewMode === "edit"
-                  ? "bg-[#ede8df] text-[#09090b] font-semibold"
-                  : "text-[#85827b] hover:text-[#ede8df]"
-              }`}
+              Generate AI Visual
+            </InteractiveButton>
+
+            <InteractiveButton
+              onClick={handleGenerateVideo}
+              loading={generatingVideo}
+              loadingText="Scripting Short..."
+              variant="secondary"
+              size="sm"
+              leftIcon={<Film className="w-3.5 h-3.5 text-[#d4a373]" />}
+              className="text-xs px-3.5 py-1.5 border-white/[0.08] hover:border-[#d4a373]/40"
             >
-              Full Editor
-            </button>
+              Generate Video Storyboard
+            </InteractiveButton>
           </div>
         </div>
 
@@ -493,6 +552,7 @@ export default function VariantReviewPage({
                     </span>
                   </div>
 
+<<<<<<< HEAD
                   {/* Mode 1: Native Simulated Feed Reader (Full height, styled, no truncation) */}
                   {viewMode === "preview" && (
                     <div className="p-6 sm:p-7 rounded-2xl sm:rounded-3xl bg-black/60 border border-white/[0.08] space-y-5 font-sans">
@@ -533,6 +593,59 @@ export default function VariantReviewPage({
                       <div className="text-xs sm:text-sm lg:text-[15px] text-[#ede8df] leading-relaxed whitespace-pre-wrap font-sans py-2 space-y-3">
                         {currentVariant.body}
                       </div>
+
+                      {/* Generated Photo / Poster (FLUX.1 via Hugging Face) */}
+                      {currentVariant.media_url && (
+                        <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-black/40 group my-3">
+                          <img
+                            src={currentVariant.media_url}
+                            alt="AI Generated Visual"
+                            className="w-full h-auto max-h-96 object-cover rounded-2xl"
+                          />
+                          <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-black/80 backdrop-blur text-[11px] font-mono text-[#d4a373] border border-[#d4a373]/30 flex items-center gap-1.5 shadow-lg">
+                            <ImageIcon className="w-3.5 h-3.5 text-[#d4a373]" />
+                            <span>FLUX.1 Visual</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Video Short Storyboard & Scene Breakdown */}
+                      {currentVariant.video_storyboard_json?.scenes && (
+                        <div className="p-5 rounded-2xl bg-white/[0.02] border border-[#d4a373]/30 space-y-3.5 my-3">
+                          <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
+                            <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#ede8df]">
+                              <Film className="w-4 h-4 text-[#d4a373]" />
+                              <span>9:16 Video Short Storyboard &amp; Audio Script</span>
+                            </div>
+                            {currentVariant.video_storyboard_json.soundtrack_mood && (
+                              <span className="text-[11px] text-[#8a8a93] flex items-center gap-1.5 font-mono">
+                                <Music className="w-3.5 h-3.5 text-[#d4a373]" />
+                                {currentVariant.video_storyboard_json.soundtrack_mood}
+                              </span>
+                            )}
+                          </div>
+
+                          {currentVariant.video_storyboard_json.hook_first_3_seconds && (
+                            <div className="p-3 rounded-xl bg-[#d4a373]/10 border border-[#d4a373]/20 text-xs sm:text-sm text-[#ede8df]">
+                              <span className="font-bold text-[#d4a373] mr-1.5 font-mono">⚡ Hook (0-3s):</span>
+                              {currentVariant.video_storyboard_json.hook_first_3_seconds}
+                            </div>
+                          )}
+
+                          <div className="space-y-2 pt-1">
+                            {currentVariant.video_storyboard_json.scenes.map((scene: any, sIdx: number) => (
+                              <div key={sIdx} className="p-3 rounded-xl bg-black/40 border border-white/[0.06] text-xs space-y-1.5">
+                                <div className="flex items-center justify-between text-[#d4a373] font-mono font-semibold">
+                                  <span>Scene {sIdx + 1}</span>
+                                  <span>{scene.timestamp}</span>
+                                </div>
+                                <p className="text-[#a6a39b]"><strong className="text-[#ede8df]">Visual:</strong> {scene.visual_prompt}</p>
+                                <p className="text-[#ede8df] italic"><strong className="text-[#ede8df] not-italic">Voiceover:</strong> &ldquo;{scene.voiceover}&rdquo;</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
                       {/* Hashtags */}
                       {currentVariant.hashtags_json && currentVariant.hashtags_json.length > 0 && (

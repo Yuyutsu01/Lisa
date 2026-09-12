@@ -17,6 +17,8 @@ class ContentVariantBase(BaseModel):
     caption: Optional[str] = None
     cta: Optional[str] = None
     hashtags_json: List[str] = Field(default_factory=list)
+    media_url: Optional[str] = None
+    video_storyboard_json: Optional[Dict[str, Any]] = None
 
 
 class ContentVariantUpdate(BaseModel):
@@ -25,17 +27,27 @@ class ContentVariantUpdate(BaseModel):
     caption: Optional[str] = None
     cta: Optional[str] = None
     hashtags_json: Optional[List[str]] = None
+    media_url: Optional[str] = None
+    video_storyboard_json: Optional[Dict[str, Any]] = None
     status: Optional[VariantStatus] = None
 
 
 class ContentVariantRegenerateRequest(BaseModel):
     instruction: Optional[str] = None  # e.g. "make it more contrarian", "shorten hook"
-    target_field: Optional[str] = "all"  # all, hook, body, caption, hashtags
+    target_field: Optional[str] = "all"  # all, hook, body, caption, hashtags, media
 
 
 class ContentVariantApproval(BaseModel):
     status: VariantStatus = VariantStatus.APPROVED
     rejection_reason: Optional[str] = None
+
+
+class GenerateImageRequest(BaseModel):
+    custom_prompt: Optional[str] = None
+
+
+class GenerateVideoRequest(BaseModel):
+    custom_instruction: Optional[str] = None
 
 
 class ContentVariantResponse(ContentVariantBase):
@@ -45,6 +57,8 @@ class ContentVariantResponse(ContentVariantBase):
     status: VariantStatus
     strategy_json: Dict[str, Any] = Field(default_factory=dict)
     quality_review_json: Dict[str, Any] = Field(default_factory=dict)
+    media_url: Optional[str] = None
+    video_storyboard_json: Optional[Dict[str, Any]] = None
     approved_by: Optional[str] = None
     approved_at: Optional[datetime] = None
     rejection_reason: Optional[str] = None

@@ -15,6 +15,7 @@ from app.agents.strategy import PlatformStrategyAgent
 from app.agents.adaptation import ContentAdaptationAgent
 from app.agents.caption import CaptionHookAgent
 from app.agents.qa import QualityAssuranceAgent
+from app.agents.visual import VisualMediaAgent
 
 
 class GenerationPipeline:
@@ -55,10 +56,11 @@ class GenerationPipeline:
         strategy_agent = PlatformStrategyAgent(context)
         strategies = await strategy_agent.formulate_strategies(brief, platforms)
 
-        # 4. Agent 3 & 4: Platform Native Writer & Quality Reviewer
+        # 4. Agents 3, 4 & 5: Platform Native Writer, Quality Reviewer & Visual Director
         adaptation_agent = ContentAdaptationAgent(context)
         caption_agent = CaptionHookAgent(context)
         qa_agent = QualityAssuranceAgent(context)
+        visual_agent = VisualMediaAgent()
 
         created_variants: List[ContentVariant] = []
 
@@ -136,8 +138,23 @@ class GenerationPipeline:
 
             hashtags = adapted.get("hashtags") or captions.hashtags
 
+            # Visual Media & Video Short Generation
+            variant_id = str(uuid.uuid4())
+            media_url = None
+            video_storyboard = None
+
+            # Video storyboard for short video formats (YouTube Shorts / TikTok / Reels)
+            if plat_key in ["youtube", "tiktok"] or strategy.format in ["short_video", "video"]:
+                video_storyboard = await visual_agent.generate_video_short_spec(brief, source.title)
+
+            # High-resolution image/poster via Hugging Face FLUX.1
+            if plat_key in ["instagram", "linkedin", "x", "youtube", "tiktok"] or getattr(strategy, "media_required", False):
+                img_prompt = await visual_agent.generate_image_prompt(brief, plat_key, strategy)
+                media_url = visual_agent.generate_photo(img_prompt, variant_id=variant_id)
+
             # Assemble ContentVariant entity
             variant = ContentVariant(
+                id=variant_id,
                 workspace_id=self.workspace_id,
                 content_source_id=source.id,
                 platform=plat_key,
@@ -150,6 +167,8 @@ class GenerationPipeline:
                 hashtags_json=hashtags,
                 strategy_json=strategy.model_dump(),
                 quality_review_json=qa_result.model_dump(),
+                media_url=media_url,
+                video_storyboard_json=video_storyboard,
             )
             self.db.add(variant)
             created_variants.append(variant)
@@ -305,12 +324,27 @@ class GenerationPipeline:
 
         hashtags = adapted.get("hashtags") or captions.hashtags
 
+        # Visual Media & Video Short Generation
+        visual_agent = VisualMediaAgent()
+        media_url = None
+        video_storyboard = None
+        var_id = str(uuid.uuid4())
+
+        if plat_key in ["youtube", "tiktok"] or strategy.format in ["short_video", "video"]:
+            video_storyboard = await visual_agent.generate_video_short_spec(brief, source.title)
+
+        if plat_key in ["instagram", "linkedin", "x", "youtube", "tiktok"] or getattr(strategy, "media_required", False):
+            img_prompt = await visual_agent.generate_image_prompt(brief, plat_key, strategy)
+            media_url = visual_agent.generate_photo(img_prompt, variant_id=var_id)
+
         return {
             "title": adapted.get("title"),
             "body": adapted.get("body", ""),
             "caption": adapted.get("caption") or captions.primary_caption,
             "cta": adapted.get("cta"),
             "hashtags_json": hashtags,
+            "media_url": media_url,
+            "video_storyboard_json": video_storyboard,
             "strategy_json": strategy.model_dump(),
             "quality_review_json": qa_result.model_dump(),
         }

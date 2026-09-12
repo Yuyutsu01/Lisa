@@ -24,7 +24,7 @@ class Base(DeclarativeBase):
 # Connect arguments and pool configuration
 connect_args = {}
 engine_kwargs = {
-    "echo": (settings.ENVIRONMENT == "development"),
+    "echo": False,
     "pool_pre_ping": True,
     "future": True,
 }
@@ -72,6 +72,15 @@ async def init_db() -> None:
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
+            from sqlalchemy import text
+            for col_def in [
+                ("media_url", "VARCHAR(500)"),
+                ("video_storyboard_json", "JSON"),
+            ]:
+                try:
+                    await conn.execute(text(f"ALTER TABLE content_variants ADD COLUMN {col_def[0]} {col_def[1]}"))
+                except Exception:
+                    pass
         logger.info("Database schema initialized successfully.")
     except Exception as exc:
         logger.warning(
