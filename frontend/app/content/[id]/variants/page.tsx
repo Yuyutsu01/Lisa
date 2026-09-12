@@ -26,6 +26,7 @@ import {
   Send,
   Eye,
   Sliders,
+  Check,
   ShieldAlert,
   Image as ImageIcon,
   Film,
@@ -552,7 +553,6 @@ export default function VariantReviewPage({
                     </span>
                   </div>
 
-<<<<<<< HEAD
                   {/* Mode 1: Native Simulated Feed Reader (Full height, styled, no truncation) */}
                   {viewMode === "preview" && (
                     <div className="p-6 sm:p-7 rounded-2xl sm:rounded-3xl bg-black/60 border border-white/[0.08] space-y-5 font-sans">
