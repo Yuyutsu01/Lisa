@@ -517,6 +517,96 @@ export async function POST(req: NextRequest, context: RouteContext) {
     return NextResponse.json(updated);
   }
 
+  // Variant generate-image: /variants/:id/generate-image
+  if (slug[0] === "variants" && slug[2] === "generate-image") {
+    const variantId = slug[1];
+    const v = store.variants.get(variantId);
+    if (!v) return NextResponse.json({ detail: "Variant not found" }, { status: 404 });
+
+    // Try proxying to live Python FastAPI backend if reachable
+    try {
+      const backendRes = await fetch(`http://localhost:8000/api/v1/variants/${variantId}/generate-image`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(await req.json().catch(() => ({}))),
+      });
+      if (backendRes.ok) {
+        const backendVariant = await backendRes.json();
+        v.media_url = backendVariant.media_url || v.media_url;
+        v.updated_at = new Date().toISOString();
+        return NextResponse.json(v);
+      }
+    } catch {
+      // Backend not running or variant in mock store
+    }
+
+    // High resolution photorealistic concept images
+    const visualPool = [
+      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=1200&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=1200&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=1200&auto=format&fit=crop"
+    ];
+    v.media_url = visualPool[Math.floor(Math.random() * visualPool.length)];
+    v.updated_at = new Date().toISOString();
+    return NextResponse.json(v);
+  }
+
+  // Variant generate-video: /variants/:id/generate-video
+  if (slug[0] === "variants" && slug[2] === "generate-video") {
+    const variantId = slug[1];
+    const v = store.variants.get(variantId);
+    if (!v) return NextResponse.json({ detail: "Variant not found" }, { status: 404 });
+
+    // Try proxying to live Python FastAPI backend if reachable
+    try {
+      const backendRes = await fetch(`http://localhost:8000/api/v1/variants/${variantId}/generate-video`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(await req.json().catch(() => ({}))),
+      });
+      if (backendRes.ok) {
+        const backendVariant = await backendRes.json();
+        v.video_storyboard_json = backendVariant.video_storyboard_json || v.video_storyboard_json;
+        v.updated_at = new Date().toISOString();
+        return NextResponse.json(v);
+      }
+    } catch {
+      // Backend not running
+    }
+
+    // High retention 9:16 vertical short storyboard
+    v.video_storyboard_json = {
+      hook_first_3_seconds: `Why 95% of engineering teams fail at scaling: ${v.title || "The Hard Truth"}`,
+      soundtrack_mood: "High-tempo cyberpunk synth bass with crisp sub-drops",
+      text_overlays: ["STOP ARCHITECTING MONOLITHS", "10M EVENTS/SEC", "IMMUTABLE REPLAY"],
+      scenes: [
+        {
+          timestamp: "0:00 - 0:04",
+          visual_prompt: "Fast zoom into glowing neon server cluster crashing with red alert indicators.",
+          voiceover: "If your event bus crashes under load, you don't have a throughput problem. You have an architecture problem.",
+        },
+        {
+          timestamp: "0:04 - 0:15",
+          visual_prompt: "Split screen: Traditional blocking queue vs Zero-copy append-only log running at hyper-speed.",
+          voiceover: "Here is how high-scale teams process 10 million events without dropping a single packet.",
+        },
+        {
+          timestamp: "0:15 - 0:28",
+          visual_prompt: "Schematic architecture overlay showing deterministic state machine replay.",
+          voiceover: "First: Eliminate unbounded buffers. Second: Replace memory locks with ring buffers. Third: Replay from write-ahead logs.",
+        },
+        {
+          timestamp: "0:28 - 0:35",
+          visual_prompt: "Clean minimal Lisa typography card with animated subscribe/follow badge.",
+          voiceover: "Save this architecture blueprint and check the breakdown in the comments.",
+        },
+      ],
+    };
+    v.updated_at = new Date().toISOString();
+    return NextResponse.json(v);
+  }
+
   // Variant approve: /variants/:id/approve
   if (slug[0] === "variants" && slug[2] === "approve") {
     const variantId = slug[1];

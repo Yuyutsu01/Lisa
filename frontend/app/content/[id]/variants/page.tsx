@@ -484,55 +484,28 @@ export default function VariantReviewPage({
             })}
           </div>
 
-          <div className="flex items-center gap-2.5 flex-wrap">
-            {/* View Mode Toggle: Preview vs Full Edit */}
-            <div className="flex items-center gap-1.5 bg-[#0a0a0d] p-1 rounded-full border border-white/[0.08]">
-              <button
-                onClick={() => setViewMode("preview")}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
-                  viewMode === "preview"
-                    ? "bg-[#ede8df] text-[#09090b] font-semibold"
-                    : "text-[#85827b] hover:text-[#ede8df]"
-                }`}
-              >
-                Native Preview
-              </button>
-              <button
-                onClick={() => setViewMode("edit")}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
-                  viewMode === "edit"
-                    ? "bg-[#ede8df] text-[#09090b] font-semibold"
-                    : "text-[#85827b] hover:text-[#ede8df]"
-                }`}
-              >
-                Full Editor
-              </button>
-            </div>
-
-            {/* AI Media Studio Actions */}
-            <InteractiveButton
-              onClick={handleGenerateImage}
-              loading={generatingImage}
-              loadingText="FLUX.1 Rendering..."
-              variant="secondary"
-              size="sm"
-              leftIcon={<ImageIcon className="w-3.5 h-3.5 text-[#d4a373]" />}
-              className="text-xs px-3.5 py-1.5 border-white/[0.08] hover:border-[#d4a373]/40"
+          {/* View Mode Toggle: Preview vs Full Edit */}
+          <div className="flex items-center gap-1.5 bg-[#0a0a0d] p-1 rounded-full border border-white/[0.08]">
+            <button
+              onClick={() => setViewMode("preview")}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
+                viewMode === "preview"
+                  ? "bg-[#ede8df] text-[#09090b] font-semibold"
+                  : "text-[#85827b] hover:text-[#ede8df]"
+              }`}
             >
-              Generate AI Visual
-            </InteractiveButton>
-
-            <InteractiveButton
-              onClick={handleGenerateVideo}
-              loading={generatingVideo}
-              loadingText="Scripting Short..."
-              variant="secondary"
-              size="sm"
-              leftIcon={<Film className="w-3.5 h-3.5 text-[#d4a373]" />}
-              className="text-xs px-3.5 py-1.5 border-white/[0.08] hover:border-[#d4a373]/40"
+              Native Preview
+            </button>
+            <button
+              onClick={() => setViewMode("edit")}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
+                viewMode === "edit"
+                  ? "bg-[#ede8df] text-[#09090b] font-semibold"
+                  : "text-[#85827b] hover:text-[#ede8df]"
+              }`}
             >
-              Generate Video Storyboard
-            </InteractiveButton>
+              Full Editor
+            </button>
           </div>
         </div>
 
@@ -542,15 +515,46 @@ export default function VariantReviewPage({
             <div className="lg:col-span-2 space-y-6">
               <ScrollReveal>
                 <div className="hirael-card p-6 sm:p-7 lg:p-8 space-y-6 rounded-2xl sm:rounded-3xl">
-                  {/* Card Header with Format Badge */}
-                  <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
+                  {/* Card Header with Format Badge & Targeted Media Production Actions */}
+                  <div className="flex items-center justify-between border-b border-white/[0.06] pb-4 flex-wrap gap-3">
                     <div className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-[#ede8df] uppercase tracking-wider">
                       <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-[#d4a373]" />
                       <span>{(PLATFORM_LABELS[currentVariant.platform] || currentVariant.platform).toUpperCase()} Complete Adapted Content</span>
                     </div>
-                    <span className="text-xs font-mono px-3 py-1 rounded-full bg-white/[0.05] border border-white/10 text-[#a6a39b]">
-                      Format: {currentVariant.format}
-                    </span>
+
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                      <span className="text-xs font-mono px-3 py-1 rounded-full bg-white/[0.05] border border-white/10 text-[#a6a39b]">
+                        Format: {currentVariant.format}
+                      </span>
+
+                      {/* AI Visual Generator */}
+                      <InteractiveButton
+                        onClick={handleGenerateImage}
+                        loading={generatingImage}
+                        loadingText="Rendering..."
+                        variant="secondary"
+                        size="sm"
+                        leftIcon={<ImageIcon className="w-3.5 h-3.5 text-[#d4a373]" />}
+                        className="text-xs px-3 py-1.5 border-white/10 hover:border-[#d4a373]/50"
+                      >
+                        {currentVariant.media_url ? "Regenerate Visual" : "Generate Visual"}
+                      </InteractiveButton>
+
+                      {/* Video Storyboard ONLY for YouTube and Instagram */}
+                      {(currentVariant.platform === "youtube" || currentVariant.platform === "instagram") && (
+                        <InteractiveButton
+                          onClick={handleGenerateVideo}
+                          loading={generatingVideo}
+                          loadingText="Scripting..."
+                          variant="secondary"
+                          size="sm"
+                          leftIcon={<Film className="w-3.5 h-3.5 text-[#d4a373]" />}
+                          className="text-xs px-3 py-1.5 border-white/10 hover:border-[#d4a373]/50"
+                        >
+                          {currentVariant.video_storyboard_json ? "Regenerate Video" : "Generate Video Storyboard"}
+                        </InteractiveButton>
+                      )}
+                    </div>
                   </div>
 
                   {/* Mode 1: Native Simulated Feed Reader (Full height, styled, no truncation) */}
@@ -609,8 +613,9 @@ export default function VariantReviewPage({
                         </div>
                       )}
 
-                      {/* Video Short Storyboard & Scene Breakdown */}
-                      {currentVariant.video_storyboard_json?.scenes && (
+                      {/* Video Short Storyboard & Scene Breakdown (YouTube & Instagram only) */}
+                      {(currentVariant.platform === "youtube" || currentVariant.platform === "instagram") &&
+                        currentVariant.video_storyboard_json?.scenes && (
                         <div className="p-5 rounded-2xl bg-white/[0.02] border border-[#d4a373]/30 space-y-3.5 my-3">
                           <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
                             <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#ede8df]">

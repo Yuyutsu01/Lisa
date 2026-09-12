@@ -174,6 +174,17 @@ export interface ContentVariant {
   approved_by?: string;
   approved_at?: string;
   rejection_reason?: string;
+  media_url?: string;
+  video_storyboard_json?: {
+    hook_first_3_seconds?: string;
+    soundtrack_mood?: string;
+    text_overlays?: string[];
+    scenes?: {
+      timestamp: string;
+      visual_prompt: string;
+      voiceover: string;
+    }[];
+  };
   created_at: string;
   updated_at: string;
 }
