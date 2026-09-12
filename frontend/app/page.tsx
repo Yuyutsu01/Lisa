@@ -46,7 +46,13 @@ export default function LisaHomePage() {
       setScrollProgress(Math.min(100, Math.max(0, progress)));
 
       // Detect active visible section
-      const sections = ["enquiries", "programs", "our-story", "hero"];
+      const sections = [
+        "enquiries",
+        "programs",
+        "problem-statement",
+        "our-story",
+        "hero",
+      ];
       for (const id of sections) {
         const el = document.getElementById(id);
         if (el) {
@@ -128,10 +134,22 @@ export default function LisaHomePage() {
     }
   };
 
+  // Smooth scroll handler with precise viewport positioning
   const scrollToSection = (id: string) => {
+    if (id === "hero") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     const el = document.getElementById(id);
     if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      // For top-level major sections (our-story, programs, enquiries), scroll cleanly to the section's top boundary.
+      // For inner subsections (like problem-statement), offset by navbar height (~76px).
+      const navOffset = id === "problem-statement" ? 76 : 0;
+      const elementTop = el.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({
+        top: Math.max(0, elementTop - navOffset),
+        behavior: "smooth",
+      });
     }
   };
 
@@ -226,7 +244,17 @@ export default function LisaHomePage() {
                   : "hover:text-[#ede8df] hover:bg-white/[0.06]"
               }`}
             >
-              Our story
+              Pipeline
+            </button>
+            <button
+              onClick={() => scrollToSection("problem-statement")}
+              className={`px-3 sm:px-3.5 lg:px-4.5 py-1.5 lg:py-2 rounded-full transition-all duration-150 active:scale-95 cursor-pointer font-medium ${
+                activeSection === "problem-statement"
+                  ? "bg-white/[0.14] text-[#ede8df] shadow-sm"
+                  : "hover:text-[#ede8df] hover:bg-white/[0.06]"
+              }`}
+            >
+              Problem
             </button>
             <button
               onClick={() => scrollToSection("programs")}
@@ -236,7 +264,7 @@ export default function LisaHomePage() {
                   : "hover:text-[#ede8df] hover:bg-white/[0.06]"
               }`}
             >
-              Programs
+              Features
             </button>
             <button
               onClick={() => scrollToSection("enquiries")}
@@ -266,88 +294,62 @@ export default function LisaHomePage() {
         </div>
 
         {/* =========================================================================
-            PAGE 1: HERO VIEWPORT (Enlarged & Vertically Distributed for Desktop)
+            PAGE 1: HERO VIEWPORT (Parallel Lisa* & Description + Bottom CTAs)
             ========================================================================= */}
         <section
           id="hero"
-          className="relative z-10 min-h-screen flex flex-col justify-between px-6 sm:px-12 md:px-16 pt-8 pb-10 sm:pb-12"
+          className="relative z-10 min-h-screen flex flex-col justify-between px-6 sm:px-12 md:px-16 pt-10 pb-8 sm:pb-10"
         >
-          {/* Top spacer on desktop to push Lisa* into lower-middle focal position */}
-          <div className="hidden lg:block h-10 xl:h-16 shrink-0" />
+          {/* Top spacer on desktop to push content lower down */}
+          <div className="hidden lg:block h-16 lg:h-32 xl:h-40 shrink-0" />
 
-          {/* Monumental Brandmark (Enlarged & Shifted down toward lower-middle) */}
-          <div
-            className="my-auto lg:my-0 lg:pt-10 lg:pb-6 transition-transform duration-75 ease-out will-change-transform"
-            style={{
-              transform: `translateY(${Math.min(scrollY * 0.14, 85)}px)`,
-              opacity: Math.max(0.3, 1 - scrollY / 650),
-            }}
-          >
-            <h1 className="lisa-hero-title text-[19vw] sm:text-[16vw] lg:text-[14.5rem] xl:text-[17rem] 2xl:text-[20rem] font-normal leading-[0.80] tracking-[-0.055em] select-none text-left cursor-pointer">
-              Lisa<span className="lisa-asterisk text-[#d4a373] inline-block -translate-y-1 sm:-translate-y-4 lg:-translate-y-8 text-[0.52em]">*</span>
-            </h1>
-          </div>
-
-          {/* Bottom Row: Bottom-Left Scroll Cue + Bottom-Right Stacked Description & Get in CTA */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-end pt-4 lg:pt-8">
-            {/* Left Side (Col 1-5): Mobile description + Scroll Down cue */}
-            <div className="lg:col-span-5 flex flex-col justify-end">
-              {/* On mobile/tablet, description stays here on the left */}
-              <div className="block lg:hidden space-y-2.5 mb-4">
-                <p className="text-sm sm:text-lg font-normal text-[#ede8df] tracking-tight">
-                  Create once. Adapt intelligently. Publish everywhere possible. Learn from performance.
-                </p>
-                <p className="text-xs sm:text-[13px] text-[#8a8a93] max-w-xl leading-relaxed">
-                  Enterprise-grade, multi-tenant AI content operations operating system (OS). Rather than a simple chat wrapper,{" "}
-                  <span className="lisa-warm-glow font-medium">Lisa</span> orchestrates specialized agents with deterministic software safeguards.
-                </p>
-              </div>
-
-              {/* Interactive Scroll Down Cue (Always bottom-left) */}
-              <div className="pt-2">
-                <button
-                  onClick={() => scrollToSection("our-story")}
-                  className="inline-flex items-center gap-2.5 text-[11px] font-mono tracking-wider text-[#787672] hover:text-[#d4a373] transition-colors cursor-pointer group"
-                >
-                  <div className="w-4 h-6 rounded-full border border-white/20 flex items-start justify-center p-0.5 group-hover:border-[#d4a373]/60 transition-colors">
-                    <div className="w-1 h-2 rounded-full bg-[#d4a373] animate-bounce" />
-                  </div>
-                  <span>SCROLL DOWN</span>
-                </button>
-              </div>
+          {/* Parallel Row: Lisa* on the Left + Description & Button in parallel on the Right */}
+          <div className="mt-auto pb-4 lg:pb-6 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 lg:gap-14">
+            {/* Monumental Brandmark (Left Side, Parallel Baseline) */}
+            <div
+              className="transition-transform duration-75 ease-out will-change-transform shrink-0 flex items-end"
+              style={{
+                transform: `translateY(${Math.min(scrollY * 0.14, 85)}px)`,
+                opacity: Math.max(0.3, 1 - scrollY / 650),
+              }}
+            >
+              <h1 className="lisa-hero-title text-[20vw] sm:text-[17vw] lg:text-[13.5rem] xl:text-[16rem] 2xl:text-[19rem] font-normal leading-[0.78] tracking-[-0.055em] select-none text-left cursor-pointer">
+                Lisa<span className="lisa-asterisk text-[#d4a373] inline-block -translate-y-1 sm:-translate-y-4 lg:-translate-y-7 text-[0.52em]">*</span>
+              </h1>
             </div>
 
-            {/* Right Side (Col 6-12): Description stacked directly above Get in button */}
-            <div className="lg:col-span-7 flex flex-col items-start lg:items-end justify-end space-y-4">
-              {/* Desktop Description block placed directly above the CTA */}
-              <div className="hidden lg:block space-y-2 text-left lg:text-right max-w-xl">
-                <p className="text-sm sm:text-[15px] font-normal text-[#ede8df] tracking-tight leading-snug">
+            {/* Description & Action Block (Right Side, Parallel to Lisa* on Baseline) */}
+            <div className="space-y-4 max-w-xl xl:max-w-2xl text-left lg:pb-2.5 flex flex-col items-start justify-end">
+              <div className="space-y-3">
+                <p className="text-base sm:text-lg lg:text-[22px] font-normal text-[#ede8df] tracking-tight leading-snug">
                   Create once. Adapt intelligently. Publish everywhere possible. Learn from performance.
                 </p>
-                <p className="text-xs sm:text-[12.5px] text-[#8a8a93] leading-relaxed">
+                <p className="text-sm sm:text-[16px] lg:text-[16.5px] text-[#8a8a93] leading-relaxed max-w-xl">
                   Enterprise-grade, multi-tenant AI content operations operating system (OS). Rather than a simple chat wrapper,{" "}
                   <span className="lisa-warm-glow font-medium">Lisa</span> orchestrates specialized agents with deterministic software safeguards.
                 </p>
               </div>
 
               {/* 1. Hover Glow + 2. Magnetic Button + 3. Gradient Shimmer CTA Button */}
-              <Link href="/register">
-                <InteractiveButton
-                  variant="primary"
-                  size="lg"
-                  glow
-                  shimmer
-                  magnetic
-                  rightIcon={
-                    <div className="w-6 h-6 rounded-full bg-[#08080a] text-white flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5">
-                      <ArrowRight className="w-3 h-3 text-[#ede8df]" />
-                    </div>
-                  }
-                  className="px-5 py-2.5 text-xs sm:text-sm font-semibold"
-                >
-                  Get in
-                </InteractiveButton>
-              </Link>
+              <div className="pt-2">
+                <Link href="/register">
+                  <InteractiveButton
+                    variant="primary"
+                    size="lg"
+                    glow
+                    shimmer
+                    magnetic
+                    rightIcon={
+                      <div className="w-7 h-7 rounded-full bg-[#08080a] text-white flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5">
+                        <ArrowRight className="w-3.5 h-3.5 text-[#ede8df]" />
+                      </div>
+                    }
+                    className="px-7 py-3.5 text-sm sm:text-[15px] font-semibold"
+                  >
+                    Get in
+                  </InteractiveButton>
+                </Link>
+              </div>
             </div>
           </div>
         </section>
@@ -357,28 +359,28 @@ export default function LisaHomePage() {
             ========================================================================= */}
         <section
           id="our-story"
-          className="relative z-10 flex flex-col justify-center px-6 sm:px-12 md:px-16 py-12 sm:py-16 border-t border-white/[0.05] scroll-mt-12"
+          className="relative z-10 flex flex-col justify-center px-6 sm:px-12 md:px-16 py-14 sm:py-20 lg:py-28 border-t border-white/[0.05]"
         >
-          <div className="max-w-5xl mx-auto space-y-12">
+          <div className="max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto space-y-12 lg:space-y-16">
             {/* Architectural Columns & Pipeline Overview */}
-            <div className="text-center space-y-3">
-              <div className="text-[10px] sm:text-[11px] font-mono tracking-[0.25em] text-[#85827b] uppercase">
+            <div className="text-center space-y-4 lg:space-y-5">
+              <div className="text-[10px] sm:text-[11px] lg:text-[13px] xl:text-[14px] font-mono tracking-[0.25em] text-[#85827b] uppercase">
                 1. ORCHESTRATION PIPELINE & CORE PRINCIPLES
               </div>
 
-              <h3 className="text-xl sm:text-3xl md:text-4xl font-normal leading-[1.25] tracking-[-0.03em] text-[#ede8df]">
+              <h3 className="text-xl sm:text-3xl md:text-4xl lg:text-[2.6rem] xl:text-[3.2rem] font-normal leading-[1.2] tracking-[-0.03em] text-[#ede8df] max-w-5xl mx-auto">
                 Specialized AI agents collaborate with{" "}
                 <span className="font-editorial italic text-[#f7f4ed]">deterministic software safeguards.</span>
               </h3>
 
-              <p className="text-xs sm:text-sm leading-relaxed text-[#8a8a93] max-w-3xl mx-auto font-normal">
+              <p className="text-xs sm:text-sm lg:text-[16px] xl:text-[17px] leading-relaxed text-[#8a8a93] max-w-3xl lg:max-w-4xl mx-auto font-normal">
                 Rather than acting as a simple generic chat wrapper that writes captions,{" "}
                 <span className="lisa-warm-glow font-medium">Lisa</span> ingests canonical content sources, adapts them into platform-native variants (LinkedIn, X/Twitter, Instagram, YouTube Shorts, TikTok, Threads, Email Newsletters, and Blog CMS), validates them against brand guidelines, schedules them via an idempotent state machine, and analyzes cross-platform performance in a closed-loop feedback loop.
               </p>
             </div>
 
-            {/* Core Product Principle - 4 Architectural Columns with 14. Card Hover Lift */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Core Product Principle - 4 Architectural Columns with Card Hover Lift */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
               {[
                 {
                   stage: "01",
@@ -411,15 +413,20 @@ export default function LisaHomePage() {
               ].map((item, idx) => {
                 const Icon = item.icon;
                 return (
-                  <div key={idx} className="hirael-card card-hover-lift p-5 space-y-2.5 h-full">
-                    <div className="flex items-center justify-between text-xs font-mono text-[#d4a373]">
-                      <span>STAGE {item.stage}</span>
-                      <Icon className="w-3.5 h-3.5" />
+                  <div
+                    key={idx}
+                    className="hirael-card card-hover-lift p-5 sm:p-6 lg:p-7 xl:p-8 space-y-3 lg:space-y-4 h-full flex flex-col justify-between"
+                  >
+                    <div className="space-y-3 lg:space-y-3.5">
+                      <div className="flex items-center justify-between text-xs lg:text-[13px] xl:text-[14px] font-mono text-[#d4a373]">
+                        <span>STAGE {item.stage}</span>
+                        <Icon className="w-3.5 h-3.5 lg:w-4.5 lg:h-4.5 xl:w-5 xl:h-5" />
+                      </div>
+                      <h3 className="text-xs sm:text-sm lg:text-[16px] xl:text-[18px] font-semibold text-[#ede8df] leading-snug">
+                        {item.title}
+                      </h3>
                     </div>
-                    <h3 className="text-xs sm:text-sm font-semibold text-[#ede8df]">
-                      {item.title}
-                    </h3>
-                    <p className="text-[11px] sm:text-xs text-[#8a8a93] leading-relaxed">
+                    <p className="text-[11px] sm:text-xs lg:text-[13.5px] xl:text-[14.5px] text-[#8a8a93] leading-relaxed">
                       {item.desc}
                     </p>
                   </div>
@@ -427,13 +434,16 @@ export default function LisaHomePage() {
               })}
             </div>
 
-            {/* Problem Statement Section */}
-            <div className="pt-6 border-t border-white/[0.06]">
-              <div className="text-[10px] font-mono tracking-widest text-[#85827b] uppercase mb-4 text-center">
+            {/* Problem Statement Section - Target for navbar 'Problem' button */}
+            <div
+              id="problem-statement"
+              className="pt-8 lg:pt-12 border-t border-white/[0.06] space-y-6 lg:space-y-8"
+            >
+              <div className="text-[10px] sm:text-[11px] lg:text-[13px] xl:text-[14px] font-mono tracking-widest text-[#85827b] uppercase text-center">
                 2. PROBLEM STATEMENT · SOLVING CONTENT OPERATIONS FRICTION
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6 text-xs">
                 {[
                   {
                     title: "Manual Repurposing Overhead",
@@ -454,13 +464,13 @@ export default function LisaHomePage() {
                 ].map((item, i) => (
                   <div
                     key={i}
-                    className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05] card-hover-lift space-y-1.5"
+                    className="p-5 sm:p-6 lg:p-7 xl:p-8 rounded-2xl bg-white/[0.02] border border-white/[0.05] card-hover-lift space-y-2 lg:space-y-3 flex flex-col justify-between"
                   >
-                    <h4 className="font-semibold text-[#ede8df] flex items-center gap-2 text-xs">
-                      <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+                    <h4 className="font-semibold text-[#ede8df] flex items-center gap-2.5 text-xs sm:text-sm lg:text-[16px] xl:text-[17.5px]">
+                      <span className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-rose-400 shrink-0" />
                       {item.title}
                     </h4>
-                    <p className="text-[#8a8a93] text-[11px] sm:text-xs leading-relaxed">
+                    <p className="text-[#8a8a93] text-[11px] sm:text-xs lg:text-[13.5px] xl:text-[14.5px] leading-relaxed">
                       {item.desc}
                     </p>
                   </div>
@@ -475,78 +485,78 @@ export default function LisaHomePage() {
             ========================================================================= */}
         <section
           id="programs"
-          className="relative z-10 flex flex-col justify-center px-6 sm:px-10 md:px-16 py-16 sm:py-24 border-t border-white/[0.05] scroll-mt-16"
+          className="relative z-10 flex flex-col justify-center px-6 sm:px-10 md:px-16 py-16 sm:py-24 lg:py-32 border-t border-white/[0.05]"
         >
-          <div className="text-center space-y-2.5 mb-10 sm:mb-14">
-            <div className="text-[10px] sm:text-[11px] font-mono tracking-[0.25em] text-[#85827b] uppercase">
+          <div className="text-center space-y-3 lg:space-y-4 mb-10 sm:mb-14 lg:mb-16">
+            <div className="text-[10px] sm:text-[11px] lg:text-[13px] xl:text-[14px] font-mono tracking-[0.25em] text-[#85827b] uppercase">
               3. KEY FEATURES & ENGINE CAPABILITIES
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-normal tracking-tight text-[#ede8df]">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.6rem] xl:text-[3.2rem] font-normal tracking-tight text-[#ede8df] leading-[1.2]">
               Studio-grade architecture for visionary creators.
             </h2>
-            <p className="text-xs sm:text-sm text-[#8a8a93] max-w-2xl mx-auto">
+            <p className="text-xs sm:text-sm lg:text-[16px] xl:text-[17px] text-[#8a8a93] max-w-2xl lg:max-w-3xl mx-auto leading-relaxed">
               Engineered with multi-tenant RBAC, deterministic state machines, and high-velocity Groq inference.
             </p>
           </div>
 
           {/* 10. Horizontal Scroll Section with Navigation Arrows */}
-          <div className="relative mb-8">
-            <div className="flex items-center justify-between pb-3 px-1">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-[#85827b] flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#d4a373]" />
+          <div className="relative mb-8 max-w-7xl mx-auto w-full">
+            <div className="flex items-center justify-between pb-3 lg:pb-4 px-1">
+              <span className="text-[11px] lg:text-[13.5px] font-mono uppercase tracking-wider text-[#85827b] flex items-center gap-2">
+                <span className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-[#d4a373]" />
                 Interactive Module Carousel
               </span>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <button
                   onClick={() => scrollHorizontal("left")}
                   aria-label="Scroll left"
-                  className="w-8 h-8 rounded-full bg-white/[0.05] border border-white/10 hover:bg-white/10 flex items-center justify-center text-[#ede8df] transition-all active:scale-95 cursor-pointer"
+                  className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-white/[0.05] border border-white/10 hover:bg-white/10 flex items-center justify-center text-[#ede8df] transition-all active:scale-95 cursor-pointer"
                 >
-                  <ChevronLeft className="w-4 h-4" />
+                  <ChevronLeft className="w-4 h-4 lg:w-5 lg:h-5" />
                 </button>
                 <button
                   onClick={() => scrollHorizontal("right")}
                   aria-label="Scroll right"
-                  className="w-8 h-8 rounded-full bg-white/[0.05] border border-white/10 hover:bg-white/10 flex items-center justify-center text-[#ede8df] transition-all active:scale-95 cursor-pointer"
+                  className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-white/[0.05] border border-white/10 hover:bg-white/10 flex items-center justify-center text-[#ede8df] transition-all active:scale-95 cursor-pointer"
                 >
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5" />
                 </button>
               </div>
             </div>
 
             <div
               ref={horizontalScrollRef}
-              className="horizontal-scroll-snap flex gap-4 overflow-x-auto pb-4 pt-1 scrollbar-none"
+              className="horizontal-scroll-snap flex gap-4 lg:gap-6 overflow-x-auto pb-4 pt-1 scrollbar-none"
             >
               {/* Card 1 */}
-              <div className="hirael-card card-hover-lift p-6 w-[290px] sm:w-[330px] min-h-[380px] flex flex-col justify-between bg-gradient-to-b from-[#121216] to-[#0a0a0c]">
-                <div>
-                  <div className="flex items-center justify-between text-xs text-[#75736d] mb-4">
-                    <div className="w-8 h-8 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-[#d4a373]">
-                      <Cpu className="w-4 h-4" />
+              <div className="hirael-card card-hover-lift p-6 sm:p-7 lg:p-8 xl:p-9 w-[290px] sm:w-[340px] lg:w-[370px] xl:w-[410px] min-h-[380px] lg:min-h-[460px] xl:min-h-[480px] flex flex-col justify-between bg-gradient-to-b from-[#121216] to-[#0a0a0c] shrink-0">
+                <div className="space-y-4 lg:space-y-5">
+                  <div className="flex items-center justify-between text-xs lg:text-[13px] text-[#75736d] mb-4">
+                    <div className="w-8 h-8 lg:w-11 lg:h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-[#d4a373]">
+                      <Cpu className="w-4 h-4 lg:w-5 lg:h-5" />
                     </div>
-                    <span className="font-mono text-xs text-[#52504b]">00</span>
+                    <span className="font-mono text-xs lg:text-[13px] text-[#52504b]">00</span>
                   </div>
 
-                  <h3 className="text-sm font-semibold text-[#ede8df] mb-2.5">
+                  <h3 className="text-sm sm:text-base lg:text-[18px] xl:text-[20px] font-semibold text-[#ede8df] mb-2.5">
                     Multi-Agent Orchestrator
                   </h3>
 
-                  <ul className="space-y-2 text-[11px] text-[#918e87]">
-                    <li className="flex items-start gap-2">
-                      <Check className="w-3 h-3 text-[#d4a373] mt-0.5 shrink-0" />
+                  <ul className="space-y-2 lg:space-y-3 text-[11px] sm:text-xs lg:text-[13.5px] xl:text-[14.5px] text-[#918e87]">
+                    <li className="flex items-start gap-2.5">
+                      <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#d4a373] mt-0.5 shrink-0" />
                       <span>5 specialized agents for native formats</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="w-3 h-3 text-[#d4a373] mt-0.5 shrink-0" />
+                    <li className="flex items-start gap-2.5">
+                      <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#d4a373] mt-0.5 shrink-0" />
                       <span>Rich-text studio with debounced saving</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="w-3 h-3 text-[#d4a373] mt-0.5 shrink-0" />
+                    <li className="flex items-start gap-2.5">
+                      <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#d4a373] mt-0.5 shrink-0" />
                       <span>One-click version rollback & history</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="w-3 h-3 text-[#d4a373] mt-0.5 shrink-0" />
+                    <li className="flex items-start gap-2.5">
+                      <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#d4a373] mt-0.5 shrink-0" />
                       <span>Structured JSON validation schemas</span>
                     </li>
                   </ul>
@@ -554,42 +564,42 @@ export default function LisaHomePage() {
 
                 <Link
                   href="/register"
-                  className="mt-4 pt-3 border-t border-white/[0.06] text-xs font-medium text-[#a6a39b] hover:text-[#ede8df] flex items-center justify-between group transition-colors"
+                  className="mt-4 pt-3 lg:pt-4 border-t border-white/[0.06] text-xs lg:text-[14px] font-medium text-[#a6a39b] hover:text-[#ede8df] flex items-center justify-between group transition-colors"
                 >
                   <span>Get started</span>
-                  <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  <ArrowUpRight className="w-3.5 h-3.5 lg:w-4 lg:h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </Link>
               </div>
 
               {/* Card 2 */}
-              <div className="hirael-card card-hover-lift p-6 w-[290px] sm:w-[330px] min-h-[380px] flex flex-col justify-between">
-                <div>
+              <div className="hirael-card card-hover-lift p-6 sm:p-7 lg:p-8 xl:p-9 w-[290px] sm:w-[340px] lg:w-[370px] xl:w-[410px] min-h-[380px] lg:min-h-[460px] xl:min-h-[480px] flex flex-col justify-between shrink-0">
+                <div className="space-y-4 lg:space-y-5">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-8 h-8 rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-[#ede8df]">
-                      <MessageSquareQuote className="w-4 h-4" />
+                    <div className="w-8 h-8 lg:w-11 lg:h-11 rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-[#ede8df]">
+                      <MessageSquareQuote className="w-4 h-4 lg:w-5 lg:h-5" />
                     </div>
-                    <span className="font-mono text-xs text-[#52504b]">01</span>
+                    <span className="font-mono text-xs lg:text-[13px] text-[#52504b]">01</span>
                   </div>
 
-                  <h3 className="text-sm font-semibold text-[#ede8df] mb-2.5">
+                  <h3 className="text-sm sm:text-base lg:text-[18px] xl:text-[20px] font-semibold text-[#ede8df] mb-2.5">
                     Variant Review & QA Studio
                   </h3>
 
-                  <ul className="space-y-2 text-[11px] text-[#918e87]">
-                    <li className="flex items-start gap-2">
-                      <Check className="w-3 h-3 text-[#ede8df] mt-0.5 shrink-0" />
+                  <ul className="space-y-2 lg:space-y-3 text-[11px] sm:text-xs lg:text-[13.5px] xl:text-[14.5px] text-[#918e87]">
+                    <li className="flex items-start gap-2.5">
+                      <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
                       <span>Simulated LinkedIn, X, IG & Shorts feeds</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="w-3 h-3 text-[#ede8df] mt-0.5 shrink-0" />
+                    <li className="flex items-start gap-2.5">
+                      <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
                       <span>Real-time QA scorecard compliance checks</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="w-3 h-3 text-[#ede8df] mt-0.5 shrink-0" />
+                    <li className="flex items-start gap-2.5">
+                      <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
                       <span>Single-element AI regeneration modifiers</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="w-3 h-3 text-[#ede8df] mt-0.5 shrink-0" />
+                    <li className="flex items-start gap-2.5">
+                      <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
                       <span>Character limit & forbidden phrase filters</span>
                     </li>
                   </ul>
@@ -597,42 +607,42 @@ export default function LisaHomePage() {
 
                 <Link
                   href="/register"
-                  className="mt-4 pt-3 border-t border-white/[0.06] text-xs font-medium text-[#a6a39b] hover:text-[#ede8df] flex items-center justify-between group transition-colors"
+                  className="mt-4 pt-3 lg:pt-4 border-t border-white/[0.06] text-xs lg:text-[14px] font-medium text-[#a6a39b] hover:text-[#ede8df] flex items-center justify-between group transition-colors"
                 >
                   <span>Explore QA studio</span>
-                  <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  <ArrowUpRight className="w-3.5 h-3.5 lg:w-4 lg:h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </Link>
               </div>
 
               {/* Card 3 */}
-              <div className="hirael-card card-hover-lift p-6 w-[290px] sm:w-[330px] min-h-[380px] flex flex-col justify-between">
-                <div>
+              <div className="hirael-card card-hover-lift p-6 sm:p-7 lg:p-8 xl:p-9 w-[290px] sm:w-[340px] lg:w-[370px] xl:w-[410px] min-h-[380px] lg:min-h-[460px] xl:min-h-[480px] flex flex-col justify-between shrink-0">
+                <div className="space-y-4 lg:space-y-5">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-8 h-8 rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-[#ede8df]">
-                      <Film className="w-4 h-4" />
+                    <div className="w-8 h-8 lg:w-11 lg:h-11 rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-[#ede8df]">
+                      <Film className="w-4 h-4 lg:w-5 lg:h-5" />
                     </div>
-                    <span className="font-mono text-xs text-[#52504b]">02</span>
+                    <span className="font-mono text-xs lg:text-[13px] text-[#52504b]">02</span>
                   </div>
 
-                  <h3 className="text-sm font-semibold text-[#ede8df] mb-2.5">
+                  <h3 className="text-sm sm:text-base lg:text-[18px] xl:text-[20px] font-semibold text-[#ede8df] mb-2.5">
                     Media Derivative Processor
                   </h3>
 
-                  <ul className="space-y-2 text-[11px] text-[#918e87]">
-                    <li className="flex items-start gap-2">
-                      <Check className="w-3 h-3 text-[#ede8df] mt-0.5 shrink-0" />
+                  <ul className="space-y-2 lg:space-y-3 text-[11px] sm:text-xs lg:text-[13.5px] xl:text-[14.5px] text-[#918e87]">
+                    <li className="flex items-start gap-2.5">
+                      <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
                       <span>SHA-256 media deduplication engine</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="w-3 h-3 text-[#ede8df] mt-0.5 shrink-0" />
+                    <li className="flex items-start gap-2.5">
+                      <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
                       <span>Automated aspect dimension extraction</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="w-3 h-3 text-[#ede8df] mt-0.5 shrink-0" />
+                    <li className="flex items-start gap-2.5">
+                      <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
                       <span>Presets: 4:5, 1:1, 9:16, 16:9, 1.91:1</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="w-3 h-3 text-[#ede8df] mt-0.5 shrink-0" />
+                    <li className="flex items-start gap-2.5">
+                      <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
                       <span>Central media asset reusability catalog</span>
                     </li>
                   </ul>
@@ -640,47 +650,47 @@ export default function LisaHomePage() {
 
                 <Link
                   href="/register"
-                  className="mt-4 pt-3 border-t border-white/[0.06] text-xs font-medium text-[#a6a39b] hover:text-[#ede8df] flex items-center justify-between group transition-colors"
+                  className="mt-4 pt-3 lg:pt-4 border-t border-white/[0.06] text-xs lg:text-[14px] font-medium text-[#a6a39b] hover:text-[#ede8df] flex items-center justify-between group transition-colors"
                 >
                   <span>View pipeline</span>
-                  <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  <ArrowUpRight className="w-3.5 h-3.5 lg:w-4 lg:h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </Link>
               </div>
 
               {/* Card 4 */}
-              <div className="hirael-card card-hover-lift p-6 w-[290px] sm:w-[330px] min-h-[380px] flex flex-col justify-between">
-                <div>
+              <div className="hirael-card card-hover-lift p-6 sm:p-7 lg:p-8 xl:p-9 w-[290px] sm:w-[340px] lg:w-[370px] xl:w-[410px] min-h-[380px] lg:min-h-[460px] xl:min-h-[480px] flex flex-col justify-between shrink-0">
+                <div className="space-y-4 lg:space-y-5">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-8 h-8 rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-[#ede8df]">
-                      <Calendar className="w-4 h-4" />
+                    <div className="w-8 h-8 lg:w-11 lg:h-11 rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-[#ede8df]">
+                      <Calendar className="w-4 h-4 lg:w-5 lg:h-5" />
                     </div>
-                    <span className="font-mono text-xs text-[#52504b]">03</span>
+                    <span className="font-mono text-xs lg:text-[13px] text-[#52504b]">03</span>
                   </div>
 
-                  <h3 className="text-sm font-semibold text-[#ede8df] mb-2.5">
+                  <h3 className="text-sm sm:text-base lg:text-[18px] xl:text-[20px] font-semibold text-[#ede8df] mb-2.5">
                     Idempotent Calendar & Adapters
                   </h3>
 
-                  <ul className="space-y-2 text-[11px] text-[#918e87]">
-                    <li className="flex items-start gap-2">
-                      <Check className="w-3 h-3 text-[#ede8df] mt-0.5 shrink-0" />
+                  <ul className="space-y-2 lg:space-y-3 text-[11px] sm:text-xs lg:text-[13.5px] xl:text-[14.5px] text-[#918e87]">
+                    <li className="flex items-start gap-2.5">
+                      <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
                       <span>SHA-256 idempotent state machine</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="w-3 h-3 text-[#ede8df] mt-0.5 shrink-0" />
+                    <li className="flex items-start gap-2.5">
+                      <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
                       <span>LinkedIn (OAuth), IG (Creator Studio Mode)</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="w-3 h-3 text-[#ede8df] mt-0.5 shrink-0" />
+                    <li className="flex items-start gap-2.5">
+                      <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
                       <span>X/Twitter, YouTube Shorts, Threads, CMS</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="w-3 h-3 text-[#ede8df] mt-0.5 shrink-0" />
+                    <li className="flex items-start gap-2.5">
+                      <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
                       <span className="flex items-center gap-1.5">
                         <span>Soundscape focus toggle</span>
                         <button
                           onClick={toggleSoundscape}
-                          className="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/20 text-[#ede8df] text-[10px] flex items-center gap-1 cursor-pointer"
+                          className="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/20 text-[#ede8df] text-[10px] lg:text-xs flex items-center gap-1 cursor-pointer"
                         >
                           {isPlayingAudio ? (
                             <>
@@ -699,10 +709,10 @@ export default function LisaHomePage() {
 
                 <Link
                   href="/register"
-                  className="mt-4 pt-3 border-t border-white/[0.06] text-xs font-medium text-[#a6a39b] hover:text-[#ede8df] flex items-center justify-between group transition-colors"
+                  className="mt-4 pt-3 lg:pt-4 border-t border-white/[0.06] text-xs lg:text-[14px] font-medium text-[#a6a39b] hover:text-[#ede8df] flex items-center justify-between group transition-colors"
                 >
                   <span>Schedule dispatches</span>
-                  <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  <ArrowUpRight className="w-3.5 h-3.5 lg:w-4 lg:h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </Link>
               </div>
             </div>
@@ -714,25 +724,25 @@ export default function LisaHomePage() {
             ========================================================================= */}
         <section
           id="enquiries"
-          className="relative z-10 flex flex-col justify-between px-6 sm:px-12 md:px-16 pt-16 sm:pt-20 pb-6 border-t border-white/[0.05] scroll-mt-16"
+          className="relative z-10 flex flex-col justify-between px-6 sm:px-12 md:px-16 lg:px-20 py-16 sm:py-20 lg:py-28 border-t border-white/[0.05]"
         >
-          <div className="space-y-10">
+          <div className="max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto w-full space-y-12 lg:space-y-16">
             {/* Call to Action Bar */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-white/[0.06]">
-              <div>
-                <div className="text-[10px] sm:text-[11px] font-mono tracking-widest text-[#85827b] uppercase mb-1.5">
-                  ENQUIRIES & DEPLOYMENT
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 lg:pb-10 border-b border-white/[0.06]">
+              <div className="space-y-2">
+                <div className="text-[10px] sm:text-[11px] lg:text-[13px] xl:text-[14px] font-mono tracking-[0.25em] text-[#85827b] uppercase mb-1.5">
+                  4. ENQUIRIES & DEPLOYMENT
                 </div>
-                <h2 className="text-2xl sm:text-4xl md:text-5xl font-normal tracking-[-0.04em] text-[#ede8df]">
+                <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-[2.6rem] xl:text-[3.2rem] font-normal tracking-[-0.04em] text-[#ede8df] leading-tight">
                   Let us transform your{" "}
                   <span className="font-editorial italic text-[#f7f4ed]">content operations.</span>
                 </h2>
-                <p className="text-xs sm:text-[13px] text-[#8a8a93] mt-1.5 max-w-xl">
+                <p className="text-xs sm:text-sm lg:text-[15.5px] xl:text-[16.5px] text-[#8a8a93] mt-2 max-w-2xl leading-relaxed">
                   Register your workspace to unlock multi-agent repurposing, brand intelligence, and idempotent cross-network publishing.
                 </p>
               </div>
 
-              <Link href="/register">
+              <Link href="/register" className="shrink-0">
                 <InteractiveButton
                   variant="primary"
                   size="lg"
@@ -740,11 +750,11 @@ export default function LisaHomePage() {
                   shimmer
                   magnetic
                   rightIcon={
-                    <div className="w-6 h-6 rounded-full bg-[#08080a] text-white flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5">
-                      <ArrowRight className="w-3 h-3 text-[#ede8df]" />
+                    <div className="w-7 h-7 rounded-full bg-[#08080a] text-white flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5">
+                      <ArrowRight className="w-3.5 h-3.5 text-[#ede8df]" />
                     </div>
                   }
-                  className="px-5 py-2.5 text-xs sm:text-sm font-semibold self-start md:self-auto shrink-0"
+                  className="px-6 sm:px-7 py-3 sm:py-3.5 text-xs sm:text-sm lg:text-[15px] font-semibold self-start md:self-auto"
                 >
                   Get in
                 </InteractiveButton>
@@ -752,28 +762,28 @@ export default function LisaHomePage() {
             </div>
 
             {/* Direct Enquiry Form & Architecture Details */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              {/* Interactive Enquiry Form with 5. Loading -> Success Animation */}
-              <div className="lg:col-span-6 hirael-card p-5 sm:p-7 space-y-3.5">
-                <span className="text-[10px] font-mono tracking-widest text-[#85827b] uppercase block">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
+              {/* Interactive Enquiry Form */}
+              <div className="lg:col-span-7 hirael-card p-6 sm:p-8 lg:p-9 xl:p-10 space-y-4 lg:space-y-5 rounded-2xl sm:rounded-3xl">
+                <span className="text-[10px] sm:text-[11px] lg:text-[12.5px] xl:text-[13.5px] font-mono tracking-widest text-[#85827b] uppercase block">
                   SEND AN ENQUIRY OR WORKSPACE INVITATION
                 </span>
-                <h3 className="text-lg sm:text-xl font-normal text-[#ede8df]">
+                <h3 className="text-xl sm:text-2xl lg:text-[24px] xl:text-[26px] font-normal text-[#ede8df]">
                   Enterprise & Agency Inquiries
                 </h3>
-                <p className="text-xs text-[#8a8a93] leading-relaxed">
+                <p className="text-xs sm:text-sm lg:text-[14px] xl:text-[15px] text-[#8a8a93] leading-relaxed">
                   Have custom brand tone guidelines, dedicated model endpoints, or high-volume publishing requirements? Let our operations team coordinate your setup.
                 </p>
 
                 {inquiryStatus === "success" ? (
-                  <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2 animate-fadeIn">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <div className="p-4 sm:p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs sm:text-sm flex items-center gap-3 animate-fadeIn">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
                     <span>Thank you. Your inquiry has been logged. We will reach out shortly.</span>
                   </div>
                 ) : (
-                  <form onSubmit={handleInquirySubmit} className="space-y-3 pt-1">
+                  <form onSubmit={handleInquirySubmit} className="space-y-4 pt-1">
                     <div>
-                      <label className="block text-[10px] sm:text-[11px] font-mono text-[#85827b] mb-1">
+                      <label className="block text-[11px] sm:text-xs lg:text-[13px] xl:text-[14px] font-mono text-[#85827b] mb-1.5">
                         Work Email
                       </label>
                       <input
@@ -782,11 +792,11 @@ export default function LisaHomePage() {
                         value={inquiryEmail}
                         onChange={(e) => setInquiryEmail(e.target.value)}
                         placeholder="operations@company.com"
-                        className="w-full px-4 py-2 rounded-full bg-black/50 border border-white/10 text-xs text-[#ede8df] focus:outline-none focus:border-white/30"
+                        className="w-full px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl bg-black/50 border border-white/10 text-xs sm:text-sm lg:text-[14.5px] text-[#ede8df] focus:outline-none focus:border-white/30 transition-colors"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] sm:text-[11px] font-mono text-[#85827b] mb-1">
+                      <label className="block text-[11px] sm:text-xs lg:text-[13px] xl:text-[14px] font-mono text-[#85827b] mb-1.5">
                         Deployment Requirements / Message
                       </label>
                       <textarea
@@ -795,7 +805,7 @@ export default function LisaHomePage() {
                         value={inquiryMessage}
                         onChange={(e) => setInquiryMessage(e.target.value)}
                         placeholder="Describe your content pipeline, team scale, and target channels..."
-                        className="w-full px-4 py-2 rounded-2xl bg-black/50 border border-white/10 text-xs text-[#ede8df] focus:outline-none focus:border-white/30"
+                        className="w-full px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-black/50 border border-white/10 text-xs sm:text-sm lg:text-[14.5px] text-[#ede8df] focus:outline-none focus:border-white/30 transition-colors"
                       />
                     </div>
                     <div className="flex justify-end pt-1">
@@ -807,8 +817,8 @@ export default function LisaHomePage() {
                         loadingText="Transmitting..."
                         glow
                         shimmer
-                        rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
-                        className="text-xs"
+                        rightIcon={<ArrowRight className="w-4 h-4" />}
+                        className="text-xs sm:text-sm px-6 py-2.5"
                       >
                         Submit Enquiry
                       </InteractiveButton>
@@ -818,32 +828,40 @@ export default function LisaHomePage() {
               </div>
 
               {/* 3 Column Metadata Directory */}
-              <div className="lg:col-span-6 grid grid-cols-1 sm:grid-cols-3 gap-5 text-xs text-[#75736d] p-2">
+              <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-3 gap-6 lg:gap-8 text-xs lg:text-[13.5px] xl:text-[14.5px] text-[#75736d] p-2 lg:p-4 self-center">
                 <div>
-                  <span className="font-mono text-[10px] tracking-[0.2em] text-[#85827b] uppercase block mb-2.5">
+                  <span className="font-mono text-[11px] lg:text-[12.5px] xl:text-[13.5px] tracking-[0.2em] text-[#85827b] uppercase block mb-3 lg:mb-4">
                     NAVIGATION
                   </span>
-                  <ul className="space-y-2">
+                  <ul className="space-y-2.5 lg:space-y-3.5">
                     <li>
                       <button
                         onClick={() => scrollToSection("our-story")}
-                        className="hover:text-[#ede8df] transition-colors cursor-pointer"
+                        className="hover:text-[#ede8df] transition-colors cursor-pointer text-left"
                       >
-                        Our story
+                        Pipeline
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        onClick={() => scrollToSection("problem-statement")}
+                        className="hover:text-[#ede8df] transition-colors cursor-pointer text-left"
+                      >
+                        Problem
                       </button>
                     </li>
                     <li>
                       <button
                         onClick={() => scrollToSection("programs")}
-                        className="hover:text-[#ede8df] transition-colors cursor-pointer"
+                        className="hover:text-[#ede8df] transition-colors cursor-pointer text-left"
                       >
-                        Programs & Features
+                        Features
                       </button>
                     </li>
                     <li>
                       <button
                         onClick={() => scrollToSection("enquiries")}
-                        className="hover:text-[#ede8df] transition-colors cursor-pointer"
+                        className="hover:text-[#ede8df] transition-colors cursor-pointer text-left"
                       >
                         Enquiries
                       </button>
@@ -851,7 +869,7 @@ export default function LisaHomePage() {
                     <li>
                       <button
                         onClick={handleEnterOS}
-                        className="hover:text-[#ede8df] transition-colors cursor-pointer text-[#d4a373]"
+                        className="hover:text-[#ede8df] transition-colors cursor-pointer text-[#d4a373] font-medium"
                       >
                         Enter OS →
                       </button>
@@ -860,31 +878,31 @@ export default function LisaHomePage() {
                 </div>
 
                 <div>
-                  <span className="font-mono text-[10px] tracking-[0.2em] text-[#85827b] uppercase block mb-2.5">
+                  <span className="font-mono text-[11px] lg:text-[12.5px] xl:text-[13.5px] tracking-[0.2em] text-[#85827b] uppercase block mb-3 lg:mb-4">
                     CHANNELS
                   </span>
-                  <ul className="space-y-2">
-                    <li className="text-[#a6a39b]">LinkedIn (Client ID Active)</li>
-                    <li className="text-[#a6a39b]">Instagram (Creator Mode)</li>
-                    <li className="text-[#a6a39b]">X / Twitter Threads</li>
-                    <li className="text-[#a6a39b]">YouTube Shorts & Reels</li>
-                    <li className="text-[#a6a39b]">Substack & Email CMS</li>
+                  <ul className="space-y-2.5 lg:space-y-3.5">
+                    <li className="text-[#a6a39b]">LinkedIn</li>
+                    <li className="text-[#a6a39b]">Instagram</li>
+                    <li className="text-[#a6a39b]">X / Threads</li>
+                    <li className="text-[#a6a39b]">YouTube Shorts</li>
+                    <li className="text-[#a6a39b]">Substack & Email</li>
                   </ul>
                 </div>
 
                 <div>
-                  <span className="font-mono text-[10px] tracking-[0.2em] text-[#85827b] uppercase block mb-2.5">
+                  <span className="font-mono text-[11px] lg:text-[12.5px] xl:text-[13.5px] tracking-[0.2em] text-[#85827b] uppercase block mb-3 lg:mb-4">
                     COMPLIANCE
                   </span>
-                  <div className="space-y-1.5 text-[#8a8a93]">
+                  <div className="space-y-2 lg:space-y-2.5 text-[#8a8a93]">
                     <p>MIT License</p>
                     <p>FastAPI Backend</p>
                     <p>PostgreSQL / SQLite</p>
                     <p>Next.js 16 App Router</p>
-                    <div className="pt-1.5">
+                    <div className="pt-2">
                       <Link
                         href="/register"
-                        className="text-xs text-[#d4a373] hover:underline"
+                        className="text-xs lg:text-[13.5px] text-[#d4a373] hover:underline font-medium"
                       >
                         Create Account →
                       </Link>
@@ -896,7 +914,7 @@ export default function LisaHomePage() {
           </div>
 
           {/* Monumental Watermark Typography - LISA with gentle warm glow */}
-          <div className="w-full overflow-hidden flex justify-center -mb-6 sm:-mb-10 select-none pointer-events-none pt-8">
+          <div className="w-full overflow-hidden flex justify-center -mb-6 sm:-mb-10 select-none pointer-events-none pt-8 lg:pt-12">
             <span className="watermark-brand tracking-tighter block font-bold text-center lisa-warm-glow">
               Lisa
             </span>

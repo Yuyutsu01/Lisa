@@ -223,45 +223,45 @@ export default function VariantReviewPage({
 
   return (
     <AppLayout activeWorkspaceId={activeWorkspaceId} onWorkspaceChange={setActiveWorkspaceId}>
-      <div className="max-w-7xl mx-auto space-y-5">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Navigation Breadcrumb & Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/[0.07] pb-4">
-          <div className="space-y-1">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 border-b border-white/[0.08] pb-6">
+          <div className="space-y-1.5">
             <Link
               href="/library"
-              className="inline-flex items-center gap-1.5 text-xs text-[#85827b] hover:text-[#ede8df] transition-colors"
+              className="inline-flex items-center gap-2 text-xs sm:text-sm text-[#85827b] hover:text-[#ede8df] transition-colors"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
+              <ArrowLeft className="w-4 h-4" />
               <span>Back to Library</span>
             </Link>
-            <h1 className="text-lg sm:text-xl lg:text-2xl font-normal tracking-tight text-[#ede8df] flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#d4a373]" />
-              <span>Platform Variant Review & Quality Control</span>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal tracking-tight text-[#ede8df] flex items-center gap-2.5">
+              <Sparkles className="w-5 h-5 text-[#d4a373]" />
+              <span>Platform Variant Review &amp; Quality Control</span>
             </h1>
           </div>
 
-          <div className="flex items-center gap-2.5 flex-wrap">
+          <div className="flex items-center gap-3 flex-wrap">
             <InteractiveButton
               onClick={handleSaveVariant}
               loading={savingVariant}
               loadingText="Saving..."
               variant="secondary"
-              size="sm"
-              leftIcon={<Save className="w-3.5 h-3.5" />}
-              className="text-xs"
+              size="md"
+              leftIcon={<Save className="w-4 h-4" />}
+              className="px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold"
             >
               Save Copy Edits
             </InteractiveButton>
 
             {currentVariant?.status === "published" ? (
-              <span className="py-1.5 px-3.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-xs font-semibold flex items-center gap-1.5">
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="py-2.5 px-5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-xs sm:text-sm font-semibold flex items-center gap-2">
+                <Check className="w-4 h-4 text-emerald-400" />
                 Published
               </span>
             ) : currentVariant?.status === "approved" ? (
-              <div className="flex items-center gap-2">
-                <span className="py-1.5 px-3 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-xs font-semibold flex items-center gap-1.5">
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+              <div className="flex items-center gap-2.5">
+                <span className="py-2.5 px-4 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-xs sm:text-sm font-semibold flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-400" />
                   Approved
                 </span>
                 <InteractiveButton
@@ -269,35 +269,35 @@ export default function VariantReviewPage({
                   loading={publishing}
                   loadingText="Publishing..."
                   variant="primary"
-                  size="sm"
+                  size="md"
                   glow
                   shimmer
                   magnetic
-                  leftIcon={<Send className="w-3.5 h-3.5" />}
-                  className="text-xs"
+                  leftIcon={<Send className="w-4 h-4" />}
+                  className="px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold"
                 >
                   Publish Now
                 </InteractiveButton>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <InteractiveButton
                   onClick={handleReject}
                   variant="ghost"
-                  size="sm"
-                  leftIcon={<ThumbsDown className="w-3.5 h-3.5" />}
-                  className="text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10"
+                  size="md"
+                  leftIcon={<ThumbsDown className="w-4 h-4" />}
+                  className="text-xs sm:text-sm text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 px-4 py-2.5 sm:py-3"
                 >
                   Reject
                 </InteractiveButton>
                 <InteractiveButton
                   onClick={handleApprove}
                   variant="primary"
-                  size="sm"
+                  size="md"
                   glow
                   magnetic
-                  leftIcon={<ThumbsUp className="w-3.5 h-3.5" />}
-                  className="text-xs bg-emerald-500 hover:bg-emerald-400 text-black font-semibold"
+                  leftIcon={<ThumbsUp className="w-4 h-4" />}
+                  className="px-6 py-2.5 sm:py-3 text-xs sm:text-sm bg-emerald-500 hover:bg-emerald-400 text-black font-semibold"
                 >
                   Approve Variant
                 </InteractiveButton>
@@ -308,16 +308,16 @@ export default function VariantReviewPage({
 
         {/* Live Published Banner */}
         {publishedUrl && (
-          <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between gap-4 animate-fadeIn">
-            <div className="flex items-center gap-2 text-emerald-300 text-xs font-medium">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <div className="p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between gap-4 animate-fadeIn">
+            <div className="flex items-center gap-2.5 text-emerald-300 text-xs sm:text-sm font-medium">
+              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
               <span>Post successfully dispatched to target platform adapter!</span>
             </div>
             <a
               href={publishedUrl}
               target="_blank"
               rel="noreferrer"
-              className="text-xs font-semibold text-emerald-400 hover:underline flex items-center gap-1"
+              className="text-xs sm:text-sm font-semibold text-emerald-400 hover:underline flex items-center gap-1.5"
             >
               View Live Post &rarr;
             </a>
@@ -325,7 +325,7 @@ export default function VariantReviewPage({
         )}
 
         {/* Platform Channel Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+        <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
           {variants.map((v) => {
             const isSelected = selectedPlatform === v.platform;
             const isApproved = v.status === "approved";
@@ -333,7 +333,7 @@ export default function VariantReviewPage({
               <button
                 key={v.id}
                 onClick={() => setSelectedPlatform(v.platform)}
-                className={`px-3.5 py-2 rounded-full text-xs font-medium flex items-center gap-2 shrink-0 border transition-all cursor-pointer ${
+                className={`px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium flex items-center gap-2.5 shrink-0 border transition-all cursor-pointer ${
                   isSelected
                     ? "bg-[#ede8df] text-[#08080a] border-[#ede8df] shadow-sm font-semibold"
                     : "bg-white/[0.04] border-white/10 text-[#8a8a93] hover:text-[#ede8df] hover:bg-white/[0.08]"
@@ -341,7 +341,7 @@ export default function VariantReviewPage({
               >
                 <span className="capitalize">{v.platform}</span>
                 <span
-                  className={`w-1.5 h-1.5 rounded-full ${
+                  className={`w-2 h-2 rounded-full ${
                     isApproved ? "bg-emerald-500" : "bg-amber-400"
                   }`}
                 />
@@ -351,50 +351,50 @@ export default function VariantReviewPage({
         </div>
 
         {currentVariant && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left & Middle (2 Cols): Live Feed Preview & Inline Copy Editor */}
-            <div className="lg:col-span-2 space-y-4">
+            <div className="lg:col-span-2 space-y-6">
               {/* Native Platform Feed Preview */}
               <ScrollReveal>
-                <div className="hirael-card p-5 sm:p-6 space-y-4">
-                  <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-[#ede8df] uppercase tracking-wider">
-                      <Eye className="w-4 h-4 text-[#d4a373]" />
+                <div className="hirael-card p-6 sm:p-7 lg:p-8 space-y-6 rounded-2xl sm:rounded-3xl">
+                  <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
+                    <div className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-[#ede8df] uppercase tracking-wider">
+                      <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-[#d4a373]" />
                       <span>Native {currentVariant.platform.toUpperCase()} Preview</span>
                     </div>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/[0.05] border border-white/10 text-[#a6a39b]">
+                    <span className="text-xs font-mono px-3 py-1 rounded-full bg-white/[0.05] border border-white/10 text-[#a6a39b]">
                       Format: {currentVariant.format}
                     </span>
                   </div>
 
                   {/* Simulated Feed Post */}
-                  <div className="p-4 sm:p-5 rounded-2xl bg-black/60 border border-white/[0.08] space-y-3 font-sans">
+                  <div className="p-5 sm:p-6 rounded-2xl bg-black/60 border border-white/[0.08] space-y-4 font-sans">
                     {/* Account Header */}
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-white/[0.08] border border-white/10 text-[#ede8df] font-bold flex items-center justify-center text-xs">
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-10 h-10 rounded-full bg-white/[0.08] border border-white/10 text-[#ede8df] font-bold flex items-center justify-center text-sm">
                         L
                       </div>
                       <div>
-                        <p className="text-xs font-semibold text-[#ede8df]">Lisa Operating System</p>
-                        <p className="text-[10px] text-[#71717a]">
-                          {currentVariant.platform} Native Post • Just now
+                        <p className="text-sm font-semibold text-[#ede8df]">Lisa Operating System</p>
+                        <p className="text-xs text-[#71717a]">
+                          {currentVariant.platform} Native Post &bull; Just now
                         </p>
                       </div>
                     </div>
 
                     {/* Body Textarea Editor */}
                     <textarea
-                      rows={9}
+                      rows={10}
                       value={currentVariant.body}
                       onChange={(e) => handleUpdateCurrentVariant({ body: e.target.value })}
-                      className="w-full bg-transparent text-xs text-[#ede8df] outline-none leading-relaxed resize-none border-b border-white/[0.06] pb-2 focus:border-[#d4a373]/50"
+                      className="w-full bg-transparent text-xs sm:text-sm lg:text-[14.5px] text-[#ede8df] outline-none leading-relaxed resize-none border-b border-white/[0.06] pb-3 focus:border-[#d4a373]/50"
                     />
 
                     {/* Hashtags */}
                     {currentVariant.hashtags_json && currentVariant.hashtags_json.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 pt-1">
+                      <div className="flex flex-wrap gap-2 pt-1">
                         {currentVariant.hashtags_json.map((tag, idx) => (
-                          <span key={idx} className="text-[11px] text-[#d4a373] font-medium">
+                          <span key={idx} className="text-xs sm:text-[13px] text-[#d4a373] font-medium">
                             #{tag.replace(/^#/, "")}
                           </span>
                         ))}
@@ -403,8 +403,8 @@ export default function VariantReviewPage({
 
                     {/* CTA Footer */}
                     {currentVariant.cta && (
-                      <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.08] text-xs text-[#a6a39b] font-medium flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#d4a373]" />
+                      <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-xs sm:text-sm text-[#a6a39b] font-medium flex items-center gap-2.5">
+                        <span className="w-2 h-2 rounded-full bg-[#d4a373]" />
                         <span>{currentVariant.cta}</span>
                       </div>
                     )}
@@ -414,32 +414,32 @@ export default function VariantReviewPage({
 
               {/* AI Granular Regeneration Bar */}
               <ScrollReveal delay={100}>
-                <div className="hirael-card p-5 space-y-3">
+                <div className="hirael-card p-6 sm:p-7 rounded-2xl sm:rounded-3xl space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-semibold text-[#ede8df] uppercase tracking-wider flex items-center gap-2">
-                      <RotateCw className="w-3.5 h-3.5 text-[#d4a373]" />
-                      <span>Targeted AI Revision & Angle Modifier</span>
+                    <h3 className="text-xs sm:text-sm font-semibold text-[#ede8df] uppercase tracking-wider flex items-center gap-2.5">
+                      <RotateCw className="w-4 h-4 text-[#d4a373]" />
+                      <span>Targeted AI Revision &amp; Angle Modifier</span>
                     </h3>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <input
                       type="text"
                       value={regenInstruction}
                       onChange={(e) => setRegenInstruction(e.target.value)}
                       placeholder="e.g. Make opening contrarian, shorten to single tweet, focus on ROI takeaway..."
-                      className="flex-1 px-3.5 py-2 rounded-full bg-white/[0.03] border border-white/10 text-xs text-[#ede8df] outline-none focus:border-white/30 placeholder:text-[#71717a]"
+                      className="flex-1 px-4 py-2.5 sm:py-3 rounded-xl bg-white/[0.03] border border-white/10 text-xs sm:text-sm text-[#ede8df] outline-none focus:border-[#d4a373]/60 placeholder:text-[#71717a]"
                     />
                     <InteractiveButton
                       onClick={handleRegenerate}
                       loading={regenerating}
                       loadingText="Revising..."
                       variant="primary"
-                      size="sm"
+                      size="md"
                       glow
                       magnetic
-                      leftIcon={<Sparkles className="w-3.5 h-3.5" />}
-                      className="text-xs shrink-0"
+                      leftIcon={<Sparkles className="w-4 h-4" />}
+                      className="px-5 py-2.5 sm:py-3 text-xs sm:text-sm shrink-0 font-medium"
                     >
                       Regenerate
                     </InteractiveButton>
@@ -449,17 +449,17 @@ export default function VariantReviewPage({
             </div>
 
             {/* Right Column: 10-Point QA Scorecard & Strategy Insights */}
-            <div className="space-y-4">
+            <div className="space-y-6">
               {/* QA Scorecard */}
               <ScrollReveal delay={150}>
-                <div className="hirael-card p-5 space-y-4">
+                <div className="hirael-card p-6 sm:p-7 rounded-2xl sm:rounded-3xl space-y-5">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-semibold text-[#ede8df] uppercase tracking-wider flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <h3 className="text-xs sm:text-sm font-semibold text-[#ede8df] uppercase tracking-wider flex items-center gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
                       <span>10-Point QA Scorecard</span>
                     </h3>
                     <span
-                      className={`px-2.5 py-0.5 rounded-full font-bold text-xs ${
+                      className={`px-3 py-1 rounded-full font-bold text-xs sm:text-sm ${
                         qualityScore >= 85
                           ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                           : qualityScore >= 70
@@ -472,17 +472,17 @@ export default function VariantReviewPage({
                   </div>
 
                   {/* Scorecard Check Items */}
-                  <div className="space-y-2 pt-1">
+                  <div className="space-y-2.5 pt-1">
                     {checkItems.length > 0 ? (
                       checkItems.map((item, idx) => (
                         <div
                           key={idx}
-                          className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs space-y-1"
+                          className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs sm:text-sm space-y-1.5"
                         >
                           <div className="flex items-center justify-between">
                             <span className="text-[#ede8df] font-medium">{item.name}</span>
                             <span
-                              className={`text-[10px] font-mono font-semibold uppercase px-2 py-0.5 rounded ${
+                              className={`text-xs font-mono font-semibold uppercase px-2.5 py-0.5 rounded ${
                                 item.status === "pass"
                                   ? "bg-emerald-500/10 text-emerald-400"
                                   : item.status === "warning"
@@ -494,7 +494,7 @@ export default function VariantReviewPage({
                             </span>
                           </div>
                           {item.reason && (
-                            <p className="text-[11px] text-[#8a8a93] leading-tight">{item.reason}</p>
+                            <p className="text-xs text-[#8a8a93] leading-relaxed">{item.reason}</p>
                           )}
                         </div>
                       ))
@@ -509,13 +509,13 @@ export default function VariantReviewPage({
                       ).map(([check, status]) => (
                         <div
                           key={check}
-                          className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs"
+                          className="flex items-center justify-between p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs sm:text-sm"
                         >
                           <span className="capitalize text-[#ede8df] font-medium">
                             {check.replace("_", " ")}
                           </span>
                           <span
-                            className={`text-[10px] font-mono font-semibold uppercase px-2 py-0.5 rounded ${
+                            className={`text-xs font-mono font-semibold uppercase px-2.5 py-0.5 rounded ${
                               status === "pass"
                                 ? "bg-emerald-500/10 text-emerald-400"
                                 : "bg-rose-500/10 text-rose-400"
@@ -530,11 +530,11 @@ export default function VariantReviewPage({
 
                   {/* Actionable Suggestions */}
                   {suggestions.length > 0 && (
-                    <div className="p-3 rounded-xl bg-[#d4a373]/10 border border-[#d4a373]/20 text-[#ede8df] text-xs space-y-1">
-                      <p className="font-semibold text-[11px] uppercase tracking-wider text-[#d4a373]">
+                    <div className="p-3.5 rounded-xl bg-[#d4a373]/10 border border-[#d4a373]/20 text-[#ede8df] text-xs sm:text-sm space-y-1.5">
+                      <p className="font-semibold text-xs uppercase tracking-wider text-[#d4a373]">
                         Recommendations:
                       </p>
-                      <ul className="list-disc list-inside space-y-0.5 text-[11px] text-[#8a8a93]">
+                      <ul className="list-disc list-inside space-y-1 text-xs text-[#8a8a93]">
                         {suggestions.map((sug, i) => (
                           <li key={i}>{sug}</li>
                         ))}
@@ -546,7 +546,7 @@ export default function VariantReviewPage({
                   {currentVariant.quality_review_json?.issues?.map((issue, i) => (
                     <div
                       key={i}
-                      className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-start gap-2"
+                      className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs sm:text-sm flex items-start gap-2.5"
                     >
                       <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                       <span>{issue.message}</span>
@@ -557,20 +557,20 @@ export default function VariantReviewPage({
 
               {/* Strategy Details */}
               <ScrollReveal delay={200}>
-                <div className="hirael-card p-5 space-y-3">
-                  <h3 className="text-xs font-semibold text-[#ede8df] uppercase tracking-wider flex items-center gap-2">
+                <div className="hirael-card p-6 sm:p-7 rounded-2xl sm:rounded-3xl space-y-4">
+                  <h3 className="text-xs sm:text-sm font-semibold text-[#ede8df] uppercase tracking-wider flex items-center gap-2.5">
                     <Sliders className="w-4 h-4 text-[#d4a373]" />
                     <span>Platform Strategy Details</span>
                   </h3>
 
-                  <div className="space-y-2 text-xs text-[#8a8a93]">
-                    <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                      <p className="text-[10px] uppercase font-semibold text-[#71717a] mb-0.5">Angle</p>
-                      <p className="text-[#ede8df]">{currentVariant.strategy_json?.angle || "Default Narrative Arc"}</p>
+                  <div className="space-y-2.5 text-xs sm:text-sm text-[#8a8a93]">
+                    <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                      <p className="text-xs uppercase font-semibold text-[#71717a] mb-1 font-mono">Angle</p>
+                      <p className="text-[#ede8df] text-xs sm:text-sm">{currentVariant.strategy_json?.angle || "Default Narrative Arc"}</p>
                     </div>
-                    <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                      <p className="text-[10px] uppercase font-semibold text-[#71717a] mb-0.5">Hook Style</p>
-                      <p className="text-[#ede8df]">{currentVariant.strategy_json?.hook_style || "Direct High-Value Question"}</p>
+                    <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                      <p className="text-xs uppercase font-semibold text-[#71717a] mb-1 font-mono">Hook Style</p>
+                      <p className="text-[#ede8df] text-xs sm:text-sm">{currentVariant.strategy_json?.hook_style || "Direct High-Value Question"}</p>
                     </div>
                   </div>
                 </div>

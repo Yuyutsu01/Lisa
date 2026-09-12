@@ -100,31 +100,31 @@ export default function ContentLibraryPage() {
 
   return (
     <AppLayout activeWorkspaceId={activeWorkspaceId} onWorkspaceChange={setActiveWorkspaceId}>
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-8 lg:space-y-10">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/[0.07] pb-5">
-          <div>
-            <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-[#85827b] mb-1">
-              <Layers className="w-3.5 h-3.5 text-[#d4a373]" />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/[0.07] pb-6">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-[11px] sm:text-xs lg:text-[13px] font-mono uppercase tracking-widest text-[#85827b] mb-1">
+              <Layers className="w-4 h-4 text-[#d4a373]" />
               <span>Asset Catalog & Sources</span>
             </div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-normal tracking-tight text-[#ede8df]">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal tracking-tight text-[#ede8df]">
               Content & Asset Library
             </h1>
-            <p className="text-xs sm:text-sm text-[#8a8a93] mt-1 max-w-2xl leading-relaxed">
+            <p className="text-xs sm:text-sm lg:text-[15px] text-[#8a8a93] mt-1 max-w-2xl leading-relaxed">
               Browse canonical content sources, track versions, and manage your central media asset library.
             </p>
           </div>
 
-          <Link href="/content">
+          <Link href="/content" className="shrink-0">
             <InteractiveButton
               variant="primary"
-              size="md"
+              size="lg"
               glow
               shimmer
               magnetic
-              leftIcon={<Plus className="w-3.5 h-3.5" />}
-              className="text-xs"
+              leftIcon={<Plus className="w-4 h-4" />}
+              className="px-6 py-3 text-xs sm:text-sm lg:text-[14.5px] font-semibold"
             >
               Create New Source
             </InteractiveButton>
@@ -134,10 +134,10 @@ export default function ContentLibraryPage() {
         {/* Tab & Search Controls */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
           {/* Tabs */}
-          <div className="flex items-center gap-1.5 p-1 rounded-full bg-[#0a0a0d] border border-white/[0.08] w-fit">
+          <div className="flex items-center gap-1.5 p-1.5 rounded-full bg-[#0a0a0d] border border-white/[0.08] w-fit">
             <button
               onClick={() => setActiveTab("sources")}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+              className={`px-4 sm:px-5 py-2 rounded-full text-xs sm:text-[13.5px] font-medium transition-all cursor-pointer ${
                 activeTab === "sources"
                   ? "bg-[#ede8df] text-[#08080a] shadow-sm font-semibold"
                   : "text-[#787672] hover:text-[#ede8df]"
@@ -147,7 +147,7 @@ export default function ContentLibraryPage() {
             </button>
             <button
               onClick={() => setActiveTab("media")}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+              className={`px-4 sm:px-5 py-2 rounded-full text-xs sm:text-[13.5px] font-medium transition-all cursor-pointer ${
                 activeTab === "media"
                   ? "bg-[#ede8df] text-[#08080a] shadow-sm font-semibold"
                   : "text-[#787672] hover:text-[#ede8df]"
@@ -159,22 +159,22 @@ export default function ContentLibraryPage() {
 
           {/* Search & Filter */}
           {activeTab === "sources" && (
-            <div className="flex items-center gap-2.5">
-              <div className="relative flex-1 sm:w-60">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#71717a]" />
+            <div className="flex items-center gap-3">
+              <div className="relative flex-1 sm:w-72">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717a]" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search sources or pillars..."
-                  className="w-full pl-9 pr-3 py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-xs text-[#ede8df] placeholder:text-[#71717a] outline-none focus:border-white/30"
+                  className="w-full pl-10 pr-4 py-2 sm:py-2.5 rounded-full bg-white/[0.03] border border-white/10 text-xs sm:text-sm text-[#ede8df] placeholder:text-[#71717a] outline-none focus:border-white/30 transition-colors"
                 />
               </div>
 
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-3 py-1.5 rounded-full bg-[#0e0e12] border border-white/10 text-xs text-[#ede8df] outline-none focus:border-white/30 cursor-pointer"
+                className="px-4 py-2 sm:py-2.5 rounded-full bg-[#0e0e12] border border-white/10 text-xs sm:text-sm text-[#ede8df] outline-none focus:border-white/30 cursor-pointer"
               >
                 <option value="all">All Statuses</option>
                 <option value="draft">Drafts</option>
@@ -187,7 +187,7 @@ export default function ContentLibraryPage() {
 
         {/* Error Banner */}
         {errorMsg && (
-          <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs">
+          <div className="p-4 sm:p-5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs sm:text-sm">
             {errorMsg}
           </div>
         )}
@@ -196,59 +196,59 @@ export default function ContentLibraryPage() {
         {activeTab === "sources" && (
           <div>
             {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
                   <div
                     key={i}
-                    className="hirael-card p-5 space-y-3 animate-pulse border border-white/[0.05]"
+                    className="hirael-card p-6 space-y-4 animate-pulse border border-white/[0.05] rounded-2xl"
                   >
                     <div className="flex items-center justify-between">
-                      <div className="w-20 h-5 rounded-full bg-white/10" />
-                      <div className="w-8 h-4 rounded bg-white/5" />
+                      <div className="w-24 h-6 rounded-full bg-white/10" />
+                      <div className="w-10 h-4 rounded bg-white/5" />
                     </div>
-                    <div className="space-y-2">
-                      <div className="w-3/4 h-5 rounded bg-white/10" />
-                      <div className="w-full h-3 rounded bg-white/5" />
-                      <div className="w-2/3 h-3 rounded bg-white/5" />
+                    <div className="space-y-2.5">
+                      <div className="w-3/4 h-6 rounded bg-white/10" />
+                      <div className="w-full h-4 rounded bg-white/5" />
+                      <div className="w-2/3 h-4 rounded bg-white/5" />
                     </div>
-                    <div className="border-t border-white/[0.05] pt-3 flex items-center justify-between">
-                      <div className="w-16 h-3 rounded bg-white/5" />
-                      <div className="w-20 h-3 rounded bg-white/5" />
+                    <div className="border-t border-white/[0.05] pt-4 flex items-center justify-between">
+                      <div className="w-20 h-4 rounded bg-white/5" />
+                      <div className="w-24 h-4 rounded bg-white/5" />
                     </div>
                   </div>
                 ))}
               </div>
             ) : filteredSources.length === 0 ? (
-              <div className="p-12 hirael-card text-center space-y-3">
-                <FileText className="w-10 h-10 text-[#52525b] mx-auto" />
-                <p className="text-[#ede8df] text-sm font-medium">No content sources found</p>
-                <p className="text-xs text-[#71717a] max-w-sm mx-auto">
+              <div className="p-12 sm:p-16 hirael-card text-center space-y-4 rounded-3xl">
+                <FileText className="w-12 h-12 text-[#52525b] mx-auto" />
+                <p className="text-[#ede8df] text-base sm:text-lg font-medium">No content sources found</p>
+                <p className="text-xs sm:text-sm text-[#71717a] max-w-md mx-auto leading-relaxed">
                   Create your first canonical content idea in the Studio to start the multi-channel adaptation pipeline.
                 </p>
-                <Link href="/content">
+                <Link href="/content" className="inline-block pt-2">
                   <InteractiveButton
                     variant="secondary"
-                    size="sm"
+                    size="md"
                     glow
-                    leftIcon={<Plus className="w-3.5 h-3.5 text-[#d4a373]" />}
-                    className="mt-2"
+                    leftIcon={<Plus className="w-4 h-4 text-[#d4a373]" />}
+                    className="text-xs sm:text-sm"
                   >
                     New Content Source
                   </InteractiveButton>
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredSources.map((source, idx) => (
-                  <ScrollReveal key={source.id} delay={idx * 50}>
+                  <ScrollReveal key={source.id} delay={idx * 40}>
                     <div
                       onClick={() => router.push(`/content/${source.id}/variants`)}
-                      className="hirael-card card-hover-lift p-5 space-y-3.5 cursor-pointer flex flex-col justify-between group h-full"
+                      className="hirael-card card-hover-lift p-6 sm:p-7 space-y-4 cursor-pointer flex flex-col justify-between group h-full rounded-2xl"
                     >
-                      <div className="space-y-2">
+                      <div className="space-y-2.5">
                         <div className="flex items-center justify-between">
                           <span
-                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${
+                            className={`px-3 py-1 rounded-full text-xs font-semibold border ${
                               source.status === "ready_for_adaptation"
                                 ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
                                 : "bg-white/[0.05] border-white/10 text-[#a6a39b]"
@@ -256,48 +256,48 @@ export default function ContentLibraryPage() {
                           >
                             {source.status === "ready_for_adaptation" ? "Ready for AI" : "Draft"}
                           </span>
-                          <span className="text-[10px] text-[#71717a] font-mono">
+                          <span className="text-[11px] text-[#71717a] font-mono">
                             v{source.version_count || 1}
                           </span>
                         </div>
 
-                        <h3 className="font-semibold text-[#ede8df] text-sm leading-snug line-clamp-2 group-hover:text-[#d4a373] transition-colors">
+                        <h3 className="font-semibold text-[#ede8df] text-sm sm:text-base lg:text-[17px] leading-snug line-clamp-2 group-hover:text-[#d4a373] transition-colors">
                           {source.title}
                         </h3>
 
-                        <p className="text-xs text-[#8a8a93] line-clamp-3 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-[#8a8a93] line-clamp-3 leading-relaxed">
                           {source.body || "No body content drafted yet..."}
                         </p>
                       </div>
 
-                      <div className="border-t border-white/[0.06] pt-3 space-y-2">
-                        <div className="flex items-center justify-between text-[11px] text-[#71717a]">
-                          <span className="truncate max-w-[140px]">{source.content_pillar || "General Pillar"}</span>
+                      <div className="border-t border-white/[0.06] pt-4 space-y-3">
+                        <div className="flex items-center justify-between text-xs text-[#71717a]">
+                          <span className="truncate max-w-[150px]">{source.content_pillar || "General Pillar"}</span>
                           <span>{new Date(source.updated_at).toLocaleDateString()}</span>
                         </div>
 
                         <div className="flex items-center justify-between pt-1">
-                          <div className="flex items-center gap-1.5 text-[11px] text-[#d4a373] font-medium group-hover:underline">
+                          <div className="flex items-center gap-1.5 text-xs sm:text-[13px] text-[#d4a373] font-medium group-hover:underline">
                             <Sparkles className="w-3.5 h-3.5" />
                             <span>Review Variants ({source.target_platforms_json?.length || 0})</span>
                           </div>
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-1.5">
                             <button
                               title="Edit Canonical Source"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 router.push(`/content?id=${source.id}`);
                               }}
-                              className="text-[#8a8a93] hover:text-[#ede8df] p-1.5 hover:bg-white/[0.08] rounded-lg transition-colors cursor-pointer"
+                              className="text-[#8a8a93] hover:text-[#ede8df] p-1.5 hover:bg-white/[0.08] rounded-xl transition-colors cursor-pointer"
                             >
-                              <FileText className="w-3.5 h-3.5" />
+                              <FileText className="w-4 h-4" />
                             </button>
                             <button
                               title="Delete Source"
                               onClick={(e) => handleDeleteSource(source.id, e)}
-                              className="text-[#71717a] hover:text-rose-400 p-1.5 hover:bg-white/[0.08] rounded-lg transition-colors cursor-pointer"
+                              className="text-[#71717a] hover:text-rose-400 p-1.5 hover:bg-white/[0.08] rounded-xl transition-colors cursor-pointer"
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
                         </div>
@@ -314,19 +314,19 @@ export default function ContentLibraryPage() {
         {activeTab === "media" && (
           <div>
             {mediaAssets.length === 0 ? (
-              <div className="p-12 hirael-card text-center space-y-3">
-                <ImageIcon className="w-10 h-10 text-[#52525b] mx-auto" />
-                <p className="text-[#ede8df] text-sm font-medium">No media uploaded yet</p>
-                <p className="text-xs text-[#71717a] max-w-sm mx-auto">
+              <div className="p-12 sm:p-16 hirael-card text-center space-y-4 rounded-3xl">
+                <ImageIcon className="w-12 h-12 text-[#52525b] mx-auto" />
+                <p className="text-[#ede8df] text-base sm:text-lg font-medium">No media uploaded yet</p>
+                <p className="text-xs sm:text-sm text-[#71717a] max-w-md mx-auto leading-relaxed">
                   Upload images, videos, or documents to reuse across your multi-channel posts.
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5">
                 {mediaAssets.map((asset, idx) => (
                   <ScrollReveal key={asset.id} delay={idx * 30}>
-                    <div className="hirael-card card-hover-lift p-3 space-y-2 text-xs relative group h-full">
-                      <div className="h-28 rounded-xl bg-black/60 border border-white/[0.06] flex items-center justify-center overflow-hidden">
+                    <div className="hirael-card card-hover-lift p-4 space-y-3 relative group h-full rounded-2xl">
+                      <div className="h-32 sm:h-36 rounded-xl bg-black/60 border border-white/[0.06] flex items-center justify-center overflow-hidden">
                         {asset.mime_type.startsWith("image/") ? (
                           <img
                             src={asset.url}
@@ -334,14 +334,14 @@ export default function ContentLibraryPage() {
                             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                           />
                         ) : (
-                          <span className="font-mono text-[10px] text-[#d4a373] uppercase">
+                          <span className="font-mono text-xs text-[#d4a373] uppercase">
                             {asset.mime_type}
                           </span>
                         )}
                       </div>
-                      <div className="space-y-0.5">
-                        <p className="font-medium text-[#ede8df] truncate text-xs">{asset.filename}</p>
-                        <div className="flex items-center justify-between text-[10px] text-[#71717a] font-mono">
+                      <div className="space-y-1">
+                        <p className="font-medium text-[#ede8df] truncate text-xs sm:text-[13px]">{asset.filename}</p>
+                        <div className="flex items-center justify-between text-[11px] text-[#71717a] font-mono">
                           <span>{(asset.size_bytes / 1024).toFixed(0)} KB</span>
                           {asset.width && asset.height && (
                             <span>{asset.width}x{asset.height}</span>
@@ -350,9 +350,9 @@ export default function ContentLibraryPage() {
                       </div>
                       <button
                         onClick={() => handleDeleteMedia(asset.id)}
-                        className="absolute top-4 right-4 p-1.5 rounded-full bg-black/80 text-[#71717a] hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-md"
+                        className="absolute top-4 right-4 p-2 rounded-full bg-black/80 text-[#71717a] hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-md"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </ScrollReveal>

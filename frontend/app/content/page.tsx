@@ -277,28 +277,28 @@ function ContentStudioContent() {
 
   return (
     <AppLayout activeWorkspaceId={activeWorkspaceId} onWorkspaceChange={setActiveWorkspaceId}>
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Header with Auto-save indicator & Actions */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 border-b border-white/[0.08] pb-6">
           <div>
-            <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-[#85827b] mb-1">
-              <Sparkles className="w-3.5 h-3.5 text-[#d4a373]" />
+            <div className="flex items-center gap-2.5 text-[11px] sm:text-xs lg:text-[13px] font-mono uppercase tracking-widest text-[#85827b] mb-1.5">
+              <Sparkles className="w-4 h-4 text-[#d4a373]" />
               <span>Canonical Core Editor</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-normal tracking-tight text-[#ede8df]">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal tracking-tight text-[#ede8df]">
               Content Studio
             </h1>
-            <div className="flex items-center gap-3 text-xs text-[#8a8a93] mt-1">
-              <span className="flex items-center gap-1.5 font-medium">
+            <div className="flex items-center gap-3.5 text-xs sm:text-sm text-[#8a8a93] mt-2">
+              <span className="flex items-center gap-2 font-medium">
                 {saveStatus === "saved" && (
                   <>
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                     <span className="text-emerald-400">All changes auto-saved</span>
                   </>
                 )}
                 {saveStatus === "saving" && (
                   <>
-                    <Clock className="w-3.5 h-3.5 text-[#d4a373] animate-spin" />
+                    <Clock className="w-4 h-4 text-[#d4a373] animate-spin" />
                     <span className="text-[#d4a373]">Saving draft...</span>
                   </>
                 )}
@@ -310,21 +310,21 @@ function ContentStudioContent() {
               <button
                 onClick={handleLoadVersions}
                 disabled={!sourceId}
-                className="hover:text-[#d4a373] text-[#8a8a93] flex items-center gap-1 cursor-pointer disabled:opacity-40 transition-colors font-mono text-[11px]"
+                className="hover:text-[#d4a373] text-[#8a8a93] flex items-center gap-1.5 cursor-pointer disabled:opacity-40 transition-colors font-mono text-xs sm:text-[13px]"
               >
-                <History className="w-3.5 h-3.5" />
+                <History className="w-4 h-4" />
                 <span>Version Snapshots ({versions.length})</span>
               </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-3">
             <InteractiveButton
               onClick={handleManualSaveSnapshot}
               variant="secondary"
               size="md"
-              leftIcon={<Save className="w-3.5 h-3.5" />}
-              className="text-xs"
+              leftIcon={<Save className="w-4 h-4" />}
+              className="px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold"
             >
               Snapshot Version
             </InteractiveButton>
@@ -333,12 +333,12 @@ function ContentStudioContent() {
               loading={isAdapting}
               loadingText="Processing AI Adaptations..."
               variant="primary"
-              size="md"
+              size="lg"
               glow
               shimmer
               magnetic
-              rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
-              className="text-xs"
+              rightIcon={<ArrowRight className="w-4 h-4" />}
+              className="px-6 sm:px-7 py-3 text-xs sm:text-sm lg:text-[14px] font-semibold"
             >
               Adapt &amp; Distribute
             </InteractiveButton>
@@ -346,32 +346,32 @@ function ContentStudioContent() {
         </div>
 
         {/* Dual-Pane Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Canonical Editor (Left 2 Cols) */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2 space-y-6">
             <ScrollReveal delay={0}>
-              <div className="hirael-card p-5 sm:p-6 space-y-4">
+              <div className="hirael-card p-6 sm:p-7 lg:p-8 space-y-6 rounded-2xl sm:rounded-3xl">
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Give your content idea a clear, canonical title..."
-                  className="w-full text-lg sm:text-xl font-medium bg-transparent text-[#ede8df] placeholder-[#55534e] outline-none tracking-tight"
+                  className="w-full text-xl sm:text-2xl lg:text-[1.75rem] font-medium bg-transparent text-[#ede8df] placeholder-[#55534e] outline-none tracking-tight leading-snug"
                 />
 
-                <div className="border-t border-white/[0.08] pt-4">
+                <div className="border-t border-white/[0.08] pt-5">
                   <textarea
-                    rows={13}
+                    rows={14}
                     value={body}
                     onChange={(e) => setBody(e.target.value)}
                     placeholder="Draft your core thought, article, announcement, or transcript here.
 Our specialized AI agents will read this canonical source, preserve your facts, and adapt hooks, formatting, character limits, and media specifically for each channel..."
-                    className="w-full bg-transparent text-xs sm:text-sm text-[#ede8df] placeholder-[#55534e] outline-none leading-relaxed resize-none"
+                    className="w-full bg-transparent text-sm sm:text-base lg:text-[15.5px] text-[#ede8df] placeholder-[#55534e] outline-none leading-relaxed resize-none"
                   />
                 </div>
 
                 {/* Word and Character Count */}
-                <div className="border-t border-white/[0.08] pt-3 flex items-center justify-between text-[11px] text-[#71717a]">
+                <div className="border-t border-white/[0.08] pt-4 flex items-center justify-between text-xs sm:text-[13px] text-[#71717a]">
                   <span>
                     {body.trim() ? body.trim().split(/\s+/).length : 0} words &bull; {body.length} characters
                   </span>
@@ -382,14 +382,14 @@ Our specialized AI agents will read this canonical source, preserve your facts, 
 
             {/* Attached Media Assets */}
             <ScrollReveal delay={50}>
-              <div className="hirael-card p-5 space-y-3">
+              <div className="hirael-card p-6 sm:p-7 rounded-2xl sm:rounded-3xl space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-mono uppercase tracking-wider text-[#ede8df] flex items-center gap-2">
-                    <ImageIcon className="w-4 h-4 text-[#d4a373]" />
+                  <h3 className="text-xs sm:text-sm lg:text-[14px] font-mono uppercase tracking-wider text-[#ede8df] flex items-center gap-2.5">
+                    <ImageIcon className="w-4 h-4 sm:w-5 sm:h-5 text-[#d4a373]" />
                     <span>Attached Media Assets ({attachedAssets.length})</span>
                   </h3>
-                  <label className="cursor-pointer py-1.5 px-3 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.08] text-xs text-[#ede8df] font-medium flex items-center gap-1.5 transition-colors">
-                    <UploadCloud className="w-3.5 h-3.5 text-[#d4a373]" />
+                  <label className="cursor-pointer py-2 px-4 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.08] text-xs sm:text-sm text-[#ede8df] font-medium flex items-center gap-2 transition-colors">
+                    <UploadCloud className="w-4 h-4 text-[#d4a373]" />
                     <span>{uploadingMedia ? "Uploading..." : "Attach Media"}</span>
                     <input
                       type="file"
@@ -401,17 +401,17 @@ Our specialized AI agents will read this canonical source, preserve your facts, 
                 </div>
 
                 {attachedAssets.length === 0 ? (
-                  <div className="p-6 rounded-2xl border border-dashed border-white/[0.08] text-center text-xs text-[#71717a]">
+                  <div className="p-8 sm:p-10 rounded-2xl border border-dashed border-white/[0.08] text-center text-xs sm:text-sm text-[#71717a] leading-relaxed">
                     No media attached. Upload images or video clips to be resized and adapted per platform.
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     {attachedAssets.map((asset, i) => (
                       <div
                         key={asset.id || i}
-                        className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs space-y-1.5 relative group"
+                        className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs space-y-2 relative group"
                       >
-                        <div className="h-20 rounded-lg bg-black/40 flex items-center justify-center overflow-hidden">
+                        <div className="h-24 rounded-lg bg-black/40 flex items-center justify-center overflow-hidden">
                           {asset.mime_type?.startsWith("image/") ? (
                             /* eslint-disable-next-line @next/next/no-img-element */
                             <img
@@ -420,15 +420,15 @@ Our specialized AI agents will read this canonical source, preserve your facts, 
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <span className="font-mono text-[10px] text-[#d4a373] uppercase">
+                            <span className="font-mono text-xs text-[#d4a373] uppercase">
                               {asset.mime_type}
                             </span>
                           )}
                         </div>
-                        <p className="font-medium text-[#ede8df] truncate text-[11px]">
+                        <p className="font-medium text-[#ede8df] truncate text-xs sm:text-[13px]">
                           {asset.filename}
                         </p>
-                        <p className="text-[10px] text-[#71717a] font-mono">
+                        <p className="text-[11px] text-[#71717a] font-mono">
                           {asset.width && asset.height ? `${asset.width}x${asset.height}` : ""}
                         </p>
                       </div>
@@ -440,16 +440,16 @@ Our specialized AI agents will read this canonical source, preserve your facts, 
           </div>
 
           {/* Right Sidebar: Platform Targeting & Metadata */}
-          <div className="space-y-5">
+          <div className="space-y-6">
             {/* Target Platforms */}
             <ScrollReveal delay={30}>
-              <div className="hirael-card p-5 space-y-4">
-                <h3 className="text-xs font-mono uppercase tracking-wider text-[#ede8df] flex items-center gap-2">
-                  <Share2 className="w-4 h-4 text-[#d4a373]" />
+              <div className="hirael-card p-6 sm:p-7 rounded-2xl sm:rounded-3xl space-y-4">
+                <h3 className="text-xs sm:text-sm lg:text-[14px] font-mono uppercase tracking-wider text-[#ede8df] flex items-center gap-2.5">
+                  <Share2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#d4a373]" />
                   <span>Target Distribution Channels</span>
                 </h3>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2.5">
                   {PLATFORMS.map((plat) => {
                     const isSelected = selectedPlatforms.includes(plat.id);
                     return (
@@ -457,15 +457,15 @@ Our specialized AI agents will read this canonical source, preserve your facts, 
                         key={plat.id}
                         type="button"
                         onClick={() => togglePlatform(plat.id)}
-                        className={`p-2.5 rounded-xl text-xs text-left font-medium border transition-all ${
+                        className={`p-3.5 rounded-xl text-xs sm:text-sm text-left font-medium border transition-all ${
                           isSelected
-                            ? "bg-[#d4a373]/15 border-[#d4a373]/40 text-[#d4a373]"
+                            ? "bg-[#d4a373]/15 border-[#d4a373]/40 text-[#d4a373] shadow-sm"
                             : "bg-white/[0.02] border-white/[0.06] text-[#8a8a93] hover:bg-white/[0.05]"
                         }`}
                       >
                         <div className="flex items-center justify-between">
                           <span>{plat.label}</span>
-                          {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-[#d4a373]" />}
+                          {isSelected && <span className="w-2 h-2 rounded-full bg-[#d4a373]" />}
                         </div>
                       </button>
                     );
@@ -476,18 +476,18 @@ Our specialized AI agents will read this canonical source, preserve your facts, 
 
             {/* Categorization & Pillar */}
             <ScrollReveal delay={70}>
-              <div className="hirael-card p-5 space-y-4">
-                <h3 className="text-xs font-mono uppercase tracking-wider text-[#ede8df] flex items-center gap-2">
-                  <Tag className="w-4 h-4 text-[#d4a373]" />
+              <div className="hirael-card p-6 sm:p-7 rounded-2xl sm:rounded-3xl space-y-5">
+                <h3 className="text-xs sm:text-sm lg:text-[14px] font-mono uppercase tracking-wider text-[#ede8df] flex items-center gap-2.5">
+                  <Tag className="w-4 h-4 sm:w-5 sm:h-5 text-[#d4a373]" />
                   <span>Content Classification</span>
                 </h3>
 
                 <div>
-                  <label className="block text-[11px] font-mono text-[#85827b] mb-1.5">Content Pillar</label>
+                  <label className="block text-xs sm:text-[13px] font-mono text-[#85827b] mb-2">Content Pillar</label>
                   <select
                     value={contentPillar}
                     onChange={(e) => setContentPillar(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/[0.08] text-xs text-[#ede8df] outline-none focus:border-[#d4a373]/60"
+                    className="w-full px-4 py-2.5 sm:py-3 rounded-xl bg-black/40 border border-white/[0.08] text-xs sm:text-sm text-[#ede8df] outline-none cursor-pointer focus:border-[#d4a373]/60"
                   >
                     <option value="">Select Brand Pillar...</option>
                     {brandProfile?.content_pillars_json?.map((p) => (
@@ -502,11 +502,11 @@ Our specialized AI agents will read this canonical source, preserve your facts, 
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-mono text-[#85827b] mb-1.5">Source Format Type</label>
+                  <label className="block text-xs sm:text-[13px] font-mono text-[#85827b] mb-2">Source Format Type</label>
                   <select
                     value={contentType}
                     onChange={(e) => setContentType(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/[0.08] text-xs text-[#ede8df] outline-none focus:border-[#d4a373]/60"
+                    className="w-full px-4 py-2.5 sm:py-3 rounded-xl bg-black/40 border border-white/[0.08] text-xs sm:text-sm text-[#ede8df] outline-none cursor-pointer focus:border-[#d4a373]/60"
                   >
                     <option value="article">Long-Form Article</option>
                     <option value="announcement">Product Announcement</option>
@@ -522,30 +522,30 @@ Our specialized AI agents will read this canonical source, preserve your facts, 
         {/* Version History Modal */}
         {showVersions && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-            <div className="hirael-card w-full max-w-lg p-6 shadow-2xl space-y-4">
-              <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
-                <h3 className="font-medium text-[#ede8df] text-sm flex items-center gap-2">
-                  <History className="w-4 h-4 text-[#d4a373]" />
+            <div className="hirael-card w-full max-w-lg p-7 sm:p-8 rounded-2xl sm:rounded-3xl shadow-2xl space-y-5">
+              <div className="flex items-center justify-between border-b border-white/[0.08] pb-4">
+                <h3 className="font-medium text-[#ede8df] text-base sm:text-lg flex items-center gap-2.5">
+                  <History className="w-5 h-5 text-[#d4a373]" />
                   <span>Version Snapshots</span>
                 </h3>
                 <button
                   onClick={() => setShowVersions(false)}
-                  className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-[#ede8df] flex items-center justify-center text-xs"
+                  className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-[#ede8df] flex items-center justify-center text-xs font-semibold"
                 >
                   ✕
                 </button>
               </div>
 
-              <div className="space-y-2 max-h-80 overflow-y-auto pr-1 scrollbar-none">
+              <div className="space-y-3 max-h-80 overflow-y-auto pr-1 scrollbar-none">
                 {versions.map((v) => (
                   <div
                     key={v.id}
-                    className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-between text-xs"
+                    className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-between text-xs sm:text-sm"
                   >
                     <div>
-                      <p className="font-semibold text-[#ede8df]">Version {v.version_number}</p>
-                      <p className="text-[11px] text-[#8a8a93] truncate max-w-xs">{v.title}</p>
-                      <p className="text-[10px] text-[#71717a] font-mono">
+                      <p className="font-semibold text-[#ede8df] text-sm">Version {v.version_number}</p>
+                      <p className="text-xs text-[#8a8a93] truncate max-w-xs mt-0.5">{v.title}</p>
+                      <p className="text-[11px] text-[#71717a] font-mono mt-1">
                         {new Date(v.created_at).toLocaleString()}
                       </p>
                     </div>
@@ -553,7 +553,7 @@ Our specialized AI agents will read this canonical source, preserve your facts, 
                       onClick={() => handleRestoreVersion(v.id)}
                       variant="secondary"
                       size="sm"
-                      className="text-xs"
+                      className="text-xs px-3.5 py-1.5"
                     >
                       Restore
                     </InteractiveButton>

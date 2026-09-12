@@ -190,27 +190,27 @@ export default function IntegrationsPage() {
 
   return (
     <AppLayout activeWorkspaceId={activeWorkspaceId} onWorkspaceChange={setActiveWorkspaceId}>
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Header Banner */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-white/[0.08]">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 pb-6 border-b border-white/[0.08]">
           <div>
-            <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-[#85827b] mb-1">
-              <Share2 className="w-3.5 h-3.5 text-[#d4a373]" />
+            <div className="flex items-center gap-2.5 text-[11px] sm:text-xs lg:text-[13px] font-mono uppercase tracking-widest text-[#85827b] mb-1.5">
+              <Share2 className="w-4 h-4 text-[#d4a373]" />
               <span>Omnichannel Distribution Hub</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-normal tracking-tight text-[#ede8df]">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal tracking-tight text-[#ede8df]">
               Platform Integrations &amp; Publishing History
             </h1>
-            <p className="text-xs sm:text-sm text-[#8a8a93] mt-1 max-w-2xl leading-relaxed">
+            <p className="text-xs sm:text-sm lg:text-[15px] xl:text-[15.5px] text-[#8a8a93] mt-2 max-w-3xl leading-relaxed">
               Connect target channels with OAuth credentials. Lisa orchestrates media formatting,
               character limits, and authentic API dispatch per network.
             </p>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-[#0a0a0d] p-1 rounded-full border border-white/[0.08]">
+          <div className="flex items-center gap-2 bg-[#0a0a0d] p-1.5 rounded-full border border-white/[0.08] shrink-0">
             <button
               onClick={() => setActiveTab("platforms")}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
+              className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all ${
                 activeTab === "platforms"
                   ? "bg-[#ede8df] text-[#09090b] shadow-sm font-semibold"
                   : "text-[#85827b] hover:text-[#ede8df]"
@@ -220,7 +220,7 @@ export default function IntegrationsPage() {
             </button>
             <button
               onClick={() => setActiveTab("history")}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
+              className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all ${
                 activeTab === "history"
                   ? "bg-[#ede8df] text-[#09090b] shadow-sm font-semibold"
                   : "text-[#85827b] hover:text-[#ede8df]"
@@ -233,7 +233,7 @@ export default function IntegrationsPage() {
 
         {/* Channels Grid Tab */}
         {activeTab === "platforms" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {PLATFORM_PRESETS.map((preset, index) => {
               const Icon = preset.icon;
               const conn = connections.find((c) => c.platform === preset.key);
@@ -241,18 +241,18 @@ export default function IntegrationsPage() {
 
               return (
                 <ScrollReveal key={preset.key} delay={index * 30}>
-                  <div className="hirael-card p-5 sm:p-6 flex flex-col justify-between group h-full">
+                  <div className="hirael-card p-6 sm:p-7 rounded-2xl sm:rounded-3xl flex flex-col justify-between group h-full space-y-6">
                     <div>
                       {/* Top Row */}
                       <div className="flex items-start justify-between gap-4 mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] text-[#ede8df]">
-                            <Icon className="w-5 h-5 text-[#d4a373]" />
+                        <div className="flex items-center gap-3.5">
+                          <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/[0.08] text-[#ede8df]">
+                            <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-[#d4a373]" />
                           </div>
                           <div>
-                            <h3 className="font-medium text-[#ede8df] text-sm sm:text-base">{preset.name}</h3>
+                            <h3 className="font-medium text-[#ede8df] text-base sm:text-lg">{preset.name}</h3>
                             <span
-                              className={`inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full ${
+                              className={`inline-flex items-center gap-1.5 text-xs font-mono px-2.5 py-0.5 rounded-full mt-1 ${
                                 isConnected
                                   ? conn.status === "manual_export_only"
                                     ? "bg-amber-500/10 text-amber-300 border border-amber-500/20"
@@ -263,11 +263,11 @@ export default function IntegrationsPage() {
                               {isConnected ? (
                                 conn.status === "manual_export_only" ? (
                                   <>
-                                    <CheckCircle2 className="w-3 h-3" /> Manual Export (Active)
+                                    <CheckCircle2 className="w-3.5 h-3.5" /> Manual Export (Active)
                                   </>
                                 ) : (
                                   <>
-                                    <CheckCircle2 className="w-3 h-3" /> Connected (OAuth)
+                                    <CheckCircle2 className="w-3.5 h-3.5" /> Connected (OAuth)
                                   </>
                                 )
                               ) : (
@@ -278,18 +278,18 @@ export default function IntegrationsPage() {
                         </div>
                       </div>
 
-                      <p className="text-xs text-[#8a8a93] leading-relaxed mb-4">{preset.desc}</p>
+                      <p className="text-xs sm:text-sm text-[#8a8a93] leading-relaxed mb-5">{preset.desc}</p>
 
                       {/* Supported Formats */}
-                      <div className="mb-5">
-                        <span className="text-[10px] font-mono text-[#85827b] uppercase tracking-wider block mb-2">
+                      <div className="space-y-3">
+                        <span className="text-[11px] sm:text-xs font-mono text-[#85827b] uppercase tracking-wider block">
                           Supported Formats
                         </span>
-                        <div className="flex flex-wrap gap-1.5">
+                        <div className="flex flex-wrap gap-2">
                           {preset.formats.map((f) => (
                             <span
                               key={f}
-                              className="px-2.5 py-0.5 rounded-full bg-white/[0.02] border border-white/[0.06] text-[11px] text-[#a6a39b]"
+                              className="px-3 py-1 rounded-full bg-white/[0.02] border border-white/[0.06] text-xs text-[#a6a39b]"
                             >
                               {f}
                             </span>
@@ -297,18 +297,18 @@ export default function IntegrationsPage() {
                         </div>
 
                         {conn && conn.platform === "linkedin" && (
-                          <div className="mt-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.08] text-[11px]">
-                            <span className="text-[#85827b] block text-[10px] font-mono uppercase tracking-wider">Configured Client ID</span>
-                            <span className="font-mono text-[#d4a373] font-medium truncate block select-all">
+                          <div className="mt-3.5 p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.08] text-xs">
+                            <span className="text-[#85827b] block text-[11px] font-mono uppercase tracking-wider">Configured Client ID</span>
+                            <span className="font-mono text-[#d4a373] font-medium truncate block select-all mt-0.5">
                               {conn.external_account_id}
                             </span>
                           </div>
                         )}
 
                         {conn && conn.platform === "instagram" && (
-                          <div className="mt-3 p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 text-[11px]">
-                            <span className="text-amber-400 block text-[10px] font-mono uppercase tracking-wider">Export Protocol</span>
-                            <span className="text-[#8a8a93] text-[11px] block mt-0.5">
+                          <div className="mt-3.5 p-3.5 rounded-xl bg-amber-500/5 border border-amber-500/20 text-xs">
+                            <span className="text-amber-400 block text-[11px] font-mono uppercase tracking-wider">Export Protocol</span>
+                            <span className="text-[#8a8a93] text-xs block mt-1 leading-relaxed">
                               Direct download &amp; copy-ready for Instagram Creator Studio. No App Secret needed.
                             </span>
                           </div>
@@ -320,15 +320,15 @@ export default function IntegrationsPage() {
                     <div className="pt-4 border-t border-white/[0.06]">
                       {isConnected ? (
                         <div className="flex items-center justify-between">
-                          <div className="text-xs">
-                            <span className="text-[#85827b] block text-[10px] font-mono">Account</span>
-                            <span className="font-medium text-[#ede8df] truncate max-w-[140px] block">
+                          <div className="text-xs sm:text-sm">
+                            <span className="text-[#85827b] block text-[11px] font-mono">Account</span>
+                            <span className="font-medium text-[#ede8df] truncate max-w-[160px] block">
                               {conn.account_name}
                             </span>
                           </div>
                           <button
                             onClick={() => handleDisconnect(conn.id)}
-                            className="px-3 py-1.5 rounded-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-medium border border-rose-500/20 transition-all flex items-center gap-1.5"
+                            className="px-3.5 py-1.5 rounded-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-medium border border-rose-500/20 transition-all flex items-center gap-1.5"
                           >
                             <Trash2 className="w-3.5 h-3.5" /> Disconnect
                           </button>
@@ -337,10 +337,10 @@ export default function IntegrationsPage() {
                         <InteractiveButton
                           onClick={() => openConnectModal(preset.key)}
                           variant="secondary"
-                          size="sm"
+                          size="md"
                           magnetic
-                          leftIcon={<Plus className="w-3.5 h-3.5 text-[#d4a373]" />}
-                          className="w-full text-xs justify-center"
+                          leftIcon={<Plus className="w-4 h-4 text-[#d4a373]" />}
+                          className="w-full py-2.5 sm:py-3 text-xs sm:text-sm justify-center font-medium"
                         >
                           Connect {preset.name}
                         </InteractiveButton>
@@ -356,17 +356,17 @@ export default function IntegrationsPage() {
         {/* Publishing History Tab */}
         {activeTab === "history" && (
           <ScrollReveal delay={0}>
-            <div className="hirael-card p-5 sm:p-7">
-              <h2 className="text-sm sm:text-base font-normal text-[#ede8df] mb-4 flex items-center gap-2">
-                <Clock className="w-4 h-4 text-[#d4a373]" />
+            <div className="hirael-card p-6 sm:p-8 rounded-2xl sm:rounded-3xl">
+              <h2 className="text-base sm:text-lg font-medium text-[#ede8df] mb-6 flex items-center gap-2.5">
+                <Clock className="w-5 h-5 text-[#d4a373]" />
                 <span>Verified Published Dispatches</span>
               </h2>
 
               {publishedRecords.length === 0 ? (
-                <div className="text-center py-16">
-                  <Share2 className="w-10 h-10 text-[#454340] mx-auto mb-3" />
-                  <h3 className="font-medium text-[#ede8df] text-sm">No dispatches published yet</h3>
-                  <p className="text-xs text-[#8a8a93] mt-1 max-w-sm mx-auto">
+                <div className="text-center py-20">
+                  <Share2 className="w-12 h-12 text-[#454340] mx-auto mb-4" />
+                  <h3 className="font-medium text-[#ede8df] text-base sm:text-lg">No dispatches published yet</h3>
+                  <p className="text-xs sm:text-sm text-[#8a8a93] mt-2 max-w-md mx-auto leading-relaxed">
                     Approved variants that get published immediately or via the scheduling queue will
                     appear here with verifiable external permalinks.
                   </p>
@@ -374,21 +374,21 @@ export default function IntegrationsPage() {
               ) : (
                 <div className="divide-y divide-white/[0.06]">
                   {publishedRecords.map((rec) => (
-                    <div key={rec.id} className="py-4 flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2.5 rounded-2xl bg-white/[0.03] text-[#d4a373] border border-white/[0.08] font-mono uppercase text-xs">
+                    <div key={rec.id} className="py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-2xl bg-white/[0.03] text-[#d4a373] border border-white/[0.08] font-mono uppercase text-xs sm:text-sm font-semibold">
                           {rec.platform}
                         </div>
                         <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-[#ede8df] text-xs sm:text-sm">
+                          <div className="flex items-center gap-2.5">
+                            <span className="font-medium text-[#ede8df] text-sm sm:text-base">
                               Post ID: {rec.external_post_id}
                             </span>
-                            <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-mono">
+                            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-mono">
                               Live
                             </span>
                           </div>
-                          <span className="text-[11px] text-[#85827b] block mt-0.5 font-mono">
+                          <span className="text-xs text-[#85827b] block mt-1 font-mono">
                             Published on {new Date(rec.published_at).toLocaleString()}
                           </span>
                         </div>
@@ -398,10 +398,10 @@ export default function IntegrationsPage() {
                         href={rec.external_url}
                         target="_blank"
                         rel="noreferrer"
-                        className="px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] hover:border-white/20 text-[#ede8df] text-xs font-medium flex items-center gap-1.5 transition-all"
+                        className="px-4 py-2 rounded-full bg-white/[0.04] border border-white/[0.08] hover:border-white/20 text-[#ede8df] text-xs sm:text-sm font-medium flex items-center gap-2 transition-all self-start sm:self-auto"
                       >
                         <span>View Live Post</span>
-                        <ExternalLink className="w-3 h-3" />
+                        <ExternalLink className="w-3.5 h-3.5" />
                       </a>
                     </div>
                   ))}
@@ -414,47 +414,47 @@ export default function IntegrationsPage() {
         {/* Connect Channel Modal */}
         {selectedPlatform && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-            <div className="hirael-card p-6 max-w-md w-full shadow-2xl space-y-5">
-              <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
-                <h3 className="font-normal text-[#ede8df] text-base sm:text-lg flex items-center gap-2 capitalize">
+            <div className="hirael-card p-7 sm:p-8 max-w-lg w-full shadow-2xl space-y-6 rounded-2xl sm:rounded-3xl">
+              <div className="flex items-center justify-between pb-4 border-b border-white/[0.08]">
+                <h3 className="font-normal text-[#ede8df] text-lg sm:text-xl flex items-center gap-2.5 capitalize">
                   <ShieldCheck className="w-5 h-5 text-[#d4a373]" />
                   <span>Connect {selectedPlatform}</span>
                 </h3>
                 <button
                   onClick={() => setSelectedPlatform(null)}
-                  className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-[#ede8df] flex items-center justify-center text-xs"
+                  className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-[#ede8df] flex items-center justify-center text-sm font-semibold"
                 >
                   ✕
                 </button>
               </div>
 
               {selectedPlatform === "linkedin" && (
-                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.08] text-xs text-[#ede8df]">
-                  <div className="font-medium flex items-center gap-1.5 mb-1 text-[#d4a373]">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
+                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08] text-xs sm:text-sm text-[#ede8df]">
+                  <div className="font-medium flex items-center gap-2 mb-1.5 text-[#d4a373]">
+                    <CheckCircle2 className="w-4 h-4" />
                     <span>LinkedIn Client ID Preconfigured</span>
                   </div>
-                  <p className="text-[11px] text-[#8a8a93]">
-                    LinkedIn Client ID <code className="font-mono text-white bg-black/50 px-1 py-0.5 rounded">OAuth App</code> is provisioned and ready for OAuth authorization.
+                  <p className="text-xs text-[#8a8a93] leading-relaxed">
+                    LinkedIn Client ID <code className="font-mono text-white bg-black/50 px-1.5 py-0.5 rounded">OAuth App</code> is provisioned and ready for OAuth authorization.
                   </p>
                 </div>
               )}
 
               {selectedPlatform === "instagram" && (
-                <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200">
-                  <div className="font-medium flex items-center gap-1.5 mb-1 text-amber-300">
-                    <AlertCircle className="w-3.5 h-3.5" />
+                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs sm:text-sm text-amber-200">
+                  <div className="font-medium flex items-center gap-2 mb-1.5 text-amber-300">
+                    <AlertCircle className="w-4 h-4" />
                     <span>Instagram Manual Export Mode</span>
                   </div>
-                  <p className="text-[11px] text-[#8a8a93]">
+                  <p className="text-xs text-[#8a8a93] leading-relaxed">
                     No Instagram Client ID required. Lisa enables Creator Studio manual export mode to generate formatted carousel slides, reels scripts, and copy-ready captions.
                   </p>
                 </div>
               )}
 
-              <form onSubmit={handleConnect} className="space-y-4">
+              <form onSubmit={handleConnect} className="space-y-5">
                 <div>
-                  <label className="block text-[11px] font-mono text-[#85827b] mb-1">
+                  <label className="block text-xs sm:text-[13px] font-mono text-[#85827b] mb-2">
                     Account Display Name / Handle
                   </label>
                   <input
@@ -463,12 +463,12 @@ export default function IntegrationsPage() {
                     placeholder="e.g. @acmecorp or Acme Official"
                     value={accountName}
                     onChange={(e) => setAccountName(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/10 text-[#ede8df] text-xs focus:outline-none focus:border-[#d4a373]/60 focus:ring-1 focus:ring-[#d4a373]/20"
+                    className="w-full px-4 py-2.5 sm:py-3 rounded-xl bg-black/50 border border-white/10 text-[#ede8df] text-xs sm:text-sm lg:text-[14.5px] focus:outline-none focus:border-[#d4a373]/60 focus:ring-1 focus:ring-[#d4a373]/20"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-mono text-[#85827b] mb-1">
+                  <label className="block text-xs sm:text-[13px] font-mono text-[#85827b] mb-2">
                     External Account / Page ID
                   </label>
                   <input
@@ -476,12 +476,12 @@ export default function IntegrationsPage() {
                     placeholder="Optional (auto-generated if empty)"
                     value={accountId}
                     onChange={(e) => setAccountId(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/10 text-[#ede8df] text-xs focus:outline-none focus:border-[#d4a373]/60 focus:ring-1 focus:ring-[#d4a373]/20"
+                    className="w-full px-4 py-2.5 sm:py-3 rounded-xl bg-black/50 border border-white/10 text-[#ede8df] text-xs sm:text-sm lg:text-[14.5px] focus:outline-none focus:border-[#d4a373]/60 focus:ring-1 focus:ring-[#d4a373]/20"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-mono text-[#85827b] mb-1">
+                  <label className="block text-xs sm:text-[13px] font-mono text-[#85827b] mb-2">
                     OAuth Access Token / API Secret
                   </label>
                   <input
@@ -489,18 +489,18 @@ export default function IntegrationsPage() {
                     placeholder="OAuth Bearer Token (Simulated for live demo)"
                     value={mockToken}
                     onChange={(e) => setMockToken(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/10 text-[#ede8df] text-xs focus:outline-none focus:border-[#d4a373]/60 focus:ring-1 focus:ring-[#d4a373]/20"
+                    className="w-full px-4 py-2.5 sm:py-3 rounded-xl bg-black/50 border border-white/10 text-[#ede8df] text-xs sm:text-sm lg:text-[14.5px] focus:outline-none focus:border-[#d4a373]/60 focus:ring-1 focus:ring-[#d4a373]/20"
                   />
-                  <span className="text-[10px] text-[#71717a] font-mono block mt-1">
+                  <span className="text-[11px] text-[#71717a] font-mono block mt-1.5">
                     Credentials are saved with envelope encryption.
                   </span>
                 </div>
 
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/[0.08]">
+                <div className="flex items-center justify-end gap-3 pt-5 border-t border-white/[0.08]">
                   <button
                     type="button"
                     onClick={() => setSelectedPlatform(null)}
-                    className="px-4 py-2 rounded-full text-xs font-medium text-[#85827b] hover:text-[#ede8df]"
+                    className="px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium text-[#85827b] hover:text-[#ede8df]"
                   >
                     Cancel
                   </button>
@@ -509,11 +509,11 @@ export default function IntegrationsPage() {
                     loading={isSubmitting}
                     loadingText="Connecting..."
                     variant="primary"
-                    size="sm"
+                    size="md"
                     glow
                     shimmer
                     magnetic
-                    className="text-xs"
+                    className="px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold"
                   >
                     Confirm Connection
                   </InteractiveButton>
