@@ -266,38 +266,44 @@ export default function LisaHomePage() {
         </div>
 
         {/* =========================================================================
-            PAGE 1: HERO VIEWPORT (Full Screen)
+            PAGE 1: HERO VIEWPORT (Enlarged & Vertically Distributed for Desktop)
             ========================================================================= */}
         <section
           id="hero"
           className="relative z-10 min-h-screen flex flex-col justify-between px-6 sm:px-12 md:px-16 pt-8 pb-10 sm:pb-12"
         >
-          {/* Monumental Brandmark with balanced font sizing for laptop screens */}
+          {/* Top spacer on desktop to push Lisa* into lower-middle focal position */}
+          <div className="hidden lg:block h-10 xl:h-16 shrink-0" />
+
+          {/* Monumental Brandmark (Enlarged & Shifted down toward lower-middle) */}
           <div
-            className="my-auto py-4 sm:py-8 transition-transform duration-75 ease-out will-change-transform"
+            className="my-auto lg:my-0 lg:pt-10 lg:pb-6 transition-transform duration-75 ease-out will-change-transform"
             style={{
               transform: `translateY(${Math.min(scrollY * 0.14, 85)}px)`,
               opacity: Math.max(0.3, 1 - scrollY / 650),
             }}
           >
-            <h1 className="lisa-hero-title text-[19vw] sm:text-[16vw] lg:text-[11.5rem] xl:text-[13rem] font-normal leading-[0.82] tracking-[-0.05em] select-none text-left cursor-pointer">
-              Lisa<span className="lisa-asterisk text-[#d4a373] inline-block -translate-y-1 sm:-translate-y-5 text-[0.52em]">*</span>
+            <h1 className="lisa-hero-title text-[19vw] sm:text-[16vw] lg:text-[14.5rem] xl:text-[17rem] 2xl:text-[20rem] font-normal leading-[0.80] tracking-[-0.055em] select-none text-left cursor-pointer">
+              Lisa<span className="lisa-asterisk text-[#d4a373] inline-block -translate-y-1 sm:-translate-y-4 lg:-translate-y-8 text-[0.52em]">*</span>
             </h1>
           </div>
 
-          {/* Bottom Row: Subtitle, Overview Excerpt, Scroll Cue, and Magnetic CTAs */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-end pt-2">
-            {/* Tagline & Principle */}
-            <div className="lg:col-span-7 space-y-2.5">
-              <p className="text-sm sm:text-lg font-normal text-[#ede8df] tracking-tight">
-                Create once. Adapt intelligently. Publish everywhere possible. Learn from performance.
-              </p>
-              <p className="text-xs sm:text-[13px] text-[#8a8a93] max-w-xl leading-relaxed">
-                Enterprise-grade, multi-tenant AI content operations operating system (OS). Rather than a simple chat wrapper,{" "}
-                <span className="lisa-warm-glow font-medium">Lisa</span> orchestrates specialized agents with deterministic software safeguards.
-              </p>
+          {/* Bottom Row: Bottom-Left Scroll Cue + Bottom-Right Stacked Description & Get in CTA */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-end pt-4 lg:pt-8">
+            {/* Left Side (Col 1-5): Mobile description + Scroll Down cue */}
+            <div className="lg:col-span-5 flex flex-col justify-end">
+              {/* On mobile/tablet, description stays here on the left */}
+              <div className="block lg:hidden space-y-2.5 mb-4">
+                <p className="text-sm sm:text-lg font-normal text-[#ede8df] tracking-tight">
+                  Create once. Adapt intelligently. Publish everywhere possible. Learn from performance.
+                </p>
+                <p className="text-xs sm:text-[13px] text-[#8a8a93] max-w-xl leading-relaxed">
+                  Enterprise-grade, multi-tenant AI content operations operating system (OS). Rather than a simple chat wrapper,{" "}
+                  <span className="lisa-warm-glow font-medium">Lisa</span> orchestrates specialized agents with deterministic software safeguards.
+                </p>
+              </div>
 
-              {/* Interactive Scroll Down Cue */}
+              {/* Interactive Scroll Down Cue (Always bottom-left) */}
               <div className="pt-2">
                 <button
                   onClick={() => scrollToSection("our-story")}
@@ -311,8 +317,20 @@ export default function LisaHomePage() {
               </div>
             </div>
 
-            {/* 1. Hover Glow + 2. Magnetic Button + 3. Gradient Shimmer CTA Button */}
-            <div className="lg:col-span-5 flex flex-col items-start lg:items-end justify-end">
+            {/* Right Side (Col 6-12): Description stacked directly above Get in button */}
+            <div className="lg:col-span-7 flex flex-col items-start lg:items-end justify-end space-y-4">
+              {/* Desktop Description block placed directly above the CTA */}
+              <div className="hidden lg:block space-y-2 text-left lg:text-right max-w-xl">
+                <p className="text-sm sm:text-[15px] font-normal text-[#ede8df] tracking-tight leading-snug">
+                  Create once. Adapt intelligently. Publish everywhere possible. Learn from performance.
+                </p>
+                <p className="text-xs sm:text-[12.5px] text-[#8a8a93] leading-relaxed">
+                  Enterprise-grade, multi-tenant AI content operations operating system (OS). Rather than a simple chat wrapper,{" "}
+                  <span className="lisa-warm-glow font-medium">Lisa</span> orchestrates specialized agents with deterministic software safeguards.
+                </p>
+              </div>
+
+              {/* 1. Hover Glow + 2. Magnetic Button + 3. Gradient Shimmer CTA Button */}
               <Link href="/register">
                 <InteractiveButton
                   variant="primary"
