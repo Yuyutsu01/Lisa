@@ -457,7 +457,7 @@ export default function LisaHomePage() {
             ========================================================================= */}
         <section
           id="programs"
-          className="relative z-10 flex flex-col justify-center px-6 sm:px-10 md:px-16 py-16 sm:py-24 border-t border-white/[0.05]"
+          className="relative z-10 flex flex-col justify-center px-6 sm:px-10 md:px-16 py-16 sm:py-24 border-t border-white/[0.05] scroll-mt-16"
         >
           <div className="text-center space-y-2.5 mb-10 sm:mb-14">
             <div className="text-[10px] sm:text-[11px] font-mono tracking-[0.25em] text-[#85827b] uppercase">
@@ -696,7 +696,7 @@ export default function LisaHomePage() {
             ========================================================================= */}
         <section
           id="enquiries"
-          className="relative z-10 flex flex-col justify-between px-6 sm:px-12 md:px-16 pt-16 sm:pt-20 pb-6 border-t border-white/[0.05]"
+          className="relative z-10 flex flex-col justify-between px-6 sm:px-12 md:px-16 pt-16 sm:pt-20 pb-6 border-t border-white/[0.05] scroll-mt-16"
         >
           <div className="space-y-10">
             {/* Call to Action Bar */}
