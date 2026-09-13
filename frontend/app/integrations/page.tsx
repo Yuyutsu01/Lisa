@@ -30,6 +30,7 @@ import {
   getActiveWorkspaceId,
 } from "@/lib/api";
 import { InteractiveButton } from "@/components/InteractiveButton";
+import { DiscordConnectModal } from "@/components/DiscordConnectModal";
 import { ScrollReveal } from "@/components/ScrollReveal";
 
 const PLATFORM_PRESETS = [
@@ -102,6 +103,7 @@ export default function IntegrationsPage() {
   const [accountName, setAccountName] = useState("");
   const [accountId, setAccountId] = useState("");
   const [mockToken, setMockToken] = useState("");
+  const [discordModalOpen, setDiscordModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // LinkedIn OAuth State
@@ -129,6 +131,12 @@ export default function IntegrationsPage() {
       } finally {
         setOauthLoading(false);
       }
+      return;
+    }
+
+    // Discord uses dedicated webhook verification modal
+    if (platformKey === "discord") {
+      setDiscordModalOpen(true);
       return;
     }
 
@@ -569,6 +577,18 @@ export default function IntegrationsPage() {
               </form>
             </div>
           </div>
+        )}
+        {/* Dedicated Discord Webhook Modal */}
+        {activeWorkspaceId && (
+          <DiscordConnectModal
+            workspaceId={activeWorkspaceId}
+            isOpen={discordModalOpen}
+            onClose={() => setDiscordModalOpen(false)}
+            onSuccess={(conn) => {
+              setConnections((prev) => [conn, ...prev.filter((c) => c.id !== conn.id)]);
+              loadData(activeWorkspaceId);
+            }}
+          />
         )}
       </div>
     </AppLayout>

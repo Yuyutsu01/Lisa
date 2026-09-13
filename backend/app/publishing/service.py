@@ -98,6 +98,8 @@ class PublishingService:
                     "account_name": account.account_name,
                     "external_account_id": account.external_account_id,
                     "access_token": account.access_token_encrypted,
+                    "metadata": account.metadata_json or {},
+                    "metadata_json": account.metadata_json or {},
                 }
 
         # 3. Create or Fetch Publishing Job

@@ -124,10 +124,18 @@ class DiscordAdapter:
         try:
             raw_response = await self.create_publish_job(request_payload)
             message_id = raw_response.get("id")
-            channel_id = raw_response.get("channel_id")
-            guild_id = raw_response.get("guild_id")
+            channel_id = (
+                raw_response.get("channel_id")
+                or ((account_data.get("metadata") or {}).get("channel_id") if account_data else None)
+                or ((account_data.get("metadata_json") or {}).get("channel_id") if account_data else None)
+            )
+            guild_id = (
+                raw_response.get("guild_id")
+                or ((account_data.get("metadata") or {}).get("guild_id") if account_data else None)
+                or ((account_data.get("metadata_json") or {}).get("guild_id") if account_data else None)
+            )
 
-            # Only construct URL when guild_id, channel_id, and message_id are all present
+            # Construct canonical message URL when guild_id, channel_id, and message_id are all present
             external_url = (
                 f"https://discord.com/channels/{guild_id}/{channel_id}/{message_id}"
                 if guild_id and channel_id and message_id

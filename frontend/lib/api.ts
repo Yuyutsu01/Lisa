@@ -681,6 +681,18 @@ export const connectionsApi = {
       method: "POST",
       body: JSON.stringify(data),
     }),
+  connectDiscord: (
+    workspaceId: string,
+    webhookUrl: string,
+    label?: string
+  ) =>
+    apiRequest<ConnectedAccount>(
+      `/workspaces/${workspaceId}/connections/discord`,
+      {
+        method: "POST",
+        body: JSON.stringify({ webhook_url: webhookUrl, label: label || null }),
+      }
+    ),
   disconnect: (workspaceId: string, connectionId: string) =>
     apiRequest<void>(`/workspaces/${workspaceId}/connections/${connectionId}`, {
       method: "DELETE",
