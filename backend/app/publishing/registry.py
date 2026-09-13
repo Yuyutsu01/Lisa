@@ -10,6 +10,7 @@ from app.publishing.linkedin import LinkedInAdapter
 from app.publishing.x import XAdapter
 from app.publishing.instagram import InstagramAdapter
 from app.publishing.other_adapters import ThreadsAdapter, EmailAdapter, BlogAdapter
+from app.publishing.discord import DiscordAdapter
 
 
 class AdapterRegistry:
@@ -21,6 +22,7 @@ class AdapterRegistry:
         "threads": ThreadsAdapter(),
         "email": EmailAdapter(),
         "blog": BlogAdapter(),
+        "discord": DiscordAdapter(),
     }
 
     @classmethod
