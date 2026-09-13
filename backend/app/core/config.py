@@ -84,8 +84,8 @@ class Settings(BaseSettings):
     # LinkedIn OAuth
     LINKEDIN_CLIENT_ID: str = ""
     LINKEDIN_CLIENT_SECRET: str = ""
-    LINKEDIN_REDIRECT_URI: str = ""
-    FRONTEND_URL: str = ""
+    LINKEDIN_REDIRECT_URI: str = "http://localhost:8000/api/v1/oauth/linkedin/callback"
+    FRONTEND_URL: str = "http://localhost:3000/integrations"
 
     # LLM Provider Configuration
     # Supports Groq (Llama 3.3 70B), OpenAI (GPT-4o), Gemini, or Anthropic

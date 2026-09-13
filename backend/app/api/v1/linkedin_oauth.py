@@ -106,6 +106,20 @@ def _verify_state(state: str) -> dict:
         )
 
 
+def _build_frontend_redirect_url(query_string: str) -> str:
+    """
+    Constructs the frontend callback redirect URL, ensuring that it routes
+    directly to /integrations regardless of trailing slashes or subpaths in FRONTEND_URL.
+    """
+    frontend_url = getattr(settings, "FRONTEND_URL", "").strip()
+    if not frontend_url:
+        return ""
+    base = frontend_url.rstrip("/")
+    if not base.endswith("/integrations"):
+        base = f"{base}/integrations"
+    return f"{base}?{query_string}"
+
+
 @router.get("/start")
 async def linkedin_oauth_start(
     workspace_id: str = Query(..., description="Target workspace ID to connect"),
@@ -170,11 +184,9 @@ async def linkedin_oauth_callback(
     """
     if error:
         detail = error_description or error
-        frontend_url = getattr(settings, "FRONTEND_URL", "")
-        if frontend_url:
-            return RedirectResponse(
-                url=f"{frontend_url}?linkedin=error&message={detail}"
-            )
+        redirect_url = _build_frontend_redirect_url(f"linkedin=error&message={detail}")
+        if redirect_url:
+            return RedirectResponse(url=redirect_url)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"LinkedIn authorization failed: {detail}",
@@ -323,9 +335,9 @@ async def linkedin_oauth_callback(
         await db.commit()
         await db.refresh(connected_account)
 
-        frontend_url = getattr(settings, "FRONTEND_URL", "")
-        if frontend_url:
-            return RedirectResponse(url=f"{frontend_url}?linkedin=connected")
+        redirect_url = _build_frontend_redirect_url("linkedin=connected")
+        if redirect_url:
+            return RedirectResponse(url=redirect_url)
 
         return {
             "success": True,

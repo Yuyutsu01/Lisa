@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useRef, useState } from "react";
+import Link from "next/link";
 import { Loader2, Check } from "lucide-react";
 
 export interface InteractiveButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  href?: string;
   variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
   size?: "sm" | "md" | "lg";
   glow?: boolean;
@@ -36,9 +38,10 @@ export function InteractiveButton({
   className = "",
   onClick,
   disabled,
+  href,
   ...props
 }: InteractiveButtonProps) {
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const buttonRef = useRef<HTMLButtonElement | HTMLAnchorElement | any>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [ripples, setRipples] = useState<{ id: number; x: number; y: number; size: number }[]>([]);
 
@@ -111,20 +114,8 @@ export function InteractiveButton({
 
   const shimmerStyle = shimmer ? "btn-shimmer" : "";
 
-  return (
-    <button
-      ref={buttonRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      onClick={handleClick}
-      disabled={disabled || loading}
-      style={{
-        transform: magnetic ? `translate(${position.x}px, ${position.y}px)` : undefined,
-        transition: magnetic ? "transform 0.15s ease-out" : undefined,
-      }}
-      className={`relative inline-flex items-center justify-center select-none cursor-pointer overflow-hidden transition-all duration-200 active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${variantStyles[variant]} ${sizeStyles[size]} ${glowStyle} ${shimmerStyle} ${className}`}
-      {...props}
-    >
+  const content = (
+    <>
       {/* Ripple wave elements */}
       {ripples.map((r) => (
         <span
@@ -157,6 +148,45 @@ export function InteractiveButton({
           {rightIcon && <span className="shrink-0">{rightIcon}</span>}
         </>
       )}
+    </>
+  );
+
+  const sharedClassName = `relative inline-flex items-center justify-center select-none cursor-pointer overflow-hidden transition-all duration-200 active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${variantStyles[variant]} ${sizeStyles[size]} ${glowStyle} ${shimmerStyle} ${className}`;
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        ref={buttonRef}
+        onMouseMove={handleMouseMove as any}
+        onMouseLeave={handleMouseLeave}
+        onClick={handleClick as any}
+        style={{
+          transform: magnetic ? `translate(${position.x}px, ${position.y}px)` : undefined,
+          transition: magnetic ? "transform 0.15s ease-out" : undefined,
+        }}
+        className={sharedClassName}
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <button
+      ref={buttonRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onClick={handleClick}
+      disabled={disabled || loading}
+      style={{
+        transform: magnetic ? `translate(${position.x}px, ${position.y}px)` : undefined,
+        transition: magnetic ? "transform 0.15s ease-out" : undefined,
+      }}
+      className={sharedClassName}
+      {...props}
+    >
+      {content}
     </button>
   );
 }

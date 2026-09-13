@@ -227,6 +227,7 @@ export default function LisaHomePage() {
             }`}
           >
             <button
+              type="button"
               onClick={() => scrollToSection("hero")}
               className={`px-3 sm:px-3.5 lg:px-4.5 py-1.5 lg:py-2 rounded-full transition-all duration-150 active:scale-95 cursor-pointer font-medium ${
                 activeSection === "hero"
@@ -237,6 +238,7 @@ export default function LisaHomePage() {
               Home
             </button>
             <button
+              type="button"
               onClick={() => scrollToSection("our-story")}
               className={`px-3 sm:px-3.5 lg:px-4.5 py-1.5 lg:py-2 rounded-full transition-all duration-150 active:scale-95 cursor-pointer font-medium ${
                 activeSection === "our-story"
@@ -247,6 +249,7 @@ export default function LisaHomePage() {
               Pipeline
             </button>
             <button
+              type="button"
               onClick={() => scrollToSection("problem-statement")}
               className={`px-3 sm:px-3.5 lg:px-4.5 py-1.5 lg:py-2 rounded-full transition-all duration-150 active:scale-95 cursor-pointer font-medium ${
                 activeSection === "problem-statement"
@@ -257,6 +260,7 @@ export default function LisaHomePage() {
               Problem
             </button>
             <button
+              type="button"
               onClick={() => scrollToSection("programs")}
               className={`px-3 sm:px-3.5 lg:px-4.5 py-1.5 lg:py-2 rounded-full transition-all duration-150 active:scale-95 cursor-pointer font-medium ${
                 activeSection === "programs"
@@ -267,6 +271,7 @@ export default function LisaHomePage() {
               Features
             </button>
             <button
+              type="button"
               onClick={() => scrollToSection("enquiries")}
               className={`px-3 sm:px-3.5 lg:px-4.5 py-1.5 lg:py-2 rounded-full transition-all duration-150 active:scale-95 cursor-pointer font-medium ${
                 activeSection === "enquiries"
@@ -332,23 +337,22 @@ export default function LisaHomePage() {
 
               {/* 1. Hover Glow + 2. Magnetic Button + 3. Gradient Shimmer CTA Button */}
               <div className="pt-2">
-                <Link href="/register">
-                  <InteractiveButton
-                    variant="primary"
-                    size="lg"
-                    glow
-                    shimmer
-                    magnetic
-                    rightIcon={
-                      <div className="w-7 h-7 rounded-full bg-[#08080a] text-white flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5">
-                        <ArrowRight className="w-3.5 h-3.5 text-[#ede8df]" />
-                      </div>
-                    }
-                    className="px-7 py-3.5 text-sm sm:text-[15px] font-semibold"
-                  >
-                    Get in
-                  </InteractiveButton>
-                </Link>
+                <InteractiveButton
+                  href="/register"
+                  variant="primary"
+                  size="lg"
+                  glow
+                  shimmer
+                  magnetic
+                  rightIcon={
+                    <div className="w-7 h-7 rounded-full bg-[#08080a] text-white flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5">
+                      <ArrowRight className="w-3.5 h-3.5 text-[#ede8df]" />
+                    </div>
+                  }
+                  className="px-7 py-3.5 text-sm sm:text-[15px] font-semibold"
+                >
+                  Get in
+                </InteractiveButton>
               </div>
             </div>
           </div>
@@ -722,23 +726,22 @@ export default function LisaHomePage() {
                 </p>
               </div>
 
-              <Link href="/register" className="shrink-0">
-                <InteractiveButton
-                  variant="primary"
-                  size="lg"
-                  glow
-                  shimmer
-                  magnetic
-                  rightIcon={
-                    <div className="w-7 h-7 rounded-full bg-[#08080a] text-white flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5">
-                      <ArrowRight className="w-3.5 h-3.5 text-[#ede8df]" />
-                    </div>
-                  }
-                  className="px-6 sm:px-7 py-3 sm:py-3.5 text-xs sm:text-sm lg:text-[15px] font-semibold self-start md:self-auto"
-                >
-                  Get in
-                </InteractiveButton>
-              </Link>
+              <InteractiveButton
+                href="/register"
+                variant="primary"
+                size="lg"
+                glow
+                shimmer
+                magnetic
+                rightIcon={
+                  <div className="w-7 h-7 rounded-full bg-[#08080a] text-white flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5">
+                    <ArrowRight className="w-3.5 h-3.5 text-[#ede8df]" />
+                  </div>
+                }
+                className="px-6 sm:px-7 py-3 sm:py-3.5 text-xs sm:text-sm lg:text-[15px] font-semibold self-start md:self-auto shrink-0"
+              >
+                Get in
+              </InteractiveButton>
             </div>
 
             {/* Direct Enquiry Form & Architecture Details */}

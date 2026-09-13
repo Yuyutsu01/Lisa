@@ -52,6 +52,8 @@ app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 
 # Include API v1 Router
 app.include_router(api_router, prefix=settings.API_V1_STR)
+# Safety alias for typo variants (e.g. Roman numeral /api/vi in deployment envs)
+app.include_router(api_router, prefix="/api/vi", include_in_schema=False)
 
 
 @app.get("/health", tags=["Health"])
