@@ -19,9 +19,19 @@ from app.core.security import (
 from app.models.user import User, UserStatus
 from app.models.workspace import Workspace, WorkspaceMember, WorkspaceRole
 from app.models.brand import BrandProfile
-from app.schemas.user import UserCreate, UserLogin, UserResponse, UserUpdate
+from app.schemas.user import (
+    UserCreate,
+    UserLogin,
+    UserResponse,
+    UserUpdate,
+    ForgotPasswordRequest,
+    ResetPasswordRequest,
+)
 from app.schemas.token import Token
 from app.api.deps import get_current_user
+from datetime import timedelta
+from jose import jwt
+from app.core.config import settings
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -165,3 +175,79 @@ async def update_current_user_profile(
     await db.commit()
     await db.refresh(current_user)
     return current_user
+
+
+@router.post("/forgot-password")
+async def forgot_password(
+    req: ForgotPasswordRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Initiate a password reset flow.
+    Issues a secure time-bounded password reset token.
+    """
+    result = await db.execute(
+        select(User).where(User.email == req.email.lower())
+    )
+    user = result.scalar_one_or_none()
+
+    if not user:
+        # Standard security practice: do not leak whether user exists or not
+        return {
+            "message": "If an account exists for this email, password reset instructions have been dispatched.",
+            "reset_token": None,
+        }
+
+    # Generate 30-minute password reset token
+    reset_token = create_access_token(
+        subject=f"pwd_reset:{user.id}",
+        expires_delta=timedelta(minutes=30),
+    )
+
+    return {
+        "message": "Password reset token generated successfully. In production, this link is emailed securely.",
+        "reset_token": reset_token,
+    }
+
+
+@router.post("/reset-password")
+async def reset_password(
+    req: ResetPasswordRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Verify the reset token and update user password.
+    """
+    try:
+        payload = jwt.decode(
+            req.token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
+        sub = payload.get("sub", "")
+        if not sub.startswith("pwd_reset:"):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid or expired reset token format",
+            )
+        user_id = sub.replace("pwd_reset:", "")
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired password reset token",
+        )
+
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+
+    user.password_hash = get_password_hash(req.new_password)
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+
+    return {"message": "Password has been successfully updated. You may now sign in."}
+

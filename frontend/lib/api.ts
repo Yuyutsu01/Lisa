@@ -473,6 +473,16 @@ export const authApi = {
       body: JSON.stringify(data),
     }),
   getMe: () => apiRequest<User>("/auth/me"),
+  forgotPassword: (email: string) =>
+    apiRequest<{ message: string; reset_token?: string }>("/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    }),
+  resetPassword: (data: { token: string; new_password: string }) =>
+    apiRequest<{ message: string }>("/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
 };
 
 // --- Workspaces API ---

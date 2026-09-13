@@ -364,16 +364,41 @@ function ContentStudioContent() {
                     value={body}
                     onChange={(e) => setBody(e.target.value)}
                     placeholder="Draft your core thought, article, announcement, or transcript here.
-Our specialized AI agents will read this canonical source, preserve your facts, and adapt hooks, formatting, character limits, and media specifically for each channel..."
+
+Our specialized AI agents will read this canonical source, preserve your facts, and adapt hooks, formatting, character limits, and media specifically for each channel. Provide at least 150 words of substantive content for optimal multi-agent reasoning, deep source grounding, and high-impact post framing..."
                     className="w-full bg-transparent text-sm sm:text-base lg:text-[15.5px] text-[#ede8df] placeholder-[#55534e] outline-none leading-relaxed resize-none"
                   />
                 </div>
 
-                {/* Word and Character Count */}
-                <div className="border-t border-white/[0.08] pt-4 flex items-center justify-between text-xs sm:text-[13px] text-[#71717a]">
-                  <span>
-                    {body.trim() ? body.trim().split(/\s+/).length : 0} words &bull; {body.length} characters
-                  </span>
+                {/* Word and Character Count with 150-Word Grounding Indicator */}
+                <div className="border-t border-white/[0.08] pt-4 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-[13px] text-[#71717a]">
+                  <div className="flex items-center gap-2.5">
+                    <span>
+                      {body.trim() ? body.trim().split(/\s+/).length : 0} words &bull; {body.length} characters
+                    </span>
+                    {(() => {
+                      const words = body.trim() ? body.trim().split(/\s+/).length : 0;
+                      if (words > 0 && words < 150) {
+                        return (
+                          <span className="text-amber-400/90 text-xs bg-amber-400/10 px-2.5 py-0.5 rounded-full border border-amber-400/20 font-medium">
+                            {150 - words} more words recommended for optimal reasoning
+                          </span>
+                        );
+                      }
+                      if (words >= 150) {
+                        return (
+                          <span className="text-emerald-400 text-xs bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20 font-medium">
+                            ✓ Optimal substance (150+ words)
+                          </span>
+                        );
+                      }
+                      return (
+                        <span className="text-[#85827b] text-xs">
+                          (Min 150 words recommended for optimal reasoning)
+                        </span>
+                      );
+                    })()}
+                  </div>
                   <span className="font-mono text-[#d4a373]">Canonical Source Draft</span>
                 </div>
               </div>
