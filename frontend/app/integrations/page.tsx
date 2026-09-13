@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import {
   Share2,
@@ -23,6 +23,7 @@ import {
 
 import {
   connectionsApi,
+  linkedinOAuthApi,
   publishingApi,
   ConnectedAccount,
   PublishedRecord,
@@ -103,13 +104,37 @@ export default function IntegrationsPage() {
   const [mockToken, setMockToken] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const openConnectModal = (platformKey: string) => {
+  // LinkedIn OAuth State
+  const [oauthLoading, setOauthLoading] = useState(false);
+  const [oauthError, setOauthError] = useState<string | null>(null);
+
+  const openConnectModal = async (platformKey: string) => {
+    // LinkedIn uses real OAuth 2.0 — redirect to LinkedIn authorization
+    if (platformKey === "linkedin" && activeWorkspaceId) {
+      setOauthLoading(true);
+      setOauthError(null);
+      try {
+        const data = await linkedinOAuthApi.startOAuth(activeWorkspaceId);
+        if (data.authorization_url) {
+          // Redirect browser to LinkedIn's consent screen
+          window.location.href = data.authorization_url;
+          return;
+        }
+        setOauthError("Backend did not return an authorization URL.");
+      } catch (err: any) {
+        console.error("Failed to start LinkedIn OAuth", err);
+        setOauthError(
+          err.message || "Failed to start LinkedIn authorization. Check backend configuration."
+        );
+      } finally {
+        setOauthLoading(false);
+      }
+      return;
+    }
+
+    // Other platforms use the manual connection form
     setSelectedPlatform(platformKey);
-    if (platformKey === "linkedin") {
-      setAccountName("Acme LinkedIn Organization");
-      setAccountId("li_client_acme_org");
-      setMockToken("li_oauth_token_verified");
-    } else if (platformKey === "instagram") {
+    if (platformKey === "instagram") {
       setAccountName("Instagram (Creator Studio Mode)");
       setAccountId("manual_creator_studio");
       setMockToken("manual_export_active");
@@ -127,6 +152,26 @@ export default function IntegrationsPage() {
       loadData(wsId);
     }
   }, []);
+
+  // Handle LinkedIn OAuth callback redirect
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const linkedinStatus = params.get("linkedin");
+
+    if (linkedinStatus === "connected") {
+      // OAuth succeeded — refresh connections list
+      if (activeWorkspaceId) {
+        loadData(activeWorkspaceId);
+      }
+      // Clean the URL so refresh doesn't re-trigger
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (linkedinStatus === "error") {
+      const message = params.get("message") || "LinkedIn authorization failed.";
+      setOauthError(message);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [activeWorkspaceId]);
 
   const loadData = async (workspaceId: string) => {
     try {
@@ -222,6 +267,28 @@ export default function IntegrationsPage() {
             </button>
           </div>
         </div>
+
+        {/* LinkedIn OAuth Status Messages */}
+        {oauthLoading && (
+          <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-sm text-blue-200 flex items-center gap-3">
+            <div className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+            <span>Redirecting to LinkedIn for authorization…</span>
+          </div>
+        )}
+        {oauthError && (
+          <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-sm text-rose-200 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <AlertCircle className="w-5 h-5 text-rose-400 shrink-0" />
+              <span>{oauthError}</span>
+            </div>
+            <button
+              onClick={() => setOauthError(null)}
+              className="px-3 py-1 rounded-full text-xs font-medium bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 transition-colors shrink-0"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
 
         {/* Channels Grid Tab */}
         {activeTab === "platforms" && (
@@ -420,17 +487,6 @@ export default function IntegrationsPage() {
                 </button>
               </div>
 
-              {selectedPlatform === "linkedin" && (
-                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.08] text-xs sm:text-sm text-[#ede8df]">
-                  <div className="font-medium flex items-center gap-2 mb-1.5 text-[#d4a373]">
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>LinkedIn Client ID Preconfigured</span>
-                  </div>
-                  <p className="text-xs text-[#8a8a93] leading-relaxed">
-                    LinkedIn Client ID <code className="font-mono text-white bg-black/50 px-1.5 py-0.5 rounded">OAuth App</code> is provisioned and ready for OAuth authorization.
-                  </p>
-                </div>
-              )}
 
               {selectedPlatform === "instagram" && (
                 <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs sm:text-sm text-amber-200">
