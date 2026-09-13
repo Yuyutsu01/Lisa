@@ -519,7 +519,7 @@ class PlatformAdapter(Protocol):
 | **LinkedIn** | Text posts, Images, Document/Carousels, Articles | Mode A (Direct) | Personal profile or Company Page APIs |
 | **X (Twitter)** | Text posts, Images, Video, Multi-Tweet Threads | Mode A (Direct) | Two-stage media upload + tweet thread creation |
 | **Instagram** | Single image, Carousel, Reels | Mode A (Direct), Mode B (Draft), Mode C (Creator Studio) | Requires Instagram Graph API or Creator Studio export |
-| **Discord** | Community Announcements, Forum Posts, Channel Threads | Mode A (Direct Webhook/Bot) | Webhook and Bot broadcast APIs |
+| **Discord** | Community Announcements, Forum Posts, Channel Threads | Mode A (Direct Webhook) | Live API webhook validation (`GET /api/webhooks/{id}/{token}`), rate-limit backoff (HTTP 429), and canonical deep-link generation (`https://discord.com/channels/{guild_id}/{channel_id}/{message_id}`) |
 | **Threads** | Text, Single Image/Video, Micro-posts | Mode A (Direct) | Official Meta Threads Publishing API |
 | **Email** | Newsletter HTML/Markdown, Weekly Dispatches | Mode A (Direct / ESP API) | Resend, SendGrid, Beehiiv, Mailchimp |
 | **Blog / CMS** | Long-form Markdown/HTML, Canonical Guides | Mode A (Direct REST) | WordPress REST API, Ghost, Webflow, Medium |
@@ -920,6 +920,7 @@ The following production bugs were identified and resolved during Phase 11 harde
 | 6 | **Backend / Models** | Missing `app/models/__init__.py` caused `ImportError` at startup preventing SQLAlchemy from registering model metadata | Created `__init__.py` with explicit model imports |
 | 7 | **Backend / Startup** | `init_db()` called as blocking `await` in `lifespan`, causing Supabase cold-start timeout to block server boot | Wrapped `init_db()` in `asyncio.create_task()` so server starts immediately and DB init runs in background |
 | 8 | **Frontend / Proxy** | Double `/api/v1` path prefix in Next.js proxy rewrite causing incorrect backend routing | Normalized `next.config.ts` rewrite destination to remove the duplicate prefix |
+| 9 | **Omnichannel / Discord** | Lack of native Discord Incoming Webhook verification, credential isolation, and canonical deep-linking | Implemented end-to-end Discord publishing pipeline: `DiscordAdapter` with rate-limit backoff, RBAC webhook connect endpoint (`/connections/discord`), dedicated `DiscordConnectModal`, and canonical message permalink resolution (`/channels/{guild}/{channel}/{msg}`) |
 
 
 

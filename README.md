@@ -164,10 +164,16 @@ Lisa enforces 8 comprehensive layers of AI harnessing, safety, and operational r
 | **LinkedIn** | Long-form Post / Article | **Mode A (Direct API)** | Enforces professional tone, whitespace pacing, max 3 hashtags |
 | **X (Twitter)** | Single Tweet / Multi-Tweet Thread | **Mode A (Direct API)** | Enforces 280-char boundaries and sequential thread formatting (1/N) |
 | **Instagram** | Carousel / Image Caption | **Mode A (Direct API)** | Validates 4:5 / 1:1 image aspect ratios, blocks comment-gating bait |
-| **Discord** | Rich Embed Announcement | **Direct Webhook Dispatch** | Tags metrics as `unavailable` to prevent synthetic impression hallucination |
+| **Discord** | Community Announcements, Forum Posts, Channel Threads | **Direct Webhook Dispatch** | Validates webhook against Discord metadata API, enforces 2000-char limits, handles HTTP 429 rate limits with `Retry-After` backoff, constructs canonical post deep-links |
 | **Threads** | Conversational Micro-Post | **Mode A (Direct API)** | 500-char limits, conversational hook styling |
 | **Email Newsletters** | Structured Markdown Dispatch | **Direct SMTP / API** | Validates subject line, preview snippet, and body depth |
 | **Blog / CMS** | In-depth Reference Guide | **REST API / Webhook** | Canonical header structure and SEO meta tagging |
+
+### Discord Integration Architecture
+- **Verification Flow:** `POST /api/v1/workspaces/{workspace_id}/connections/discord` validates user-supplied Incoming Webhook URLs against Discord's metadata API (`GET /api/webhooks/{id}/{token}`) before saving.
+- **Metadata Caching:** Stores `guild_id`, `channel_id`, and webhook name in `connected_accounts.metadata_json` for canonical deep-link construction.
+- **Dispatch Engine:** `DiscordAdapter` formats variant body copy (2000 character limit), applies rate-limit backoff, and resolves message permalinks (`https://discord.com/channels/{guild_id}/{channel_id}/{message_id}`).
+- **Frontend Experience:** Dedicated modal (`DiscordConnectModal`) with client-side URL regex validation and immediate connection feedback.
 
 ---
 
