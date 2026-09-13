@@ -70,6 +70,9 @@ async def init_db() -> None:
     Safely catches connectivity delays so server startup completes.
     """
     try:
+        # Ensure all models are imported so their tables are in Base.metadata
+        import app.models  # noqa: F401
+
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
         logger.info("Database schema initialized successfully.")

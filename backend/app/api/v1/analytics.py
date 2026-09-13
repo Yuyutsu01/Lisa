@@ -249,7 +249,13 @@ async def trigger_analytics_and_opportunity_loop(
     # 2. Fetch Brand Profile
     brand_q = select(BrandProfile).where(BrandProfile.workspace_id == workspace_id)
     brand = (await db.execute(brand_q)).scalar_one_or_none()
-    brand_pillars = brand.content_pillars_json if brand else ["Product", "Strategy", "Culture"]
+    raw_pillars = brand.content_pillars_json if brand else ["Product", "Strategy", "Culture"]
+    # content_pillars_json may be List[str] or List[dict] depending on how it was stored.
+    # Normalize to always give the agent plain strings.
+    brand_pillars = [
+        p["name"] if isinstance(p, dict) else str(p)
+        for p in raw_pillars
+    ] if raw_pillars else ["Product", "Strategy", "Culture"]
 
     # 3. Execute Recommendation Agent
     rec_agent = ContentRecommendationAgent()

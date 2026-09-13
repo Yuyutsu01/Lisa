@@ -375,7 +375,7 @@ export default function LisaHomePage() {
 
               <p className="text-xs sm:text-sm lg:text-[16px] xl:text-[17px] leading-relaxed text-[#8a8a93] max-w-3xl lg:max-w-4xl mx-auto font-normal">
                 Rather than acting as a simple generic chat wrapper that writes captions,{" "}
-                <span className="lisa-warm-glow font-medium">Lisa</span> ingests canonical content sources, adapts them into platform-native variants (LinkedIn, X/Twitter, Instagram, Discord Community, Threads, Email Newsletters, and Blog CMS), validates them against brand guidelines, schedules them via an idempotent state machine, and analyzes cross-platform performance in a closed-loop feedback loop.
+                <span className="lisa-warm-glow font-medium">Lisa</span> takes your original content and rewrites it for each platform (LinkedIn, X/Twitter, Instagram, Discord, Threads, Email, and Blog), checks it against your brand&apos;s voice and rules, lets you approve it before it goes out, and tracks how each post performs to make the next one better.
               </p>
             </div>
 
@@ -385,29 +385,29 @@ export default function LisaHomePage() {
                 {
                   stage: "01",
                   icon: Sparkles,
-                  title: "AI Proposes Structured Variants",
-                  desc: "Specialized agents ingest canonical ideas and draft native hooks, threads, carousels, and scripts matching platform psychology.",
+                  title: "AI Writes the First Draft",
+                  desc: "Lisa takes your original idea and writes a version made for each platform — the right hook, format, and style for LinkedIn, X, Instagram, and more.",
                   delay: 0,
                 },
                 {
                   stage: "02",
                   icon: ShieldAlert,
-                  title: "Deterministic Validation",
-                  desc: "Software validates strict boundaries: character limits, forbidden phrases, hashtag density, and visual aspect ratios automatically.",
+                  title: "Automatic Quality Check",
+                  desc: "Before you see it, Lisa checks the basics: character limits, banned words, hashtag count, and image sizing — all fixed automatically.",
                   delay: 80,
                 },
                 {
                   stage: "03",
                   icon: Sliders,
-                  title: "Human-in-the-Loop Approval",
-                  desc: "Creators review live simulated feed previews, tweak specific elements, and sign off before idempotent publishing dispatch.",
+                  title: "You Review and Approve",
+                  desc: "See exactly how each post will look on each platform, make any edits you want, then approve it to go out.",
                   delay: 160,
                 },
                 {
                   stage: "04",
                   icon: BarChart3,
-                  title: "Closed-Loop Growth Loop",
-                  desc: "Cross-network analytics feed actionable repurposing opportunities and performance signals back to the top of the funnel.",
+                  title: "Learns What Works",
+                  desc: "Lisa tracks how your posts perform across every platform and shows you what's worth turning into new content.",
                   delay: 240,
                 },
               ].map((item, idx) => {
@@ -539,25 +539,25 @@ export default function LisaHomePage() {
                   </div>
 
                   <h3 className="text-sm sm:text-base lg:text-[18px] xl:text-[20px] font-semibold text-[#ede8df] mb-2.5">
-                    Multi-Agent Orchestrator
+                    AI That Writes for Every Platform
                   </h3>
 
                   <ul className="space-y-2 lg:space-y-3 text-[11px] sm:text-xs lg:text-[13.5px] xl:text-[14.5px] text-[#918e87]">
                     <li className="flex items-start gap-2.5">
                       <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#d4a373] mt-0.5 shrink-0" />
-                      <span>5 specialized agents for native formats</span>
+                      <span>5 specialized AI steps, each one checked before the next starts</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#d4a373] mt-0.5 shrink-0" />
-                      <span>Rich-text studio with debounced saving</span>
+                      <span>Edit anything directly, changes save automatically</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#d4a373] mt-0.5 shrink-0" />
-                      <span>One-click version rollback & history</span>
+                      <span>Undo any change and see the full history</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#d4a373] mt-0.5 shrink-0" />
-                      <span>Structured JSON validation schemas</span>
+                      <span>Every draft is checked against a strict format before it&apos;s accepted</span>
                     </li>
                   </ul>
                 </div>
@@ -582,25 +582,25 @@ export default function LisaHomePage() {
                   </div>
 
                   <h3 className="text-sm sm:text-base lg:text-[18px] xl:text-[20px] font-semibold text-[#ede8df] mb-2.5">
-                    Variant Review & QA Studio
+                    Review Before Anything Goes Live
                   </h3>
 
                   <ul className="space-y-2 lg:space-y-3 text-[11px] sm:text-xs lg:text-[13.5px] xl:text-[14.5px] text-[#918e87]">
                     <li className="flex items-start gap-2.5">
                       <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
-                      <span>Simulated LinkedIn, X, IG & Shorts feeds</span>
+                      <span>See exactly how each post will look on LinkedIn, X, Instagram, and Shorts</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
-                      <span>Real-time QA scorecard compliance checks</span>
+                      <span>Live quality check as you edit — catches issues instantly</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
-                      <span>Single-element AI regeneration modifiers</span>
+                      <span>Ask for a specific change and only that part gets rewritten</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
-                      <span>Character limit & forbidden phrase filters</span>
+                      <span>Automatically checks length limits and blocks banned words</span>
                     </li>
                   </ul>
                 </div>
@@ -625,25 +625,25 @@ export default function LisaHomePage() {
                   </div>
 
                   <h3 className="text-sm sm:text-base lg:text-[18px] xl:text-[20px] font-semibold text-[#ede8df] mb-2.5">
-                    Media Derivative Processor
+                    Your Images and Videos, Handled Automatically
                   </h3>
 
                   <ul className="space-y-2 lg:space-y-3 text-[11px] sm:text-xs lg:text-[13.5px] xl:text-[14.5px] text-[#918e87]">
                     <li className="flex items-start gap-2.5">
                       <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
-                      <span>SHA-256 media deduplication engine</span>
+                      <span>Never uploads the same file twice</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
-                      <span>Automated aspect dimension extraction</span>
+                      <span>Automatically detects the right size for each platform</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
-                      <span>Presets: 4:5, 1:1, 9:16, 16:9, 1.91:1</span>
+                      <span>Ready-made sizing for every format (square, story, widescreen, and more)</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
-                      <span>Central media asset reusability catalog</span>
+                      <span>One media library, reused across all your posts</span>
                     </li>
                   </ul>
                 </div>
@@ -668,41 +668,21 @@ export default function LisaHomePage() {
                   </div>
 
                   <h3 className="text-sm sm:text-base lg:text-[18px] xl:text-[20px] font-semibold text-[#ede8df] mb-2.5">
-                    Idempotent Calendar & Adapters
+                    Nothing Gets Posted Twice
                   </h3>
 
                   <ul className="space-y-2 lg:space-y-3 text-[11px] sm:text-xs lg:text-[13.5px] xl:text-[14.5px] text-[#918e87]">
                     <li className="flex items-start gap-2.5">
                       <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
-                      <span>SHA-256 idempotent state machine</span>
+                      <span>Built-in safeguard makes sure a scheduled post never accidentally goes out twice</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
-                      <span>LinkedIn (OAuth), IG (Creator Studio Mode)</span>
+                      <span>Connects to LinkedIn and Instagram through your own account</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
-                      <span>X/Twitter, Discord Community, Threads, CMS</span>
-                    </li>
-                    <li className="flex items-start gap-2.5">
-                      <Check className="w-3 h-3 lg:w-4 lg:h-4 text-[#ede8df] mt-0.5 shrink-0" />
-                      <span className="flex items-center gap-1.5">
-                        <span>Soundscape focus toggle</span>
-                        <button
-                          onClick={toggleSoundscape}
-                          className="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/20 text-[#ede8df] text-[10px] lg:text-xs flex items-center gap-1 cursor-pointer"
-                        >
-                          {isPlayingAudio ? (
-                            <>
-                              <VolumeX className="w-3 h-3 text-amber-400" /> Stop
-                            </>
-                          ) : (
-                            <>
-                              <Volume2 className="w-3 h-3 text-emerald-400" /> Play
-                            </>
-                          )}
-                        </button>
-                      </span>
+                      <span>Also works with X/Twitter, Discord, Threads, and your blog</span>
                     </li>
                   </ul>
                 </div>

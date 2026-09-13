@@ -77,7 +77,7 @@ Return valid JSON with these keys:
         raw_llm = await call_llm(
             system_prompt=self.system_prompt,
             user_prompt=user_prompt,
-            temperature=0.35,
+            temperature=0.75,
             json_mode=True,
         )
         if raw_llm:

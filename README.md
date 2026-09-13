@@ -8,15 +8,21 @@
 [![PostgreSQL / SQLite](https://img.shields.io/badge/Database-SQLAlchemy%202.0%20Async-blue.svg)](https://www.sqlalchemy.org)
 [![Tests](https://img.shields.io/badge/Tests-37%20Passed%20(100%25)-emerald.svg)](backend/tests)
 [![Guardrails](https://img.shields.io/badge/AI%20Guardrails-Active%20%26%20Enforced-indigo.svg)](docs/AI_HARNESSING_AND_GUARDRAILS.md)
+[![Version](https://img.shields.io/badge/Version-1.0.1-blue.svg)](PRODUCT_SPEC.md)
 
 ---
 
 ## 1. Product Overview
 
-**Lisa** is an enterprise-grade, multi-tenant AI content operations operating system (OS). Rather than acting as a simple generic chat wrapper that writes captions, Lisa is an orchestrated pipeline where **specialized AI agents** collaborate with deterministic software safeguards to ingest canonical content sources, adapt them into platform-native variants (LinkedIn, X/Twitter, Instagram, Discord, Threads, Email Newsletters, and Blog CMS), validate them against brand guidelines and policy gates, schedule them via an idempotent state machine, and analyze cross-platform performance in a **closed-loop feedback loop**.
+**Lisa** is an enterprise-grade, multi-tenant AI content operations operating system (OS). Rather than acting as a simple generic chat wrapper that writes captions, Lisa takes your original content and rewrites it for each platform (LinkedIn, X/Twitter, Instagram, Discord, Threads, Email, and Blog), checks it against your brand's voice and rules, lets you approve it before it goes out, and tracks how each post performs to make the next one better.
 
-### Core Product Principles
-* **AI Proposes Structured Variants:** Specialized agents analyze sources and formulate platform-native angles and formatting.
+### 4-Stage Core Workflow
+* **STAGE 01 — AI Writes the First Draft:** Lisa takes your original idea and writes a version made for each platform — the right hook, format, and style for LinkedIn, X, Instagram, and more.
+* **STAGE 02 — Automatic Quality Check:** Before you see it, Lisa checks the basics: character limits, banned words, hashtag count, and image sizing — all fixed automatically.
+* **STAGE 03 — You Review and Approve:** See exactly how each post will look on each platform, make any edits you want, then approve it to go out.
+* **STAGE 04 — Learns What Works:** Lisa tracks how your posts perform across every platform and shows you what's worth turning into new content.
+
+### Core Architectural Safeguards
 * **Deterministic Software Enforces Hard Boundaries:** Pydantic schemas, character limits, PII protection, aspect ratios, and platform ToS policies are enforced at the application layer.
 * **Semantic QA Prevents Hallucinations:** Quantitative claims and metrics are extracted and verified against canonical source facts before approval.
 * **Human-in-the-Loop Governance:** Autonomous publishing is strictly blocked unless explicit human approval or an active 30-day Trusted Automation rule is present.
@@ -212,7 +218,21 @@ npm run dev
 ```
 Web Application will be accessible at: `http://localhost:3000`.
 
----
+### 4. Database Schema Migration (PostgreSQL / Supabase only)
+
+If you are connecting to an existing PostgreSQL or Supabase instance that was created before v1.0.1, run the following migration script to add columns that were added to the ORM models after the initial table creation:
+
+```bash
+cd backend
+python migrate_analytics.py
+```
+
+This script is **idempotent** (`ADD COLUMN IF NOT EXISTS`) and safe to run multiple times. It adds the following columns to `performance_metrics`:
+- `metrics_source`, `views`, `saves`, `clicks`, `collected_at`, `raw_metrics_json`
+
+And ensures `content_opportunities` has: `updated_at`.
+
+> **Note:** SQLite users do not need this step — SQLAlchemy creates the full schema on first startup.
 
 ## 7. Environment Variables
 
@@ -271,6 +291,41 @@ NEXT_PUBLIC_WS_BASE_URL=ws://localhost:8000/api/v1
 
 ---
 
-## 10. License
+## 10. Troubleshooting
+
+### Backend won't start — `ImportError` on models
+If you see `ImportError: cannot import name '...' from 'app.models'` on startup, ensure `backend/app/models/__init__.py` exists. If missing:
+```bash
+python -c "open('app/models/__init__.py','a')"
+```
+
+### Port 8000 already in use / `ECONNRESET`
+Kill any zombie Python processes holding the port:
+```powershell
+# Windows
+Get-Process python | Stop-Process -Force
+# Then restart uvicorn
+uvicorn app.main:app --reload --port 8000
+```
+
+### `UndefinedColumnError` on analytics endpoints
+Your Supabase/Postgres schema is out of date. Run the migration:
+```bash
+cd backend
+python migrate_analytics.py
+```
+
+### `TypeError: expected str, got dict` on opportunity creation
+This was a bug in v1.0.0 where `brand.content_pillars_json` (stored as `List[Dict]`) was passed raw as a `VARCHAR` column. Fixed in v1.0.1 — pull latest and restart the backend.
+
+### React "Rendered more hooks than during the previous render"
+This was a React Rules of Hooks violation in `VariantReviewPage` — fixed in v1.0.1. Pull latest frontend and rebuild:
+```bash
+cd frontend && npm run build
+```
+
+---
+
+## 11. License
 
 This project is open-source software licensed under the **[MIT License](LICENSE)**.

@@ -729,14 +729,17 @@ export const analyticsApi = {
     apiRequest<AnalyticsOverview>(`/workspaces/${workspaceId}/analytics/overview`),
   getOpportunities: (workspaceId: string) =>
     apiRequest<ContentOpportunity[]>(`/workspaces/${workspaceId}/analytics/opportunities`),
+  // Backend endpoint: POST /analytics/opportunities/{id}/create-source
+  // Returns a full ContentSource object; we derive success from the presence of an id.
   actionOpportunity: (workspaceId: string, opportunityId: string) =>
-    apiRequest<{ success: boolean; content_source_id: string }>(
-      `/workspaces/${workspaceId}/analytics/opportunities/${opportunityId}/action`,
+    apiRequest<ContentSource>(
+      `/workspaces/${workspaceId}/analytics/opportunities/${opportunityId}/create-source`,
       { method: "POST" }
     ),
+  // Backend endpoint: POST /analytics/analyze (not /run)
   runAnalytics: (workspaceId: string) =>
-    apiRequest<{ status: string; opportunities_generated: number }>(
-      `/workspaces/${workspaceId}/analytics/run`,
+    apiRequest<ContentOpportunity[]>(
+      `/workspaces/${workspaceId}/analytics/analyze`,
       { method: "POST" }
     ),
 };
