@@ -66,6 +66,12 @@ export default function VariantReviewPage({
 
   const [loadError, setLoadError] = useState<string | null>(null);
 
+  // View mode: 'preview' (Native Feed) vs 'edit' (Full Editor)
+  const [viewMode, setViewMode] = useState<"preview" | "edit">("preview");
+  const [showCanonicalSource, setShowCanonicalSource] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [publishedUrls, setPublishedUrls] = useState<Record<string, string>>({});
+
   useEffect(() => {
     const wsId = getActiveWorkspaceId();
     setActiveWorkspaceId(wsId);
@@ -125,6 +131,16 @@ export default function VariantReviewPage({
   const uniqueVariants = deduplicateVariants(variants);
   const currentVariant = uniqueVariants.find((v) => v.platform === selectedPlatform) || uniqueVariants[0];
 
+  // Live deterministic 10-point QA Scorecard & Checklist calculation (must run before any early return)
+  const scorecard = useMemo(() => {
+    return calculateQAScorecard(currentVariant, source, brandProfile);
+  }, [currentVariant, source, brandProfile]);
+
+  const qualityScore = scorecard.quality_score;
+  const checkItems = scorecard.check_items;
+  const suggestions = scorecard.suggestions;
+  const criticalIssues = scorecard.issues;
+
   const handleUpdateCurrentVariant = (fields: Partial<ContentVariant>) => {
     if (!currentVariant) return;
     setVariants(
@@ -166,12 +182,6 @@ export default function VariantReviewPage({
       setRegenerating(false);
     }
   };
-
-  // View mode: 'preview' (Native Feed) vs 'edit' (Full Editor)
-  const [viewMode, setViewMode] = useState<"preview" | "edit">("preview");
-  const [showCanonicalSource, setShowCanonicalSource] = useState(false);
-  const [publishing, setPublishing] = useState(false);
-  const [publishedUrls, setPublishedUrls] = useState<Record<string, string>>({});
 
   const handlePublishNow = async () => {
     if (!currentVariant || !activeWorkspaceId) return;
@@ -270,8 +280,6 @@ export default function VariantReviewPage({
       </AppLayout>
     );
   }
-
-
 
   return (
     <AppLayout activeWorkspaceId={activeWorkspaceId} onWorkspaceChange={setActiveWorkspaceId}>

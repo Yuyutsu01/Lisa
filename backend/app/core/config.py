@@ -81,6 +81,12 @@ class Settings(BaseSettings):
     # Redis URL for background worker tasks
     REDIS_URL: str = "redis://localhost:6379/0"
 
+    # LinkedIn OAuth
+    LINKEDIN_CLIENT_ID: str = ""
+    LINKEDIN_CLIENT_SECRET: str = ""
+    LINKEDIN_REDIRECT_URI: str = ""
+    FRONTEND_URL: str = ""
+
     # LLM Provider Configuration
     # Supports Groq (Llama 3.3 70B), OpenAI (GPT-4o), Gemini, or Anthropic
     GROQ_API_KEY: str = ""

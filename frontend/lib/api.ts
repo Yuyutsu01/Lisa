@@ -687,6 +687,19 @@ export const connectionsApi = {
     }),
 };
 
+// --- LinkedIn OAuth API ---
+export const linkedinOAuthApi = {
+  /**
+   * Initiate LinkedIn OAuth 2.0 flow.
+   * Calls the backend to generate a signed authorization URL,
+   * then the caller should redirect the browser to that URL.
+   */
+  startOAuth: (workspaceId: string) =>
+    apiRequest<{ authorization_url: string }>(
+      `/oauth/linkedin/start?workspace_id=${workspaceId}`
+    ),
+};
+
 // --- Publishing History & Live Dispatch API ---
 export const publishingApi = {
   publishVariant: (
