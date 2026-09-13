@@ -14,10 +14,15 @@
 
 ## 1. Product Overview
 
-**Lisa** is an enterprise-grade, multi-tenant AI content operations operating system (OS). Rather than acting as a simple generic chat wrapper that writes captions, Lisa is an orchestrated pipeline where **specialized AI agents** collaborate with deterministic software safeguards to ingest canonical content sources, adapt them into platform-native variants (LinkedIn, X/Twitter, Instagram, Discord, Threads, Email Newsletters, and Blog CMS), validate them against brand guidelines and policy gates, schedule them via an idempotent state machine, and analyze cross-platform performance in a **closed-loop feedback loop**.
+**Lisa** is an enterprise-grade, multi-tenant AI content operations operating system (OS). Rather than acting as a simple generic chat wrapper that writes captions, Lisa takes your original content and rewrites it for each platform (LinkedIn, X/Twitter, Instagram, Discord, Threads, Email, and Blog), checks it against your brand's voice and rules, lets you approve it before it goes out, and tracks how each post performs to make the next one better.
 
-### Core Product Principles
-* **AI Proposes Structured Variants:** Specialized agents analyze sources and formulate platform-native angles and formatting.
+### 4-Stage Core Workflow
+* **STAGE 01 — AI Writes the First Draft:** Lisa takes your original idea and writes a version made for each platform — the right hook, format, and style for LinkedIn, X, Instagram, and more.
+* **STAGE 02 — Automatic Quality Check:** Before you see it, Lisa checks the basics: character limits, banned words, hashtag count, and image sizing — all fixed automatically.
+* **STAGE 03 — You Review and Approve:** See exactly how each post will look on each platform, make any edits you want, then approve it to go out.
+* **STAGE 04 — Learns What Works:** Lisa tracks how your posts perform across every platform and shows you what's worth turning into new content.
+
+### Core Architectural Safeguards
 * **Deterministic Software Enforces Hard Boundaries:** Pydantic schemas, character limits, PII protection, aspect ratios, and platform ToS policies are enforced at the application layer.
 * **Semantic QA Prevents Hallucinations:** Quantitative claims and metrics are extracted and verified against canonical source facts before approval.
 * **Human-in-the-Loop Governance:** Autonomous publishing is strictly blocked unless explicit human approval or an active 30-day Trusted Automation rule is present.
