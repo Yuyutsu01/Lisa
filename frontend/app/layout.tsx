@@ -37,9 +37,14 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
       className={`${sansFont.variable} ${serifFont.variable} ${monoFont.variable} h-full antialiased dark`}
     >
-      <body className="min-h-full flex flex-col bg-[#09090b] text-[#ede8df] font-sans selection:bg-[#ede8df]/20 selection:text-white">
+      <body
+        suppressHydrationWarning
+        className="min-h-full flex flex-col bg-[#09090b] text-[#ede8df] font-sans selection:bg-[#ede8df]/20 selection:text-white"
+      >
         {children}
       </body>
     </html>

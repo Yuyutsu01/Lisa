@@ -906,6 +906,23 @@ Lisa/
 - **Phase 10:** Intelligence & Content Recommendations (Analytics Agent & Opportunity engine). `[COMPLETED]`
 - **Phase 11:** Production Hardening, Load Testing & Launch. `[IN PROGRESS]`
 
+### Phase 11 Engineering Fixes (v1.0.1 — 2026-09-13)
+
+The following production bugs were identified and resolved during Phase 11 hardening:
+
+| # | Area | Bug | Fix |
+|---|---|---|---|
+| 1 | **Frontend / React** | `VariantReviewPage`: "Rendered more hooks than during the previous render" — `useMemo` was placed after two conditional early `return` statements, violating the React Rules of Hooks | Hoisted `useMemo` (scorecard calculation) above all early returns so hooks are always called unconditionally |
+| 2 | **Frontend / API Contract** | `analyticsApi.runAnalytics` called `/analytics/run` (404 Not Found) — backend endpoint is `/analytics/analyze` | Updated `api.ts` to use correct path `/analytics/analyze` |
+| 3 | **Frontend / API Contract** | `analyticsApi.actionOpportunity` called `/analytics/opportunities/{id}/action` (404) — backend endpoint is `/{id}/create-source`; return type was wrong (`{ success, content_source_id }` vs actual `ContentSource`) | Updated path to `/create-source` and response type to `ContentSource`; updated page handler to use `newSource.id` directly |
+| 4 | **Backend / Database** | `UndefinedColumnError: column performance_metrics.metrics_source does not exist` — Supabase table was missing 6 columns added to the ORM model after initial `CREATE TABLE` | Ran idempotent `ALTER TABLE … ADD COLUMN IF NOT EXISTS` migration for all 6 missing columns: `metrics_source`, `views`, `saves`, `clicks`, `collected_at`, `raw_metrics_json` |
+| 5 | **Backend / Data Type** | `TypeError: expected str, got dict` on `content_pillar` insert — `brand.content_pillars_json` is stored as `List[Dict]` (`[{"name": "...", "target_percentage": N}]`) but was passed directly as a `VARCHAR` to the `ContentOpportunity` model | Added normalization in `analytics.py` to extract `p["name"]` from each pillar dict before passing to the recommendation agent |
+| 6 | **Backend / Models** | Missing `app/models/__init__.py` caused `ImportError` at startup preventing SQLAlchemy from registering model metadata | Created `__init__.py` with explicit model imports |
+| 7 | **Backend / Startup** | `init_db()` called as blocking `await` in `lifespan`, causing Supabase cold-start timeout to block server boot | Wrapped `init_db()` in `asyncio.create_task()` so server starts immediately and DB init runs in background |
+| 8 | **Frontend / Proxy** | Double `/api/v1` path prefix in Next.js proxy rewrite causing incorrect backend routing | Normalized `next.config.ts` rewrite destination to remove the duplicate prefix |
+
+
+
 ---
 
 ## 23. Critical Engineering Principles & AI Guardrails

@@ -4,18 +4,21 @@ const nextConfig: NextConfig = {
   output: "standalone",
   // Optional proxy if external backend URL is explicitly configured
   async rewrites() {
-    const backendUrl =
+    const rawUrl =
       process.env.BACKEND_INTERNAL_URL ||
-      process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v1\/?$/, "");
+      process.env.NEXT_PUBLIC_API_URL ||
+      "";
 
-    if (!backendUrl) {
+    const cleanBackendUrl = rawUrl.trim().replace(/\/+$/, "").replace(/\/api\/v1\/?$/, "");
+
+    if (!cleanBackendUrl) {
       return [];
     }
 
     return [
       {
         source: "/api/v1/:path*",
-        destination: `${backendUrl}/api/v1/:path*`,
+        destination: `${cleanBackendUrl}/api/v1/:path*`,
       },
     ];
   },

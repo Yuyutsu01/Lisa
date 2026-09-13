@@ -15,14 +15,16 @@ from app.db.session import init_db
 from app.core.storage import UPLOAD_DIR
 
 
+import asyncio
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
     Application lifespan manager.
-    Initializes database tables and creates storage directory on boot.
+    Initializes database tables in background and creates storage directory on boot.
     """
     UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-    await init_db()
+    asyncio.create_task(init_db())
     yield
 
 

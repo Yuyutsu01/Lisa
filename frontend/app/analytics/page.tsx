@@ -62,8 +62,13 @@ export default function AnalyticsPage() {
     if (!activeWorkspaceId) return;
     setAnalyzing(true);
     try {
-      await analyticsApi.runAnalytics(activeWorkspaceId);
-      await loadAnalyticsData(activeWorkspaceId);
+      // /analyze returns the newly created opportunities array
+      const newOpps = await analyticsApi.runAnalytics(activeWorkspaceId);
+      // Merge new opportunities into existing list (deduplicate by id)
+      setOpportunities((prev) => {
+        const existingIds = new Set(prev.map((o) => o.id));
+        return [...prev, ...newOpps.filter((o) => !existingIds.has(o.id))];
+      });
     } catch (e) {
       console.error("Failed to run opportunity loop", e);
     } finally {
@@ -75,9 +80,10 @@ export default function AnalyticsPage() {
     if (!activeWorkspaceId) return;
     setActioningId(opportunityId);
     try {
-      const res = await analyticsApi.actionOpportunity(activeWorkspaceId, opportunityId);
-      if (res.success && res.content_source_id) {
-        router.push(`/content?id=${res.content_source_id}`);
+      // /create-source returns the new ContentSource object directly
+      const newSource = await analyticsApi.actionOpportunity(activeWorkspaceId, opportunityId);
+      if (newSource?.id) {
+        router.push(`/content?id=${newSource.id}`);
       }
     } catch (e) {
       console.error("Failed to action opportunity", e);
@@ -85,6 +91,7 @@ export default function AnalyticsPage() {
       setActioningId(null);
     }
   };
+
 
   if (loading) {
     return (

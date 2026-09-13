@@ -8,6 +8,7 @@
 [![PostgreSQL / SQLite](https://img.shields.io/badge/Database-SQLAlchemy%202.0%20Async-blue.svg)](https://www.sqlalchemy.org)
 [![Tests](https://img.shields.io/badge/Tests-37%20Passed%20(100%25)-emerald.svg)](backend/tests)
 [![Guardrails](https://img.shields.io/badge/AI%20Guardrails-Active%20%26%20Enforced-indigo.svg)](docs/AI_HARNESSING_AND_GUARDRAILS.md)
+[![Version](https://img.shields.io/badge/Version-1.0.1-blue.svg)](PRODUCT_SPEC.md)
 
 ---
 
@@ -212,7 +213,21 @@ npm run dev
 ```
 Web Application will be accessible at: `http://localhost:3000`.
 
----
+### 4. Database Schema Migration (PostgreSQL / Supabase only)
+
+If you are connecting to an existing PostgreSQL or Supabase instance that was created before v1.0.1, run the following migration script to add columns that were added to the ORM models after the initial table creation:
+
+```bash
+cd backend
+python migrate_analytics.py
+```
+
+This script is **idempotent** (`ADD COLUMN IF NOT EXISTS`) and safe to run multiple times. It adds the following columns to `performance_metrics`:
+- `metrics_source`, `views`, `saves`, `clicks`, `collected_at`, `raw_metrics_json`
+
+And ensures `content_opportunities` has: `updated_at`.
+
+> **Note:** SQLite users do not need this step — SQLAlchemy creates the full schema on first startup.
 
 ## 7. Environment Variables
 
@@ -271,6 +286,41 @@ NEXT_PUBLIC_WS_BASE_URL=ws://localhost:8000/api/v1
 
 ---
 
-## 10. License
+## 10. Troubleshooting
+
+### Backend won't start — `ImportError` on models
+If you see `ImportError: cannot import name '...' from 'app.models'` on startup, ensure `backend/app/models/__init__.py` exists. If missing:
+```bash
+python -c "open('app/models/__init__.py','a')"
+```
+
+### Port 8000 already in use / `ECONNRESET`
+Kill any zombie Python processes holding the port:
+```powershell
+# Windows
+Get-Process python | Stop-Process -Force
+# Then restart uvicorn
+uvicorn app.main:app --reload --port 8000
+```
+
+### `UndefinedColumnError` on analytics endpoints
+Your Supabase/Postgres schema is out of date. Run the migration:
+```bash
+cd backend
+python migrate_analytics.py
+```
+
+### `TypeError: expected str, got dict` on opportunity creation
+This was a bug in v1.0.0 where `brand.content_pillars_json` (stored as `List[Dict]`) was passed raw as a `VARCHAR` column. Fixed in v1.0.1 — pull latest and restart the backend.
+
+### React "Rendered more hooks than during the previous render"
+This was a React Rules of Hooks violation in `VariantReviewPage` — fixed in v1.0.1. Pull latest frontend and rebuild:
+```bash
+cd frontend && npm run build
+```
+
+---
+
+## 11. License
 
 This project is open-source software licensed under the **[MIT License](LICENSE)**.

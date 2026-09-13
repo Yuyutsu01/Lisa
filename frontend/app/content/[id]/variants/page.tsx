@@ -220,6 +220,18 @@ export default function VariantReviewPage({
     }
   };
 
+  // Live deterministic 10-point QA Scorecard & Checklist calculation
+  // IMPORTANT: This useMemo must stay ABOVE all early returns to satisfy
+  // the React Rules of Hooks (hooks must be called unconditionally).
+  const scorecard = useMemo(() => {
+    return calculateQAScorecard(currentVariant, source, brandProfile);
+  }, [currentVariant, source, brandProfile]);
+
+  const qualityScore = scorecard.quality_score;
+  const checkItems = scorecard.check_items;
+  const suggestions = scorecard.suggestions;
+  const criticalIssues = scorecard.issues;
+
   if (loadError) {
     return (
       <AppLayout activeWorkspaceId={activeWorkspaceId} onWorkspaceChange={setActiveWorkspaceId}>
@@ -259,15 +271,7 @@ export default function VariantReviewPage({
     );
   }
 
-  // Live deterministic 10-point QA Scorecard & Checklist calculation
-  const scorecard = useMemo(() => {
-    return calculateQAScorecard(currentVariant, source, brandProfile);
-  }, [currentVariant, source, brandProfile]);
 
-  const qualityScore = scorecard.quality_score;
-  const checkItems = scorecard.check_items;
-  const suggestions = scorecard.suggestions;
-  const criticalIssues = scorecard.issues;
 
   return (
     <AppLayout activeWorkspaceId={activeWorkspaceId} onWorkspaceChange={setActiveWorkspaceId}>
