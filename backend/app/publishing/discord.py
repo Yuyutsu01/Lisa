@@ -75,6 +75,7 @@ class DiscordAdapter:
             webhook_url = (
                 account_data.get("access_token")
                 or account_data.get("credentials_encrypted")
+                or account_data.get("access_token_encrypted")
                 or ""
             )
             if not webhook_url or not DISCORD_WEBHOOK_REGEX.match(webhook_url.strip()):
@@ -102,6 +103,7 @@ class DiscordAdapter:
         webhook_url = (
             account_data.get("access_token")
             or account_data.get("credentials_encrypted")
+            or account_data.get("access_token_encrypted")
             or ""
         ) if account_data else ""
 
@@ -186,6 +188,7 @@ class DiscordAdapter:
         webhook_url = (
             connection.get("credentials_encrypted")
             or connection.get("access_token")
+            or connection.get("access_token_encrypted")
             or ""
         ).strip()
 
