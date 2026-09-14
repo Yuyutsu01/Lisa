@@ -85,37 +85,76 @@ class PublishingService:
                 error_message=f"No adapter available for platform: {variant.platform}",
             )
 
-        # 2. Fetch Connected Account (if provided)
-        account_data = None
+        # 2. Fetch Connected Account (Explicit ID or Workspace+Platform Auto-Resolution)
+        account = None
         if connected_account_id:
+            # Explicit ID — resolve it; do NOT fall back if it is invalid
             acc_query = select(ConnectedAccount).where(
                 ConnectedAccount.id == connected_account_id
             )
             acc_res = await self.db.execute(acc_query)
             account = acc_res.scalar_one_or_none()
-            if account:
-                if account.expires_at is not None:
-                    now = datetime.now(timezone.utc)
-                    exp = (
-                        account.expires_at
-                        if account.expires_at.tzinfo
-                        else account.expires_at.replace(tzinfo=timezone.utc)
-                    )
-                    if exp < now:
-                        platform_label = (account.platform or "connected account").title()
-                        return PublishingResult(
-                            success=False,
-                            error_message=f"{platform_label} authorization has expired. Please reconnect in Integrations.",
-                            publishing_mode="direct",
-                        )
+            if account is None:
+                return PublishingResult(
+                    success=False,
+                    error_message="Specified connected account not found.",
+                    publishing_mode="direct",
+                )
+        else:
+            # No ID provided — auto-resolve by workspace + platform
+            acc_query = select(ConnectedAccount).where(
+                ConnectedAccount.workspace_id == workspace_id,
+                ConnectedAccount.platform == variant.platform,
+                ConnectedAccount.status == "connected",
+            )
+            acc_res = await self.db.execute(acc_query)
+            matches = acc_res.scalars().all()
 
-                account_data = {
-                    "account_name": account.account_name,
-                    "external_account_id": account.external_account_id,
-                    "access_token": account.access_token_encrypted,
-                    "metadata": account.metadata_json or {},
-                    "metadata_json": account.metadata_json or {},
-                }
+            if len(matches) == 0:
+                return PublishingResult(
+                    success=False,
+                    error_message=(
+                        f"No connected {variant.platform} account found. "
+                        "Please connect one in Integrations."
+                    ),
+                    publishing_mode="direct",
+                )
+            if len(matches) > 1:
+                return PublishingResult(
+                    success=False,
+                    error_message=(
+                        f"Multiple {variant.platform} accounts are connected. "
+                        "Please specify which one to publish with."
+                    ),
+                    publishing_mode="direct",
+                )
+            account = matches[0]
+
+        account_data = None
+        if account:
+            if account.expires_at is not None:
+                now = datetime.now(timezone.utc)
+                exp = (
+                    account.expires_at
+                    if account.expires_at.tzinfo
+                    else account.expires_at.replace(tzinfo=timezone.utc)
+                )
+                if exp < now:
+                    platform_label = (account.platform or "connected account").title()
+                    return PublishingResult(
+                        success=False,
+                        error_message=f"{platform_label} authorization has expired. Please reconnect in Integrations.",
+                        publishing_mode="direct",
+                    )
+
+            account_data = {
+                "account_name": account.account_name,
+                "external_account_id": account.external_account_id,
+                "access_token": account.access_token_encrypted,
+                "metadata": account.metadata_json or {},
+                "metadata_json": account.metadata_json or {},
+            }
+            connected_account_id = account.id
 
         # 3. Create or Fetch Publishing Job
         raw_key = f"{variant.id}_{datetime.now(timezone.utc).isoformat()}_{connected_account_id or 'direct'}"
