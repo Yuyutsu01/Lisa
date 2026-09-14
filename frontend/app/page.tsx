@@ -303,40 +303,37 @@ export default function LisaHomePage() {
             ========================================================================= */}
         <section
           id="hero"
-          className="relative z-10 min-h-screen flex flex-col justify-between px-6 sm:px-12 md:px-16 pt-10 pb-8 sm:pb-10"
+          className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 sm:px-12 md:px-16 pt-24 pb-12 sm:pb-16 text-center"
         >
-          {/* Top spacer on desktop to push content lower down */}
-          <div className="hidden lg:block h-16 lg:h-32 xl:h-40 shrink-0" />
-
-          {/* Parallel Row: Lisa* on the Left + Description & Button in parallel on the Right */}
-          <div className="mt-auto pb-4 lg:pb-6 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 lg:gap-14">
-            {/* Monumental Brandmark (Left Side, Parallel Baseline) */}
+          {/* Centered Single-Column Stack: Lisa* -> Tagline -> Get in Button */}
+          <div className="flex flex-col items-center justify-center text-center gap-8 lg:gap-10 max-w-3xl lg:max-w-4xl mx-auto my-auto">
+            {/* Monumental Brandmark (Centered) */}
             <div
-              className="transition-transform duration-75 ease-out will-change-transform shrink-0 flex items-end"
+              className="transition-transform duration-75 ease-out will-change-transform shrink-0 flex items-center justify-center text-center"
               style={{
                 transform: `translateY(${Math.min(scrollY * 0.14, 85)}px)`,
                 opacity: Math.max(0.3, 1 - scrollY / 650),
               }}
             >
-              <h1 className="lisa-hero-title text-[20vw] sm:text-[17vw] lg:text-[13.5rem] xl:text-[16rem] 2xl:text-[19rem] font-normal leading-[0.78] tracking-[-0.055em] select-none text-left cursor-pointer">
+              <h1 className="lisa-hero-title text-[20vw] sm:text-[17vw] lg:text-[13.5rem] xl:text-[16rem] 2xl:text-[19rem] font-normal leading-[0.78] tracking-[-0.055em] select-none text-center cursor-pointer">
                 Lisa<span className="lisa-asterisk text-[#d4a373] inline-block -translate-y-1 sm:-translate-y-4 lg:-translate-y-7 text-[0.52em]">*</span>
               </h1>
             </div>
 
-            {/* Description & Action Block (Right Side, Parallel to Lisa* on Baseline) */}
-            <div className="space-y-4 max-w-xl xl:max-w-2xl text-left lg:pb-2.5 flex flex-col items-start justify-end">
+            {/* Description & Action Block (Centered) */}
+            <div className="space-y-5 max-w-xl xl:max-w-2xl text-center flex flex-col items-center justify-center">
               <div className="space-y-3">
                 <p className="text-base sm:text-lg lg:text-[22px] font-normal text-[#ede8df] tracking-tight leading-snug">
                   Create once. Adapt intelligently. Publish everywhere possible. Learn from performance.
                 </p>
-                <p className="text-sm sm:text-[16px] lg:text-[16.5px] text-[#8a8a93] leading-relaxed max-w-xl">
+                <p className="text-sm sm:text-[16px] lg:text-[16.5px] text-[#8a8a93] leading-relaxed max-w-xl mx-auto">
                   Enterprise-grade, multi-tenant AI content operations operating system (OS). Rather than a simple chat wrapper,{" "}
                   <span className="lisa-warm-glow font-medium">Lisa</span> orchestrates specialized agents with deterministic software safeguards.
                 </p>
               </div>
 
               {/* 1. Hover Glow + 2. Magnetic Button + 3. Gradient Shimmer CTA Button */}
-              <div className="pt-2">
+              <div className="pt-2 flex justify-center">
                 <InteractiveButton
                   href="/register"
                   variant="primary"
