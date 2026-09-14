@@ -198,8 +198,23 @@ Canonical Source Text
 [Agent 5: Quality Reviewer & Scorer]    ── 10-point scorecard evaluation + cliché penalty
          │
    Score < 0.70?
-      ├── Yes ──► [Agent 6: Editorial Refinement Agent] (Targeted 1-retry rewrite)
-      └── No  ──► Pass to Fact-Grounding & Human Approval
+      ├── Yes ──► [Agent 6: Editorial Refinement Agent] ──► (Targeted 1-retry rewrite)
+      │                                                              │
+      └── No  ───────────────────────────────────────────────────────┘
+         │
+         ▼
+[Fact-Grounding & Human Approval]       ── Zero-hallucination verification + human sign-off
+         │
+         ▼
+[Omnichannel Publishing Dispatch]       ── Dispatched via LinkedIn, Discord, Resend, X, etc.
+         │
+         ▼
+[Agent 7: Analytics Normalizer]         ── Normalizes cross-platform impressions, clicks, shares
+         │
+         ▼
+[Agent 8: Opportunity Engine]           ── Detects breakout posts & recommends new content briefs
+         │
+         └───────────────────────────────► Loops back into Canonical Content Studio
 ```
 - **Agent 1 (Intake Analyst):** Deconstructs source documents, isolating key arguments, statistics, and verifiable claims.
 - **Agent 2 (Platform Strategist):** Selects optimal content angles and delivery formats per target channel.
