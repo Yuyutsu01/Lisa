@@ -488,6 +488,9 @@ Lisa/
   cd frontend && npx tsc --noEmit
   ```
 
+### Team Name
+* **ASTRA**
+
 ### Team Members
 * **Shivam Sharma**
 * **Shreya Sah**
