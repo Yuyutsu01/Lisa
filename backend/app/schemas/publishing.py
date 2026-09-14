@@ -5,6 +5,7 @@ from datetime import datetime
 
 class PublishRequest(BaseModel):
     connected_account_id: Optional[str] = None
+    recipient_email: Optional[str] = None
 
 
 class PublishResponse(BaseModel):

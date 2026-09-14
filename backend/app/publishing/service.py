@@ -29,6 +29,7 @@ class PublishingService:
         variant_id: str,
         workspace_id: str,
         connected_account_id: Optional[str] = None,
+        recipient_email: Optional[str] = None,
     ) -> PublishingResult:
         """
         Execute publishing of a variant to its target platform adapter.
@@ -180,6 +181,7 @@ class PublishingService:
             "cta": variant.cta,
             "hashtags": variant.hashtags_json or [],
             "format": variant.format,
+            "recipient_email": recipient_email,
         }
 
         result = await adapter.publish(

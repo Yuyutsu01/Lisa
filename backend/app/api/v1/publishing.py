@@ -47,11 +47,13 @@ async def publish_variant_now(
     """
     service = PublishingService(db)
     connected_account_id = payload.connected_account_id if payload else None
+    recipient_email = payload.recipient_email if payload else None
     
     result = await service.execute_publish(
         variant_id=variant_id,
         workspace_id=workspace_id,
         connected_account_id=connected_account_id,
+        recipient_email=recipient_email,
     )
 
     if not result.success:
