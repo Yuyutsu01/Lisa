@@ -32,6 +32,7 @@ import {
 } from "@/lib/api";
 import { InteractiveButton } from "@/components/InteractiveButton";
 import { DiscordConnectModal } from "@/components/DiscordConnectModal";
+import { EmailConnectModal } from "@/components/EmailConnectModal";
 import { ScrollReveal } from "@/components/ScrollReveal";
 
 const PLATFORM_PRESETS = [
@@ -110,6 +111,7 @@ export default function IntegrationsPage() {
   const [accountId, setAccountId] = useState("");
   const [mockToken, setMockToken] = useState("");
   const [discordModalOpen, setDiscordModalOpen] = useState(false);
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Locked Platform Modal State (Pro features; payments coming soon)
@@ -152,6 +154,12 @@ export default function IntegrationsPage() {
     // Discord uses dedicated webhook verification modal
     if (platformKey === "discord") {
       setDiscordModalOpen(true);
+      return;
+    }
+
+    // Email uses dedicated Resend API key modal
+    if (platformKey === "email") {
+      setEmailModalOpen(true);
       return;
     }
 
@@ -606,6 +614,19 @@ export default function IntegrationsPage() {
             workspaceId={activeWorkspaceId}
             isOpen={discordModalOpen}
             onClose={() => setDiscordModalOpen(false)}
+            onSuccess={(conn) => {
+              setConnections((prev) => [conn, ...prev.filter((c) => c.id !== conn.id)]);
+              loadData(activeWorkspaceId);
+            }}
+          />
+        )}
+
+        {/* Dedicated Email (Resend) Modal */}
+        {activeWorkspaceId && (
+          <EmailConnectModal
+            workspaceId={activeWorkspaceId}
+            isOpen={emailModalOpen}
+            onClose={() => setEmailModalOpen(false)}
             onSuccess={(conn) => {
               setConnections((prev) => [conn, ...prev.filter((c) => c.id !== conn.id)]);
               loadData(activeWorkspaceId);

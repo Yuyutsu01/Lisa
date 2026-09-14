@@ -32,6 +32,7 @@ import {
 import { InteractiveButton } from "@/components/InteractiveButton";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { AIGenerationStreaming } from "@/components/AIGenerationStreaming";
+import { EmailRecipientModal } from "@/components/EmailRecipientModal";
 
 const PLATFORM_LABELS: Record<string, string> = {
   linkedin: "LinkedIn",
@@ -70,6 +71,7 @@ export default function VariantReviewPage({
   const [viewMode, setViewMode] = useState<"preview" | "edit">("preview");
   const [showCanonicalSource, setShowCanonicalSource] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  const [recipientModalOpen, setRecipientModalOpen] = useState(false);
   const [publishedUrls, setPublishedUrls] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -185,9 +187,23 @@ export default function VariantReviewPage({
 
   const handlePublishNow = async () => {
     if (!currentVariant || !activeWorkspaceId) return;
+    // For email platform, prompt for recipient address first
+    if (currentVariant.platform === "email") {
+      setRecipientModalOpen(true);
+      return;
+    }
+    await performPublish();
+  };
+
+  const performPublish = async (recipientEmail?: string) => {
+    if (!currentVariant || !activeWorkspaceId) return;
     try {
       setPublishing(true);
-      const data = await publishingApi.publishVariant(activeWorkspaceId, currentVariant.id);
+      const data = await publishingApi.publishVariant(
+        activeWorkspaceId,
+        currentVariant.id,
+        recipientEmail ? { recipient_email: recipientEmail } : undefined
+      );
       if (data.success) {
         if (data.external_url) {
           setPublishedUrls((prev) => ({ ...prev, [currentVariant.id]: data.external_url! }));
@@ -796,6 +812,18 @@ export default function VariantReviewPage({
             </div>
           </div>
         )}
+
+        {/* Email Recipient Modal */}
+        <EmailRecipientModal
+          isOpen={recipientModalOpen}
+          variantTitle={currentVariant?.title || "Email Variant"}
+          isSubmitting={publishing}
+          onClose={() => setRecipientModalOpen(false)}
+          onConfirm={(recipient) => {
+            setRecipientModalOpen(false);
+            performPublish(recipient);
+          }}
+        />
       </div>
     </AppLayout>
   );

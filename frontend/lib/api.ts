@@ -703,6 +703,25 @@ export const connectionsApi = {
         body: JSON.stringify({ webhook_url: webhookUrl, label: label || null }),
       }
     ),
+  connectEmail: (
+    workspaceId: string,
+    apiKey: string,
+    fromName?: string,
+    fromEmail?: string,
+    label?: string
+  ) =>
+    apiRequest<ConnectedAccount>(
+      `/workspaces/${workspaceId}/connections/email`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          api_key: apiKey,
+          from_name: fromName || null,
+          from_email: fromEmail || null,
+          label: label || null,
+        }),
+      }
+    ),
   disconnect: (workspaceId: string, connectionId: string) =>
     apiRequest<void>(`/workspaces/${workspaceId}/connections/${connectionId}`, {
       method: "DELETE",
@@ -727,7 +746,7 @@ export const publishingApi = {
   publishVariant: (
     workspaceId: string,
     variantId: string,
-    data?: { connected_account_id?: string }
+    data?: { connected_account_id?: string; recipient_email?: string }
   ) =>
     apiRequest<{
       success: boolean;
