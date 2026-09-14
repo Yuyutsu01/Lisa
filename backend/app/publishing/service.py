@@ -94,6 +94,21 @@ class PublishingService:
             acc_res = await self.db.execute(acc_query)
             account = acc_res.scalar_one_or_none()
             if account:
+                if account.expires_at is not None:
+                    now = datetime.now(timezone.utc)
+                    exp = (
+                        account.expires_at
+                        if account.expires_at.tzinfo
+                        else account.expires_at.replace(tzinfo=timezone.utc)
+                    )
+                    if exp < now:
+                        platform_label = (account.platform or "connected account").title()
+                        return PublishingResult(
+                            success=False,
+                            error_message=f"{platform_label} authorization has expired. Please reconnect in Integrations.",
+                            publishing_mode="direct",
+                        )
+
                 account_data = {
                     "account_name": account.account_name,
                     "external_account_id": account.external_account_id,
