@@ -1,14 +1,22 @@
-# Lisa — AI Content Distribution & Repurposing Platform
+<p align="center">
+  <img src="assets/logo.png" alt="Lisa Logo" width="360" />
+</p>
 
-> **Create once. Adapt intelligently. Publish everywhere possible. Learn from performance.**
+<h1 align="center">Lisa — AI Content Distribution & Repurposing Platform</h1>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-indigo.svg)](https://opensource.org/licenses/MIT)
-[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg)](https://fastapi.tiangolo.com)
-[![Next.js 16](https://img.shields.io/badge/Frontend-Next.js%2016%20(App%20Router)-black.svg)](https://nextjs.org)
-[![PostgreSQL / SQLite](https://img.shields.io/badge/Database-SQLAlchemy%202.0%20Async-blue.svg)](https://www.sqlalchemy.org)
-[![Tests](https://img.shields.io/badge/Tests-37%20Passed%20(100%25)-emerald.svg)](backend/tests)
-[![Guardrails](https://img.shields.io/badge/AI%20Guardrails-Active%20%26%20Enforced-indigo.svg)](docs/AI_HARNESSING_AND_GUARDRAILS.md)
-[![Version](https://img.shields.io/badge/Version-1.0.1-blue.svg)](PRODUCT_SPEC.md)
+<p align="center">
+  <strong>Create once. Adapt intelligently. Publish everywhere possible. Learn from performance.</strong>
+</p>
+
+<p align="center">
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-indigo.svg" alt="License: MIT" /></a>
+  <a href="https://fastapi.tiangolo.com"><img src="https://img.shields.io/badge/Backend-FastAPI-009688.svg" alt="FastAPI" /></a>
+  <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Frontend-Next.js%2016%20(App%20Router)-black.svg" alt="Next.js 16" /></a>
+  <a href="https://www.sqlalchemy.org"><img src="https://img.shields.io/badge/Database-SQLAlchemy%202.0%20Async-blue.svg" alt="PostgreSQL / SQLite" /></a>
+  <a href="backend/tests"><img src="https://img.shields.io/badge/Tests-37%20Passed%20(100%25)-emerald.svg" alt="Tests" /></a>
+  <a href="docs/AI_HARNESSING_AND_GUARDRAILS.md"><img src="https://img.shields.io/badge/AI%20Guardrails-Active%20%26%20Enforced-indigo.svg" alt="Guardrails" /></a>
+  <a href="PRODUCT_SPEC.md"><img src="https://img.shields.io/badge/Version-1.0.1-blue.svg" alt="Version" /></a>
+</p>
 
 ---
 
