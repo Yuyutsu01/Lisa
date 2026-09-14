@@ -22,6 +22,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { InteractiveButton } from "@/components/InteractiveButton";
+import { FloatingPlatformLogos } from "@/components/FloatingPlatformLogos";
 
 export default function LisaHomePage() {
   const router = useRouter();
@@ -303,8 +304,11 @@ export default function LisaHomePage() {
             ========================================================================= */}
         <section
           id="hero"
-          className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 sm:px-12 md:px-16 pt-24 pb-12 sm:pb-16 text-center"
+          className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 sm:px-12 md:px-16 pt-24 pb-12 sm:pb-16 text-center overflow-hidden"
         >
+          {/* Subtle Floating Platform Logos (Drifting background marks on desktop) */}
+          <FloatingPlatformLogos />
+
           {/* Centered Single-Column Stack: Lisa* -> Tagline -> Get in Button */}
           <div className="flex flex-col items-center justify-center text-center gap-8 lg:gap-10 max-w-3xl lg:max-w-4xl mx-auto my-auto">
             {/* Monumental Brandmark (Centered) */}
