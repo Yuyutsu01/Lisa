@@ -22,6 +22,8 @@ import {
   Share2,
   Tag,
   ArrowRight,
+  Lock,
+  X as CloseIcon,
 } from "lucide-react";
 import { InteractiveButton } from "@/components/InteractiveButton";
 import { ScrollReveal } from "@/components/ScrollReveal";
@@ -40,10 +42,14 @@ function ContentStudioContent() {
   const [body, setBody] = useState("");
   const [contentType, setContentType] = useState("article");
   const [contentPillar, setContentPillar] = useState("");
+
+  // Premium platform protection (strictly locked; payments coming soon)
+  const PREMIUM_PLATFORMS = ["instagram", "threads", "x"];
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradeTargetPlatform, setUpgradeTargetPlatform] = useState<string | null>(null);
+
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([
     "linkedin",
-    "x",
-    "instagram",
     "discord",
   ]);
   
@@ -59,13 +65,13 @@ function ContentStudioContent() {
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const PLATFORMS = [
-    { id: "linkedin", label: "LinkedIn" },
-    { id: "x", label: "X (Twitter)" },
-    { id: "instagram", label: "Instagram" },
-    { id: "discord", label: "Discord Community" },
-    { id: "threads", label: "Threads" },
-    { id: "email", label: "Newsletter / Email" },
-    { id: "blog", label: "Blog CMS" },
+    { id: "linkedin", label: "LinkedIn", isPremium: false },
+    { id: "discord", label: "Discord Community", isPremium: false },
+    { id: "x", label: "X (Twitter)", isPremium: true },
+    { id: "instagram", label: "Instagram", isPremium: true },
+    { id: "threads", label: "Threads", isPremium: true },
+    { id: "email", label: "Newsletter / Email", isPremium: false },
+    { id: "blog", label: "Blog CMS", isPremium: false },
   ];
 
   useEffect(() => {
@@ -88,7 +94,7 @@ function ContentStudioContent() {
           setContentType(src.content_type || "article");
           setContentPillar(src.content_pillar || "");
           if (src.target_platforms_json && src.target_platforms_json.length > 0) {
-            setSelectedPlatforms(src.target_platforms_json);
+            setSelectedPlatforms(src.target_platforms_json.filter((p: string) => !PREMIUM_PLATFORMS.includes(p)));
           }
           if (src.attached_assets) {
             setAttachedAssets(src.attached_assets);
@@ -229,6 +235,13 @@ function ContentStudioContent() {
   };
 
   const togglePlatform = (id: string) => {
+    const isPremium = PREMIUM_PLATFORMS.includes(id);
+    if (isPremium) {
+      setUpgradeTargetPlatform(id);
+      setShowUpgradeModal(true);
+      return;
+    }
+
     if (selectedPlatforms.includes(id)) {
       setSelectedPlatforms(selectedPlatforms.filter((p) => p !== id));
     } else {
@@ -476,20 +489,33 @@ Our specialized AI agents will read this canonical source, preserve your facts, 
                 <div className="grid grid-cols-2 gap-2.5">
                   {PLATFORMS.map((plat) => {
                     const isSelected = selectedPlatforms.includes(plat.id);
+                    const isLocked = plat.isPremium;
                     return (
                       <button
                         key={plat.id}
                         type="button"
                         onClick={() => togglePlatform(plat.id)}
-                        className={`p-3.5 rounded-xl text-xs sm:text-sm text-left font-medium border transition-all ${
+                        className={`p-3.5 rounded-xl text-xs sm:text-sm text-left font-medium border transition-all relative cursor-pointer ${
                           isSelected
                             ? "bg-[#d4a373]/15 border-[#d4a373]/40 text-[#d4a373] shadow-sm"
+                            : isLocked
+                            ? "bg-white/[0.015] border-white/[0.06] text-[#71717a] hover:border-amber-400/30 hover:bg-white/[0.03]"
                             : "bg-white/[0.02] border-white/[0.06] text-[#8a8a93] hover:bg-white/[0.05]"
                         }`}
                       >
-                        <div className="flex items-center justify-between">
-                          <span>{plat.label}</span>
-                          {isSelected && <span className="w-2 h-2 rounded-full bg-[#d4a373]" />}
+                        <div className="flex items-center justify-between gap-1.5">
+                          <div className="flex items-center gap-1.5 truncate">
+                            {isLocked && <Lock className="w-3.5 h-3.5 text-amber-400/80 shrink-0" />}
+                            <span className="truncate">{plat.label}</span>
+                          </div>
+                          {isSelected ? (
+                            <span className="w-2 h-2 rounded-full bg-[#d4a373] shrink-0" />
+                          ) : isLocked ? (
+                            <span className="text-[9px] font-mono uppercase tracking-wider text-amber-400 bg-amber-400/10 border border-amber-400/20 px-1.5 py-0.5 rounded shrink-0 flex items-center gap-1">
+                              <Lock className="w-2.5 h-2.5" />
+                              Locked
+                            </span>
+                          ) : null}
                         </div>
                       </button>
                     );
@@ -519,23 +545,21 @@ Our specialized AI agents will read this canonical source, preserve your facts, 
                         {p.name} ({p.target_percentage}%)
                       </option>
                     ))}
-                    <option value="General Insights">General Insights</option>
-                    <option value="Product Launch">Product Launch</option>
-                    <option value="Tutorial / How-To">Tutorial / How-To</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs sm:text-[13px] font-mono text-[#85827b] mb-2">Source Format Type</label>
+                  <label className="block text-xs sm:text-[13px] font-mono text-[#85827b] mb-2">Source Type</label>
                   <select
                     value={contentType}
                     onChange={(e) => setContentType(e.target.value)}
                     className="w-full px-4 py-2.5 sm:py-3 rounded-xl bg-black/40 border border-white/[0.08] text-xs sm:text-sm text-[#ede8df] outline-none cursor-pointer focus:border-[#d4a373]/60"
                   >
                     <option value="article">Long-Form Article</option>
-                    <option value="announcement">Product Announcement</option>
-                    <option value="case_study">Case Study / Customer Story</option>
-                    <option value="note">Raw Notes / Brain Dump</option>
+                    <option value="podcast_transcript">Podcast / Audio Transcript</option>
+                    <option value="youtube_video">YouTube Video Script</option>
+                    <option value="changelog">Product Changelog / Release</option>
+                    <option value="press_release">Press Release</option>
                   </select>
                 </div>
               </div>
@@ -545,22 +569,19 @@ Our specialized AI agents will read this canonical source, preserve your facts, 
 
         {/* Version History Modal */}
         {showVersions && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-            <div className="hirael-card w-full max-w-lg p-7 sm:p-8 rounded-2xl sm:rounded-3xl shadow-2xl space-y-5">
-              <div className="flex items-center justify-between border-b border-white/[0.08] pb-4">
-                <h3 className="font-medium text-[#ede8df] text-base sm:text-lg flex items-center gap-2.5">
-                  <History className="w-5 h-5 text-[#d4a373]" />
-                  <span>Version Snapshots</span>
-                </h3>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+            <div className="hirael-card p-6 rounded-2xl max-w-lg w-full space-y-4 max-h-[80vh] flex flex-col">
+              <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+                <h3 className="font-semibold text-[#ede8df] text-base">Version History</h3>
                 <button
                   onClick={() => setShowVersions(false)}
-                  className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-[#ede8df] flex items-center justify-center text-xs font-semibold"
+                  className="text-xs text-[#8a8a93] hover:text-[#ede8df]"
                 >
-                  ✕
+                  Close
                 </button>
               </div>
 
-              <div className="space-y-3 max-h-80 overflow-y-auto pr-1 scrollbar-none">
+              <div className="overflow-y-auto space-y-3 flex-1">
                 {versions.map((v) => (
                   <div
                     key={v.id}
@@ -583,6 +604,67 @@ Our specialized AI agents will read this canonical source, preserve your facts, 
                     </InteractiveButton>
                   </div>
                 ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Premium Upgrade Modal for Instagram, Threads, and Twitter */}
+        {showUpgradeModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+            <div className="w-full max-w-md rounded-[28px] bg-[#0e0e11] border border-amber-400/30 p-6 sm:p-7 shadow-2xl relative">
+              <button
+                onClick={() => setShowUpgradeModal(false)}
+                className="absolute top-5 right-5 w-8 h-8 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-[#8a8a93] hover:text-[#ede8df] flex items-center justify-center transition-colors"
+              >
+                <CloseIcon className="w-4 h-4" />
+              </button>
+
+              <div className="text-center space-y-3 mb-6 pr-6">
+                <div className="w-12 h-12 rounded-2xl bg-amber-400/10 text-amber-400 border border-amber-400/20 flex items-center justify-center mx-auto shadow-inner">
+                  <Lock className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-semibold text-[#ede8df]">Premium Omnichannel Feature</h3>
+                <p className="text-xs text-[#8a8a93] leading-relaxed">
+                  Syndication to <strong className="text-[#ede8df]">Instagram</strong>, <strong className="text-[#ede8df]">Threads</strong>, and <strong className="text-[#ede8df]">X (Twitter)</strong> are reserved for Lisa Pro &amp; Enterprise workspaces.
+                </p>
+              </div>
+
+              <div className="space-y-2.5 p-3.5 rounded-2xl bg-black/40 border border-white/[0.06] text-xs mb-6">
+                <div className="flex items-center gap-2 text-[#ede8df]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                  <span><strong>Instagram:</strong> Automated multi-slide carousels &amp; Reels storyboards</span>
+                </div>
+                <div className="flex items-center gap-2 text-[#ede8df]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                  <span><strong>Threads:</strong> Conversational micro-blogging &amp; viral community hooks</span>
+                </div>
+                <div className="flex items-center gap-2 text-[#ede8df]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                  <span><strong>X (Twitter):</strong> 280-char technical hooks &amp; multi-tweet thread trees</span>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200 text-center space-y-1">
+                  <div className="font-semibold text-amber-300 flex items-center justify-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5" />
+                    <span>Payment Gateway Coming Soon</span>
+                  </div>
+                  <p className="text-[#8a8a93] text-[11.5px] leading-relaxed">
+                    Direct syndication to Instagram, Threads, and X is a paid Pro feature. Free preview is not available; paid checkout will be integrated soon.
+                  </p>
+                </div>
+
+                <InteractiveButton
+                  onClick={() => setShowUpgradeModal(false)}
+                  variant="secondary"
+                  size="md"
+                  magnetic
+                  className="w-full py-2.5 justify-center text-xs sm:text-sm font-medium"
+                >
+                  Got It (Keep Standard Channels)
+                </InteractiveButton>
               </div>
             </div>
           </div>

@@ -19,6 +19,7 @@ import {
   Camera,
   MessageSquare,
   Tv,
+  Lock,
 } from "lucide-react";
 
 import {
@@ -41,6 +42,7 @@ const PLATFORM_PRESETS = [
     color: "text-[#ede8df] bg-white/[0.04] border-white/[0.08]",
     formats: ["Text Post", "Single Image", "Document Carousel", "Article"],
     desc: "Target B2B decision makers and thought leadership essays. Client ID configured.",
+    isPremium: false,
   },
   {
     key: "x",
@@ -49,6 +51,7 @@ const PLATFORM_PRESETS = [
     color: "text-[#a6a39b] bg-white/[0.03] border-white/[0.06]",
     formats: ["Single Tweet", "Multi-Tweet Thread", "280-char Hook"],
     desc: "Short-form punchy takes, insights threads, and high-frequency engagement.",
+    isPremium: true,
   },
   {
     key: "instagram",
@@ -57,6 +60,7 @@ const PLATFORM_PRESETS = [
     color: "text-pink-400 bg-pink-500/10 border-pink-500/20",
     formats: ["Square Feed (1:1)", "Portrait (4:5)", "Reels (9:16)", "Carousel"],
     desc: "Visual storytelling & carousel guides. Manual Export & Creator Studio Mode active (no Client ID required).",
+    isPremium: true,
   },
   {
     key: "discord",
@@ -65,6 +69,7 @@ const PLATFORM_PRESETS = [
     color: "text-indigo-400 bg-indigo-500/10 border-indigo-500/20",
     formats: ["Community Announcement", "Developer Forum Post", "Channel Thread"],
     desc: "Webhook & Bot integration for instant broadcast and community discussion prompts.",
+    isPremium: false,
   },
   {
     key: "threads",
@@ -73,6 +78,7 @@ const PLATFORM_PRESETS = [
     color: "text-[#ede8df] bg-white/[0.04] border-white/[0.08]",
     formats: ["Conversational Post", "Micro-Blog"],
     desc: "Meta's text network for open conversations and community discussion.",
+    isPremium: true,
   },
   {
     key: "email",
@@ -106,11 +112,20 @@ export default function IntegrationsPage() {
   const [discordModalOpen, setDiscordModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Locked Platform Modal State (Pro features; payments coming soon)
+  const [lockedPlatformNotice, setLockedPlatformNotice] = useState<string | null>(null);
+
   // LinkedIn OAuth State
   const [oauthLoading, setOauthLoading] = useState(false);
   const [oauthError, setOauthError] = useState<string | null>(null);
 
   const openConnectModal = async (platformKey: string) => {
+    const preset = PLATFORM_PRESETS.find((p) => p.key === platformKey);
+    if (preset?.isPremium) {
+      setLockedPlatformNotice(preset.name);
+      return;
+    }
+
     // LinkedIn uses real OAuth 2.0 — redirect to LinkedIn authorization
     if (platformKey === "linkedin" && activeWorkspaceId) {
       setOauthLoading(true);
@@ -317,7 +332,14 @@ export default function IntegrationsPage() {
                             <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-[#d4a373]" />
                           </div>
                           <div>
-                            <h3 className="font-medium text-[#ede8df] text-base sm:text-lg">{preset.name}</h3>
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-medium text-[#ede8df] text-base sm:text-lg">{preset.name}</h3>
+                              {preset.isPremium && (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-wider text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-full">
+                                  <Lock className="w-2.5 h-2.5" /> Locked
+                                </span>
+                              )}
+                            </div>
                             <span
                               className={`inline-flex items-center gap-1.5 text-xs font-mono px-2.5 py-0.5 rounded-full mt-1 ${
                                 isConnected
@@ -403,13 +425,13 @@ export default function IntegrationsPage() {
                       ) : (
                         <InteractiveButton
                           onClick={() => openConnectModal(preset.key)}
-                          variant="secondary"
+                          variant={preset.isPremium ? "secondary" : "secondary"}
                           size="md"
                           magnetic
-                          leftIcon={<Plus className="w-4 h-4 text-[#d4a373]" />}
+                          leftIcon={preset.isPremium ? <Lock className="w-4 h-4 text-amber-400" /> : <Plus className="w-4 h-4 text-[#d4a373]" />}
                           className="w-full py-2.5 sm:py-3 text-xs sm:text-sm justify-center font-medium"
                         >
-                          Connect {preset.name}
+                          {preset.isPremium ? `Unlock ${preset.name} (Pro)` : `Connect ${preset.name}`}
                         </InteractiveButton>
                       )}
                     </div>
@@ -589,6 +611,51 @@ export default function IntegrationsPage() {
               loadData(activeWorkspaceId);
             }}
           />
+        )}
+
+        {/* Locked Pro Integration Notice Modal */}
+        {lockedPlatformNotice && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
+            <div className="hirael-card p-6 sm:p-7 max-w-md w-full shadow-2xl space-y-5 rounded-2xl sm:rounded-3xl border border-amber-400/30 relative">
+              <button
+                onClick={() => setLockedPlatformNotice(null)}
+                className="absolute top-5 right-5 w-8 h-8 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-[#8a8a93] hover:text-[#ede8df] flex items-center justify-center transition-colors text-sm"
+              >
+                ✕
+              </button>
+
+              <div className="text-center space-y-3 pt-2">
+                <div className="w-12 h-12 rounded-2xl bg-amber-400/10 text-amber-400 border border-amber-400/20 flex items-center justify-center mx-auto shadow-inner">
+                  <Lock className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-semibold text-[#ede8df]">
+                  {lockedPlatformNotice} is a Pro Feature
+                </h3>
+                <p className="text-xs text-[#8a8a93] leading-relaxed">
+                  Syndication to {lockedPlatformNotice} is reserved for Lisa Pro &amp; Enterprise workspaces. Free preview is not available; payment &amp; subscription checkout will be added in an upcoming update.
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200 text-center space-y-1">
+                  <span className="font-semibold text-amber-300 block">💳 Payment Integration Coming Soon</span>
+                  <span className="text-[#8a8a93] text-[11.5px] leading-relaxed block">
+                    We will be adding subscription checkout soon. Standard channels remain available.
+                  </span>
+                </div>
+
+                <InteractiveButton
+                  onClick={() => setLockedPlatformNotice(null)}
+                  variant="secondary"
+                  size="md"
+                  magnetic
+                  className="w-full py-2.5 justify-center text-xs sm:text-sm font-medium"
+                >
+                  Understood
+                </InteractiveButton>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </AppLayout>
