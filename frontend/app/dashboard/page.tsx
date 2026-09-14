@@ -209,23 +209,23 @@ export default function DashboardPage() {
         {/* Multi-Platform Health & Queue Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Platform Status Matrix */}
-          <div className="hirael-card p-6 sm:p-7 lg:col-span-1 space-y-4 rounded-2xl flex flex-col justify-between">
+          <div className="hirael-card p-5 sm:p-6 lg:col-span-1 rounded-2xl flex flex-col justify-between overflow-hidden">
             <div>
               <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
                 <h2 className="font-semibold text-[#ede8df] text-sm sm:text-base lg:text-[17px] flex items-center gap-2">
-                  <Share2 className="w-4 h-4 text-[#d4a373]" />
-                  Platform Adapters
+                  <Share2 className="w-4 h-4 text-[#d4a373] shrink-0" />
+                  <span className="truncate">Platform Adapters</span>
                 </h2>
                 <Link
                   href="/integrations"
-                  className="text-xs sm:text-sm text-[#a6a39b] hover:text-[#ede8df] flex items-center gap-1 font-medium transition-colors"
+                  className="text-xs sm:text-sm text-[#a6a39b] hover:text-[#ede8df] flex items-center gap-1 font-medium transition-colors shrink-0"
                 >
                   <span>Manage</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
 
-              <div className="space-y-3 pt-2">
+              <div className="space-y-2.5 pt-2.5">
                 {[
                   { key: "linkedin", name: "LinkedIn", mode: "OAuth 2.0 (Client ID)", isPremium: false },
                   { key: "instagram", name: "Instagram", mode: "Manual Studio Export", isPremium: true },
@@ -243,35 +243,35 @@ export default function DashboardPage() {
                     <Link
                       key={plat.name}
                       href="/integrations"
-                      className="flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.12] transition-colors group cursor-pointer"
+                      className="flex items-center justify-between gap-2.5 p-3 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.12] transition-colors group cursor-pointer overflow-hidden"
                     >
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <p className="font-medium text-[#ede8df] text-xs sm:text-sm lg:text-[14.5px]">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <p className="font-medium text-[#ede8df] text-xs sm:text-[13.5px] truncate">
                             {plat.name}
                           </p>
                           {plat.isPremium && (
-                            <span className="inline-flex items-center gap-0.5 text-[9px] font-mono uppercase tracking-wider text-amber-400 bg-amber-400/10 border border-amber-400/20 px-1.5 py-0.5 rounded">
-                              <Lock className="w-2.5 h-2.5" /> Pro
+                            <span className="shrink-0 inline-flex items-center gap-0.5 text-[8.5px] font-mono uppercase tracking-wider text-amber-400 bg-amber-400/10 border border-amber-400/20 px-1.5 py-0.2 rounded">
+                              <Lock className="w-2 h-2" /> Pro
                             </span>
                           )}
                         </div>
-                        <p className="text-[11px] sm:text-xs text-[#71717a] mt-0.5">
+                        <p className="text-[11px] text-[#71717a] mt-0.5 truncate">
                           {isConnected && conn.account_name ? conn.account_name : plat.mode}
                         </p>
                       </div>
 
-                      <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-mono">
+                      <div className="shrink-0 flex items-center gap-1.5 text-[10.5px] sm:text-[11px] font-mono whitespace-nowrap">
                         {isConnected ? (
                           <div className="flex items-center gap-1.5 text-emerald-400">
-                            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                             <span>
                               {conn.status === "manual_export_only" ? "Ready" : "Connected"}
                             </span>
                           </div>
                         ) : (
                           <div className="flex items-center gap-1.5 text-[#71717a] group-hover:text-[#a6a39b] transition-colors">
-                            <span className="w-2 h-2 rounded-full bg-[#71717a]/40" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#71717a]/40" />
                             <span>Not Connected</span>
                           </div>
                         )}
@@ -283,16 +283,16 @@ export default function DashboardPage() {
             </div>
 
             {/* Platform Integration Redirect CTA Button with precise helper line */}
-            <div className="pt-4 mt-2 border-t border-white/[0.06] space-y-2">
+            <div className="pt-3 mt-3 border-t border-white/[0.06] space-y-1.5">
               <Link
                 href="/integrations"
-                className="w-full py-2.5 sm:py-3 px-4 rounded-xl bg-[#d4a373]/15 hover:bg-[#d4a373]/25 border border-[#d4a373]/40 text-[#ede8df] text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all shadow-sm group"
+                className="w-full py-2.5 px-3 rounded-xl bg-[#d4a373]/15 hover:bg-[#d4a373]/25 border border-[#d4a373]/40 text-[#ede8df] text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all shadow-sm group whitespace-nowrap"
               >
-                <Share2 className="w-4 h-4 text-[#d4a373]" />
-                <span>Connect Platform Integrations</span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#d4a373] transition-transform group-hover:translate-x-0.5" />
+                <Share2 className="w-4 h-4 text-[#d4a373] shrink-0" />
+                <span>Connect Platforms</span>
+                <ArrowRight className="w-3.5 h-3.5 text-[#d4a373] shrink-0 transition-transform group-hover:translate-x-0.5" />
               </Link>
-              <p className="text-[11px] sm:text-xs text-[#8a8a93] text-center leading-relaxed">
+              <p className="text-[11px] text-[#8a8a93] text-center leading-relaxed">
                 Before creating a post, connect to platform for the post.
               </p>
             </div>
