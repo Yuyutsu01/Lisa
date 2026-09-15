@@ -331,8 +331,7 @@ export default function LisaHomePage() {
                   Create once. Adapt intelligently. Publish everywhere possible. Learn from performance.
                 </p>
                 <p className="text-sm sm:text-[16px] lg:text-[16.5px] text-[#8a8a93] leading-relaxed max-w-xl mx-auto">
-                  Enterprise-grade, multi-tenant AI content operations operating system (OS). Rather than a simple chat wrapper,{" "}
-                  <span className="lisa-warm-glow font-medium">Lisa</span> orchestrates specialized agents with deterministic software safeguards.
+                  Write something once. <span className="lisa-warm-glow font-medium">Lisa&apos;s</span> AI agents rewrite it for LinkedIn, X, Instagram, Discord, and email. You approve, and it publishes everywhere automatically.
                 </p>
               </div>
 

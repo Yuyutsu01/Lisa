@@ -366,22 +366,36 @@ Lisa aggregates cross-platform metrics (impressions, clicks, shares, engagement)
 
 ---
 
-### Step-by-Step User Walkthrough
+### Quick Walkthrough: From Sign-Up to Live LinkedIn Post
 
-1. **Log In:**
-   - Sign in at `http://localhost:3000/login` with your credentials (e.g. `admin@lisa.ai` / `Password123!`).
-2. **Configure Brand Voice (`/brand`):**
-   - Set your tone adjectives, content pillars, audience personas, and prohibited keywords to guarantee consistent brand identity across all platforms.
-3. **Connect Distribution Channels (`/integrations`):**
-   - **LinkedIn:** Connect with one-click OAuth 2.0.
-   - **Discord:** Paste your channel's Incoming Webhook URL and verify the connection.
-   - **Email:** Connect your Resend API key and sender identity via the dedicated modal.
-4. **Ingest Canonical Content (`/content`):**
-   - Click **"New Source"**, paste your core article or transcript, select target networks, and click **"Generate Multi-Platform Variants"**.
-5. **Inspect, Edit & Approve (`/content/[id]/variants`):**
-   - Review drafts in native feed simulators, check the 10-point scorecard, make inline edits, and click **"Approve"**.
-6. **Publish & Track (`/calendar` & `/analytics`):**
-   - Click **"Publish Now"** to dispatch immediately to connected platforms and track live engagement.
+Follow this rapid workflow to go from a new user account to a verified live publication on LinkedIn:
+
+1. **Register (`/register`):**
+   - Navigate to `/register` (or click **"Get in"** from the landing page).
+   - Enter your **Full Name**, **Work Email**, **Password**, and **Workspace Name** to initialize your workspace and sign in.
+
+2. **Connect LinkedIn in Integrations (`/integrations`):**
+   - Click **"Integrations"** in the top navigation bar.
+   - Locate the **LinkedIn** channel card and click **"Connect"**.
+   - Authenticate with LinkedIn via the OAuth 2.0 prompt and grant member permissions (`openid profile email w_member_social`).
+   - Upon redirect, the card badge will update from *Not Connected* to a green **"Connected"** status.
+
+3. **Draft a Post in Content Studio (`/content`):**
+   - Click **"Content"** in the navigation bar and click **"+ New Source"**.
+   - Enter a **Title** (e.g. *"Our Engineering Philosophy"*) and paste your article, product notes, or announcement into the **Source Content Body**.
+   - Under **Target Channels**, select **LinkedIn**.
+   - Click **"Generate Multi-Platform Variants"** — Lisa's 8-agent swarm decomposes the core narrative, crafts a scroll-stopping hook, and formats a platform-native post.
+
+4. **Approve Variant (`/content/[id]/variants`):**
+   - In the variants review studio, select the **LinkedIn** tab.
+   - Review your post inside the **"Native Preview"** feed simulator and inspect the **"Local Heuristic Pre-Check"** (10-point quality scorecard).
+   - Once satisfied (or after making adjustments in the **"Full Editor"**), click **"Approve Variant"** in the top action bar.
+
+5. **Publish to Live Feed:**
+   - Once approved, the button transforms into **"Publish Now"**. Click it.
+   - Lisa dispatches the post through the official LinkedIn REST API with SHA-256 idempotency protection.
+   - A success banner confirms: *"LinkedIn post successfully dispatched to target platform adapter!"*
+   - Click **"View Live Post →"** to open your live publication on LinkedIn in a new tab!
 
 ---
 
