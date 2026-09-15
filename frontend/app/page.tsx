@@ -397,7 +397,7 @@ export default function LisaHomePage() {
                   stage: "02",
                   icon: Link2,
                   title: "Connect Your Platforms",
-                  desc: "From the Integrations page, connect LinkedIn, Discord, X, Instagram, and email. Each connection is verified and stored securely in one click.",
+                  desc: "From the Integrations page, connect LinkedIn or Discord. Each connection is verified and stored securely in one click.",
                   delay: 80,
                 },
                 {
