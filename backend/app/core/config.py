@@ -87,6 +87,11 @@ class Settings(BaseSettings):
     LINKEDIN_REDIRECT_URI: str = "http://localhost:8000/api/v1/oauth/linkedin/callback"
     FRONTEND_URL: str = "http://localhost:3000/integrations"
 
+    # Google OAuth
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
+    GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/v1/oauth/google/callback"
+
     # LLM Provider Configuration
     # Supports Groq (Llama 3.3 70B), OpenAI (GPT-4o), Gemini, or Anthropic
     GROQ_API_KEY: str = ""

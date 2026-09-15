@@ -18,6 +18,7 @@ from app.api.v1.analytics import router as analytics_router
 from app.api.v1.audit import router as audit_router
 from app.api.v1.ws import router as ws_router
 from app.api.v1.linkedin_oauth import router as linkedin_oauth_router
+from app.api.v1.google_oauth import router as google_oauth_router
 from app.api.v1.discord_connection import router as discord_connection_router
 from app.api.v1.email_connection import router as email_connection_router
 
@@ -36,6 +37,7 @@ api_router.include_router(connections_router)
 api_router.include_router(discord_connection_router)
 api_router.include_router(email_connection_router)
 api_router.include_router(linkedin_oauth_router)
+api_router.include_router(google_oauth_router)
 api_router.include_router(publishing_router)
 api_router.include_router(analytics_router)
 api_router.include_router(audit_router)

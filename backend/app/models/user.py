@@ -24,7 +24,10 @@ class User(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     email = Column(String(255), unique=True, index=True, nullable=False)
     name = Column(String(255), nullable=False)
-    password_hash = Column(String(255), nullable=False)
+    # Authentication & credentials
+    password_hash = Column(String(255), nullable=True)
+    google_id = Column(String(255), unique=True, nullable=True, index=True)
+    auth_provider = Column(String(50), default="local", nullable=False)
     status = Column(String(50), default=UserStatus.ACTIVE.value, nullable=False)
 
     created_at = Column(

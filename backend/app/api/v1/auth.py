@@ -130,7 +130,22 @@ async def login(
     )
     user = result.scalar_one_or_none()
 
-    if not user or not verify_password(credentials.password, user.password_hash):
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Prevent password login for accounts registered purely via OAuth
+    if user.password_hash is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="This account uses Google sign-in. Please click 'Continue with Google'.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    if not verify_password(credentials.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
