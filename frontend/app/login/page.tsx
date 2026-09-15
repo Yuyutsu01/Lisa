@@ -1,17 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { authApi, setToken, setActiveWorkspaceId, workspacesApi } from "@/lib/api";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 import { Lock, Mail, ArrowRight, Sparkles, KeyRound, CheckCircle2, X } from "lucide-react";
 
-export default function LoginPage() {
+function LoginFormContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Capture and display any Google OAuth callback errors returned via query parameters
+  useEffect(() => {
+    const googleError = searchParams?.get("google_error");
+    if (googleError) {
+      setError(decodeURIComponent(googleError));
+      // Clean query parameter from address bar
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [searchParams]);
 
   // Forgot Password Modal State
   const [showForgotModal, setShowForgotModal] = useState(false);
@@ -198,7 +210,20 @@ export default function LoginPage() {
           </div>
         </form>
 
-        <div className="mt-8 text-center text-xs text-[#787672] border-t border-white/[0.06] pt-5">
+        {/* OR Divider */}
+        <div className="relative my-5">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-white/[0.08]" />
+          </div>
+          <div className="relative flex justify-center text-xs">
+            <span className="px-3 bg-[#0e0e11] text-[#8a8a93] font-mono text-[11px] uppercase tracking-wider">OR</span>
+          </div>
+        </div>
+
+        {/* Google Sign-in */}
+        <GoogleSignInButton action="login" onError={(msg) => setError(msg)} />
+
+        <div className="mt-6 text-center text-xs text-[#787672] border-t border-white/[0.06] pt-5">
           Don&apos;t have an account yet?{" "}
           <Link href="/register" className="text-[#d4a373] hover:text-[#ede8df] transition-colors font-medium">
             Create an account
@@ -366,5 +391,13 @@ export default function LoginPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#08080a]" />}>
+      <LoginFormContent />
+    </Suspense>
   );
 }

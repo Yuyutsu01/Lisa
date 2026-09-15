@@ -220,9 +220,18 @@ async def google_oauth_callback(
             )
 
         if token_res.status_code != 200:
+            try:
+                err_json = token_res.json()
+                err_detail = (
+                    err_json.get("error_description")
+                    or err_json.get("error")
+                    or token_res.text[:200]
+                )
+            except Exception:
+                err_detail = token_res.text[:200] or "unknown_error"
             return RedirectResponse(
                 url=_build_frontend_redirect(
-                    {"google": "error", "message": "Google token exchange failed"}
+                    {"google": "error", "message": f"Token exchange failed: {err_detail}"}
                 )
             )
 
@@ -249,9 +258,18 @@ async def google_oauth_callback(
             )
 
         if userinfo_res.status_code != 200:
+            try:
+                err_json = userinfo_res.json()
+                err_detail = (
+                    err_json.get("error_description")
+                    or err_json.get("error")
+                    or userinfo_res.text[:200]
+                )
+            except Exception:
+                err_detail = userinfo_res.text[:200] or "unknown_error"
             return RedirectResponse(
                 url=_build_frontend_redirect(
-                    {"google": "error", "message": "Could not retrieve Google profile"}
+                    {"google": "error", "message": f"Profile fetch failed: {err_detail}"}
                 )
             )
 

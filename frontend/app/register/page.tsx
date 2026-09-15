@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { authApi, setToken, setActiveWorkspaceId } from "@/lib/api";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 import { Lock, Mail, User, ArrowRight, Sparkles, CheckCircle2 } from "lucide-react";
 
-export default function RegisterPage() {
+function RegisterFormContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,6 +17,16 @@ export default function RegisterPage() {
   const [emailTouched, setEmailTouched] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Capture and display any Google OAuth callback errors returned via query parameters
+  useEffect(() => {
+    const googleError = searchParams?.get("google_error");
+    if (googleError) {
+      setError(decodeURIComponent(googleError));
+      // Clean query parameter from address bar
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [searchParams]);
 
   // Validate full/brand name: length, forbidden chars, and unicode letter presence
   const getNameError = (val: string): string | null => {
@@ -190,6 +202,19 @@ export default function RegisterPage() {
           </div>
         </form>
 
+        {/* OR Divider */}
+        <div className="relative my-5">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-white/[0.08]" />
+          </div>
+          <div className="relative flex justify-center text-xs">
+            <span className="px-3 bg-[#0e0e11] text-[#8a8a93] font-mono text-[11px] uppercase tracking-wider">OR</span>
+          </div>
+        </div>
+
+        {/* Google Sign-in */}
+        <GoogleSignInButton action="register" onError={(msg) => setError(msg)} />
+
         <div className="mt-6 pt-5 border-t border-white/[0.06] space-y-2">
           <div className="flex items-center gap-2 text-xs text-[#8a8a93]">
             <CheckCircle2 className="w-3.5 h-3.5 text-[#d4a373] shrink-0" />
@@ -219,5 +244,13 @@ export default function RegisterPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#08080a]" />}>
+      <RegisterFormContent />
+    </Suspense>
   );
 }
