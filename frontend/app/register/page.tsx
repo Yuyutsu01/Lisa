@@ -11,16 +11,56 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [nameTouched, setNameTouched] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Validate full/brand name: length, forbidden chars, and unicode letter presence
+  const getNameError = (val: string): string | null => {
+    const trimmed = val.trim();
+    if (!trimmed) return "Name is required";
+    if (trimmed.length < 2 || trimmed.length > 100) {
+      return "Name must be between 2 and 100 characters";
+    }
+    if (/[<>{}[\]\\/|";]/.test(trimmed)) {
+      return 'Name cannot contain < > { } [ ] \\ / | " ;';
+    }
+    // Check for at least one Unicode letter (supports international characters)
+    if (!/\p{L}/u.test(trimmed)) {
+      return "Name must contain at least one letter";
+    }
+    return null;
+  };
+
+  // Validate email against standard email pattern
+  const getEmailError = (val: string): string | null => {
+    const trimmed = val.trim();
+    if (!trimmed) return "Email is required";
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(trimmed)) {
+      return "Please enter a valid email address";
+    }
+    return null;
+  };
+
+  const nameError = getNameError(name);
+  const emailError = getEmailError(email);
+  // Form submission gate covering name and email validation
+  const isFormValid = !nameError && !emailError;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setNameTouched(true);
+    setEmailTouched(true);
+
+    if (!isFormValid) return;
+
     setError(null);
     setLoading(true);
 
     try {
-      const response = await authApi.register({ name, email, password });
+      const response = await authApi.register({ name: name.trim(), email: email.trim(), password });
       setToken(response.token.access_token);
       setActiveWorkspaceId(response.workspace_id);
 
@@ -73,10 +113,18 @@ export default function RegisterPage() {
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                onBlur={() => setNameTouched(true)}
                 placeholder="Alex Rivers"
-                className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-black/50 border border-white/10 text-xs sm:text-sm text-[#ede8df] placeholder-[#6b6965] focus:border-white/30 focus:outline-none transition-all"
+                className={`w-full pl-10 pr-4 py-2.5 rounded-2xl bg-black/50 border text-xs sm:text-sm text-[#ede8df] placeholder-[#6b6965] transition-all ${
+                  nameTouched && nameError
+                    ? "border-rose-500/50 focus:border-rose-500/80 focus:outline-none"
+                    : "border-white/10 focus:border-white/30 focus:outline-none"
+                }`}
               />
             </div>
+            {nameTouched && nameError && (
+              <p className="text-[11px] text-rose-400 mt-1 pl-1">{nameError}</p>
+            )}
           </div>
 
           <div>
@@ -90,10 +138,18 @@ export default function RegisterPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onBlur={() => setEmailTouched(true)}
                 placeholder="alex@creator.io"
-                className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-black/50 border border-white/10 text-xs sm:text-sm text-[#ede8df] placeholder-[#6b6965] focus:border-white/30 focus:outline-none transition-all"
+                className={`w-full pl-10 pr-4 py-2.5 rounded-2xl bg-black/50 border text-xs sm:text-sm text-[#ede8df] placeholder-[#6b6965] transition-all ${
+                  emailTouched && emailError
+                    ? "border-rose-500/50 focus:border-rose-500/80 focus:outline-none"
+                    : "border-white/10 focus:border-white/30 focus:outline-none"
+                }`}
               />
             </div>
+            {emailTouched && emailError && (
+              <p className="text-[11px] text-rose-400 mt-1 pl-1">{emailError}</p>
+            )}
           </div>
 
           <div>
@@ -117,8 +173,8 @@ export default function RegisterPage() {
           <div className="pt-2">
             <button
               type="submit"
-              disabled={loading}
-              className="w-full py-3 px-5 rounded-full bg-[#ede8df] hover:bg-white text-[#08080a] font-medium text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition-all duration-200 disabled:opacity-50 cursor-pointer group"
+              disabled={loading || !isFormValid}
+              className="w-full py-3 px-5 rounded-full bg-[#ede8df] hover:bg-white text-[#08080a] font-medium text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer group"
             >
               {loading ? (
                 <span>Setting up workspace...</span>
